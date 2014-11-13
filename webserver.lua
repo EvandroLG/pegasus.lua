@@ -1,11 +1,11 @@
 require 'socket'
 
 DEFAULT_ERROR_MESSAGE = [[
-    <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
-        "http://www.w3.org/TR/html4/strict.dtd">
+    <!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN'
+        'http://www.w3.org/TR/html4/strict.dtd'>
     <html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+        <meta http-equiv='Content-Type' content='text/html;charset=utf-8'>
         <title>Error response</title>
     </head>
     <body>
@@ -17,4 +17,49 @@ DEFAULT_ERROR_MESSAGE = [[
     </html>
 ]]
 
-print(DEFAULT_ERROR_MESSAGE)
+DEFAULT_ERROR_CONTENT_TYPE = 'text/html;charset=utf-8'
+
+RESPONSES = {
+    s100 = 'Continue',
+    s101 = 'Switching Protocols',
+    s200 = 'OK',
+    s201 = 'Created',
+    s202 = 'Accepted',
+    s203 = 'Non-Authoritative Information',
+    s204 = 'No Content',
+    s205 = 'Reset Content',
+    s206 = 'Partial Content',
+    s300 = 'Multiple Choices',
+    s301 = 'Moved Permanently',
+    s302 = 'Found',
+    s303 = 'See Other',
+    s304 = 'Not Modified',
+    s305 = 'Use Proxy',
+    s307 = 'Temporary Redirect',
+    s400 = 'Bad Request',
+    s401 = 'Unauthorized',
+    s402 = 'Payment Required',
+    s403 = 'Forbidden',
+    s404 = 'Not Found',
+    s405 = 'Method Not Allowed',
+    s406 = 'Not Acceptable',
+    s407 = 'Proxy Authentication Required',
+    s408 = 'Request Time-out',
+    s409 = 'Conflict',
+    s410 = 'Gone',
+    s411 = 'Length Required',
+    s412 = 'Precondition Failed',
+    s413 = 'Request Entity Too Large',
+    s414 = 'Request-URI Too Large',
+    s415 = 'Unsupported Media Type',
+    s416 = 'Requested range not satisfiable',
+    s417 = 'Expectation Failed',
+    s500 = 'Internal Server Error',
+    s501 = 'Not Implemented',
+    s502 = 'Bad Gateway',
+    s503 = 'Service Unavailable',
+    s504 = 'Gateway Time-out',
+    s505 = 'HTTP Version not supported',
+}
+
+print(RESPONSES['s505'])
