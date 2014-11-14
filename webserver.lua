@@ -1,4 +1,4 @@
-require 'socket'
+socket = require 'socket'
 
 DEFAULT_ERROR_MESSAGE = [[
     <!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN'
@@ -62,4 +62,54 @@ RESPONSES = {
     s505 = 'HTTP Version not supported',
 }
 
-print(RESPONSES['s505'])
+HTTPServer = {}
+
+function HTTPServer:new(port)
+    local self = {}
+    self.port = port
+    setmetatable(self, { __index = HTTPServer })
+
+    return self
+end
+
+function HTTPServer:bind(self)
+    local server = assert(socket.bind("*", self.port))
+    local ip, port = server:getsockname()
+    print("Please telnet to localhost on port " .. self.port)
+
+    while 1 do
+      local client = server:accept()
+      client:settimeout(10)
+      local line, err = client:receive()
+      if not err then client:send(line .. "\n") end
+      client:close()
+    end
+end
+
+function HTTPServer:doGet()
+end
+
+function HTTPServer:sendHead()
+end
+
+http = HTTPServer:new(8080)
+http.bind(http)
+-- local server = assert(socket.bind("*", 0))
+-- -- find out which port the OS chose for us
+-- local ip, port = server:getsockname()
+-- -- print a message informing what's up
+-- print("Please telnet to localhost on port " .. port)
+-- print("After connecting, you have 10s to enter a line to be echoed")
+-- -- loop forever waiting for clients
+-- while 1 do
+--   -- wait for a connection from any client
+--   local client = server:accept()
+--   -- make sure we don't block waiting for this client's line
+--   client:settimeout(10)
+--   -- receive the line
+--   local line, err = client:receive()
+--   -- if there was no error, send it back to the client
+--   if not err then client:send(line .. "\n") end
+--   -- done with client, close the object
+--   client:close()
+-- end
