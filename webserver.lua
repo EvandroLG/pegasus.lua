@@ -10,8 +10,8 @@ DEFAULT_ERROR_MESSAGE = [[
     </head>
     <body>
         <h1>Error response</h1>
-        <p>Error code: %(code)</p>
-        <p>Message: %(message).</p>
+        <p>Error code: {{ CODE }}</p>
+        <p>Message: {{ MESSAGE }}.</p>
     </body>
     </html>
 ]]
@@ -19,46 +19,46 @@ DEFAULT_ERROR_MESSAGE = [[
 DEFAULT_HEAD = 'HTTP/1.1 {{ STATUS_CODE }} OK\r\nContent-Type: text/html;charset=utf-8\r\n\r\n'
 
 RESPONSES = {
-    s200 = { code = '200', response = 'Continue' },
-    s101 = 'Switching Protocols',
-    s200 = 'OK',
-    s201 = 'Created',
-    s202 = 'Accepted',
-    s203 = 'Non-Authoritative Information',
-    s204 = 'No Content',
-    s205 = 'Reset Content',
-    s206 = 'Partial Content',
-    s300 = 'Multiple Choices',
-    s301 = 'Moved Permanently',
-    s302 = 'Found',
-    s303 = 'See Other',
-    s304 = 'Not Modified',
-    s305 = 'Use Proxy',
-    s307 = 'Temporary Redirect',
-    s400 = 'Bad Request',
-    s401 = 'Unauthorized',
-    s402 = 'Payment Required',
-    s403 = 'Forbidden',
-    s404 = { code = '404', response = 'Not Found' },
-    s405 = 'Method Not Allowed',
-    s406 = 'Not Acceptable',
-    s407 = 'Proxy Authentication Required',
-    s408 = 'Request Time-out',
-    s409 = 'Conflict',
-    s410 = 'Gone',
-    s411 = 'Length Required',
-    s412 = 'Precondition Failed',
-    s413 = 'Request Entity Too Large',
-    s414 = 'Request-URI Too Large',
-    s415 = 'Unsupported Media Type',
-    s416 = 'Requested range not satisfiable',
-    s417 = 'Expectation Failed',
-    s500 = 'Internal Server Error',
-    s501 = 'Not Implemented',
-    s502 = 'Bad Gateway',
-    s503 = 'Service Unavailable',
-    s504 = 'Gateway Time-out',
-    s505 = 'HTTP Version not supported',
+    [100] = 'Continue',
+    [101] = 'Switching Protocols',
+    [200] = 'OK',
+    [201] = 'Created',
+    [202] = 'Accepted',
+    [203] = 'Non-Authoritative Information',
+    [204] = 'No Content',
+    [205] = 'Reset Content',
+    [206] = 'Partial Content',
+    [300] = 'Multiple Choices',
+    [301] = 'Moved Permanently',
+    [302] = 'Found',
+    [303] = 'See Other',
+    [304] = 'Not Modified',
+    [305] = 'Use Proxy',
+    [307] = 'Temporary Redirect',
+    [400] = 'Bad Request',
+    [401] = 'Unauthorized',
+    [402] = 'Payment Required',
+    [403] = 'Forbidden',
+    [404] = 'Not Found',
+    [405] = 'Method Not Allowed',
+    [406] = 'Not Acceptable',
+    [407] = 'Proxy Authentication Required',
+    [408] = 'Request Time-out',
+    [409] = 'Conflict',
+    [410] = 'Gone',
+    [411] = 'Length Required',
+    [412] = 'Precondition Failed',
+    [413] = 'Request Entity Too Large',
+    [414] = 'Request-URI Too Large',
+    [415] = 'Unsupported Media Type',
+    [416] = 'Requested range not satisfiable',
+    [417] = 'Expectation Failed',
+    [500] = 'Internal Server Error',
+    [501] = 'Not Implemented',
+    [502] = 'Bad Gateway',
+    [503] = 'Service Unavailable',
+    [504] = 'Gateway Time-out',
+    [505] = 'HTTP Version not supported',
 }
 
 function fileOpen(filename)
@@ -111,15 +111,21 @@ function HTTPServer:parser(line, method)
     local response = fileOpen(filename)
 
     if response then
-        self:sendContent(response, '200')
+        self:sendContent(response, 200)
         return
     end
 
-    self:sendContent(DEFAULT_ERROR_MESSAGE, '400')
+    self:sendContent(DEFAULT_ERROR_MESSAGE, 404)
 end
 
 function HTTPServer:sendContent(response, statusCode)
     local head = string.gsub(DEFAULT_HEAD, '{{ STATUS_CODE }}', statusCode)
+    print()
+    if statusCode >= 400 then
+        response = string.gsub(response, '{{ CODE }}', statusCode)
+        response = string.gsub(response, '{{ MESSAGE }}', RESPONSES[statusCode])
+    end
+
     local content = head .. response
 
     self.client:send(content)
