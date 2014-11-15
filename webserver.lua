@@ -66,7 +66,12 @@ HTTPServer = {}
 
 fileOpen = function(filename)
     local file = io.open(filename, 'r')
-    return file:read('*all')
+
+    if file then
+        return file:read('*all')
+    end
+
+    return nil
 end
 
 function HTTPServer:new(port)
@@ -99,12 +104,13 @@ end
 
 function HTTPServer:doGET(client, line)
     local filename = '.' .. string.match(line, '^GET%s(.*)%sHTTP%/[0-9]%.[0-9]')
-    local content = fileOpen(filename)
+    local content = fileOpen(filename) or DEFAULT_ERROR_MESSAGE
 
     client:send(content)
 end
 
 function HTTPServer:sendHead()
+
 end
 
 http = HTTPServer:new('9090')
