@@ -66,13 +66,13 @@ HTTPServer = {}
 
 function HTTPServer:new(port)
     local self = {}
-    self.port = port
+    self.port = port or '9090'
     setmetatable(self, { __index = HTTPServer })
 
     return self
 end
 
-function HTTPServer:bind(self)
+function HTTPServer:bind()
     local server = assert(socket.bind("*", self.port))
     local ip, port = server:getsockname()
     print("Please telnet to localhost on port " .. self.port)
@@ -92,8 +92,8 @@ end
 function HTTPServer:sendHead()
 end
 
-http = HTTPServer:new(8080)
-http.bind(http)
+http = HTTPServer:new('9090')
+http:bind()
 -- local server = assert(socket.bind("*", 0))
 -- -- find out which port the OS chose for us
 -- local ip, port = server:getsockname()
