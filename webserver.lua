@@ -10,9 +10,8 @@ DEFAULT_ERROR_MESSAGE = [[
     </head>
     <body>
         <h1>Error response</h1>
-        <p>Error code: %(code)d</p>
-        <p>Message: %(message)s.</p>
-        <p>Error code explanation: %(code)s - %(explain)s.</p>
+        <p>Error code: %(code)</p>
+        <p>Message: %(message).</p>
     </body>
     </html>
 ]]
@@ -20,7 +19,7 @@ DEFAULT_ERROR_MESSAGE = [[
 DEFAULT_ERROR_CONTENT_TYPE = 'text/html;charset=utf-8'
 
 RESPONSES = {
-    s100 = 'Continue',
+    s200 = { code = '200', response = 'Continue' },
     s101 = 'Switching Protocols',
     s200 = 'OK',
     s201 = 'Created',
@@ -40,7 +39,7 @@ RESPONSES = {
     s401 = 'Unauthorized',
     s402 = 'Payment Required',
     s403 = 'Forbidden',
-    s404 = 'Not Found',
+    s404 = { code = '404', response = 'Not Found' },
     s405 = 'Method Not Allowed',
     s406 = 'Not Acceptable',
     s407 = 'Proxy Authentication Required',
@@ -62,9 +61,7 @@ RESPONSES = {
     s505 = 'HTTP Version not supported',
 }
 
-HTTPServer = {}
-
-fileOpen = function(filename)
+function fileOpen(filename)
     local file = io.open(filename, 'r')
 
     if file then
@@ -73,6 +70,8 @@ fileOpen = function(filename)
 
     return nil
 end
+
+HTTPServer = {}
 
 function HTTPServer:new(port)
     local self = {}
@@ -85,32 +84,36 @@ end
 function HTTPServer:bind()
     local server = assert(socket.bind("*", self.port))
     local ip, port = server:getsockname()
-    print("Please telnet to localhost on port " .. self.port)
+    print("Server is up on port " .. self.port)
 
     while 1 do
-        local client = server:accept()
-        client:settimeout(10)
+        self.client = server:accept()
+        self.client:settimeout(10)
 
-        local line, err = client:receive()
+        local line, err = self.client:receive()
         local isValid = not err
 
         if isValid then
-            self:doGET(client, line)
+            self:doGET(line)
         end
 
-        client:close()
+        self.client:close()
     end
 end
 
-function HTTPServer:doGET(client, line)
+function HTTPServer:doGET(line)
     local filename = '.' .. string.match(line, '^GET%s(.*)%sHTTP%/[0-9]%.[0-9]')
     local content = fileOpen(filename) or DEFAULT_ERROR_MESSAGE
 
-    client:send(content)
+    self.client:send(content)
 end
 
 function HTTPServer:sendHead()
 
+end
+
+function HTTPServer:sendResponse()
+    
 end
 
 http = HTTPServer:new('9090')
