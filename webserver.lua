@@ -66,7 +66,7 @@ HTTPServer = {}
 
 fileOpen = function(filename)
     local file = io.open(filename, 'r')
-    return file.read('*all')
+    return file:read('*all')
 end
 
 function HTTPServer:new(port)
@@ -89,10 +89,10 @@ function HTTPServer:bind()
         local isValid = not err
 
         if isValid then
-            local fileName = string.match(line, '^GET%s(.*)%sHTTP%/[0-9]%.[0-9]')
-            local fileContent = fileOpen(fileName)
-
-            client:send(line .. "\n")
+            local filename = string.match(line, '^GET%s(.*)%sHTTP%/[0-9]%.[0-9]')
+            local content = fileOpen(filename)
+            print(content)
+            -- client:send(line .. "\n")
         end
 
         client:close()

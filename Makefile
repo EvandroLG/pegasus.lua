@@ -1,0 +1,2 @@
+run:
+	@lua webserver.lua
