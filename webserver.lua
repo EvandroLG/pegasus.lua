@@ -103,8 +103,7 @@ function HTTPServer:bind()
 end
 
 function HTTPServer:doGET(line)
-    local filename = '.' .. string.match(line, '^GET%s(.*)%sHTTP%/[0-9]%.[0-9]')
-    self:parser(filename)
+    self:parser(line)
     -- local response = fileOpen(filename) or DEFAULT_ERROR_MESSAGE
     -- local head = 'HTTP/1.1 200 OK\r\nContent-Type: text/html;charset=utf-8\r\n\r\n'
     -- local content = head .. response
@@ -112,19 +111,22 @@ function HTTPServer:doGET(line)
     -- self.client:send(content)
 end
 
-function HTTPServer:parser(filename)
+function HTTPServer:parser(line)
+    local filename = '.' .. string.match(line, '^GET%s(.*)%sHTTP%/[0-9]%.[0-9]')
     local response = fileOpen(filename)
-    local content = nil
 
     if response then
-        local head = 'HTTP/1.1 200 OK\r\nContent-Type: text/html;charset=utf-8\r\n\r\n'
-        content = head .. response
-    else
-        local head = 'HTTP/1.1 404 OK\r\nContent-Type: text/html;charset=utf-8\r\n\r\n'
-        response = DEFAULT_ERROR_MESSAGE
-        content = head .. response
-
+        self:sendContent(response, '200')
+        return
     end
+
+    self:sendContent(DEFAULT_ERROR_MESSAGE, '400')
+end
+
+function HTTPServer:sendContent(response, statusCode)
+    local head = 'HTTP/1.1 {{ STATUS_CODE }} OK\r\nContent-Type: text/html;charset=utf-8\r\n\r\n'
+    head = string.gsub(head, '{{ STATUS_CODE }}', statusCode)
+    local content = head .. response
 
     self.client:send(content)
 end
