@@ -64,7 +64,7 @@ RESPONSES = {
 
 HTTPServer = {}
 
-local fileOpen = function(filename)
+fileOpen = function(filename)
     local file = io.open(filename, 'r')
     return file.read('*all')
 end
@@ -83,11 +83,19 @@ function HTTPServer:bind()
     print("Please telnet to localhost on port " .. self.port)
 
     while 1 do
-      local client = server:accept()
-      client:settimeout(10)
-      local line, err = client:receive()
-      if not err then client:send(line .. "\n") end
-      client:close()
+        local client = server:accept()
+        client:settimeout(10)
+        local line, err = client:receive()
+        local isValid = not err
+
+        if isValid then
+            local fileName = string.match(line, '^GET%s(.*)%sHTTP%/[0-9]%.[0-9]')
+            local fileContent = fileOpen(fileName)
+
+            client:send(line .. "\n")
+        end
+
+        client:close()
     end
 end
 
