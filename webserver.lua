@@ -62,6 +62,7 @@ RESPONSES = {
 }
 
 function fileOpen(filename)
+    print(filename)
     local file = io.open(filename, 'r')
 
     if file then
@@ -103,10 +104,28 @@ end
 
 function HTTPServer:doGET(line)
     local filename = '.' .. string.match(line, '^GET%s(.*)%sHTTP%/[0-9]%.[0-9]')
-    local response = fileOpen(filename) or DEFAULT_ERROR_MESSAGE
-    local head = 'HTTP/1.1 200 OK\r\nContent-Type: text/html;charset=utf-8\r\n\r\n'
-    local content = head .. response
-    print(content)
+    self:parser(filename)
+    -- local response = fileOpen(filename) or DEFAULT_ERROR_MESSAGE
+    -- local head = 'HTTP/1.1 200 OK\r\nContent-Type: text/html;charset=utf-8\r\n\r\n'
+    -- local content = head .. response
+
+    -- self.client:send(content)
+end
+
+function HTTPServer:parser(filename)
+    local response = fileOpen(filename)
+    local content = nil
+
+    if response then
+        local head = 'HTTP/1.1 200 OK\r\nContent-Type: text/html;charset=utf-8\r\n\r\n'
+        content = head .. response
+    else
+        local head = 'HTTP/1.1 404 OK\r\nContent-Type: text/html;charset=utf-8\r\n\r\n'
+        response = DEFAULT_ERROR_MESSAGE
+        content = head .. response
+
+    end
+
     self.client:send(content)
 end
 
