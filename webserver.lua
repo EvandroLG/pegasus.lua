@@ -62,7 +62,6 @@ RESPONSES = {
 }
 
 function fileOpen(filename)
-    print(filename)
     local file = io.open(filename, 'r')
 
     if file then
@@ -120,7 +119,7 @@ end
 
 function HTTPServer:sendContent(response, statusCode)
     local head = string.gsub(DEFAULT_HEAD, '{{ STATUS_CODE }}', statusCode)
-    print()
+
     if statusCode >= 400 then
         response = string.gsub(response, '{{ CODE }}', statusCode)
         response = string.gsub(response, '{{ MESSAGE }}', RESPONSES[statusCode])
