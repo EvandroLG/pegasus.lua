@@ -103,7 +103,9 @@ end
 
 function HTTPServer:doGET(line)
     local filename = '.' .. string.match(line, '^GET%s(.*)%sHTTP%/[0-9]%.[0-9]')
-    local content = fileOpen(filename) or DEFAULT_ERROR_MESSAGE
+    local response = fileOpen(filename) or DEFAULT_ERROR_MESSAGE
+    local head = 'HTTP/1.1 200 OK\r\nContent-Type: text/html;charset=utf-8\r\n'
+    local content = head .. response
 
     self.client:send(content)
 end
