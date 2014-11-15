@@ -64,6 +64,11 @@ RESPONSES = {
 
 HTTPServer = {}
 
+local fileOpen = function(filename)
+    local file = io.open(filename, 'r')
+    return file.read('*all')
+end
+
 function HTTPServer:new(port)
     local self = {}
     self.port = port or '9090'
