@@ -16,7 +16,7 @@ DEFAULT_ERROR_MESSAGE = [[
     </html>
 ]]
 
-DEFAULT_ERROR_CONTENT_TYPE = 'text/html;charset=utf-8'
+DEFAULT_HEAD = 'HTTP/1.1 {{ STATUS_CODE }} OK\r\nContent-Type: text/html;charset=utf-8\r\n\r\n'
 
 RESPONSES = {
     s200 = { code = '200', response = 'Continue' },
@@ -103,15 +103,10 @@ function HTTPServer:bind()
 end
 
 function HTTPServer:doGET(line)
-    self:parser(line)
-    -- local response = fileOpen(filename) or DEFAULT_ERROR_MESSAGE
-    -- local head = 'HTTP/1.1 200 OK\r\nContent-Type: text/html;charset=utf-8\r\n\r\n'
-    -- local content = head .. response
-
-    -- self.client:send(content)
+    self:parser(line, 'GET')
 end
 
-function HTTPServer:parser(line)
+function HTTPServer:parser(line, method)
     local filename = '.' .. string.match(line, '^GET%s(.*)%sHTTP%/[0-9]%.[0-9]')
     local response = fileOpen(filename)
 
@@ -124,8 +119,7 @@ function HTTPServer:parser(line)
 end
 
 function HTTPServer:sendContent(response, statusCode)
-    local head = 'HTTP/1.1 {{ STATUS_CODE }} OK\r\nContent-Type: text/html;charset=utf-8\r\n\r\n'
-    head = string.gsub(head, '{{ STATUS_CODE }}', statusCode)
+    local head = string.gsub(DEFAULT_HEAD, '{{ STATUS_CODE }}', statusCode)
     local content = head .. response
 
     self.client:send(content)
