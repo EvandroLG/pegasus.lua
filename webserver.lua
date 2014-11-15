@@ -85,21 +85,23 @@ function HTTPServer:bind()
     while 1 do
         local client = server:accept()
         client:settimeout(10)
+
         local line, err = client:receive()
         local isValid = not err
 
         if isValid then
-            local filename = string.match(line, '^GET%s(.*)%sHTTP%/[0-9]%.[0-9]')
-            local content = fileOpen(filename)
-            print(content)
-            -- client:send(line .. "\n")
+            self:doGET(client, line)
         end
 
         client:close()
     end
 end
 
-function HTTPServer:doGet()
+function HTTPServer:doGET(client, line)
+    local filename = '.' .. string.match(line, '^GET%s(.*)%sHTTP%/[0-9]%.[0-9]')
+    local content = fileOpen(filename)
+
+    client:send(content)
 end
 
 function HTTPServer:sendHead()
