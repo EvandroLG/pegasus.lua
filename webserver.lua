@@ -109,20 +109,18 @@ end
 
 function HTTPServer:parser(line, method)
     local filename = '.' .. string.match(line, '^GET%s(.*)%sHTTP%/[0-9]%.[0-9]')
-    local mimetype = mimetypes.guess(filename)
     local response = fileOpen(filename)
 
     if response then
-        local head = string.gsub(DEFAULT_HEAD, '{{ MIME_TYPE }}', mimetype)
-        self:sendContent(head, response, 200)
+        self:sendContent(filename, response, 200)
         return
     end
 
-    self:sendContent(DEFAULT_ERROR_MESSAGE, 404)
+    self:sendContent(filename, DEFAULT_ERROR_MESSAGE, 404)
 end
 
-function HTTPServer:sendContent(head, response, statusCode)
-    local head = string.gsub(head, '{{ STATUS_CODE }}', statusCode)
+function HTTPServer:sendContent(filename, response, statusCode)
+    local head = self:makeHead(filename, statusCode)
 
     if statusCode >= 400 then
         response = string.gsub(response, '{{ CODE }}', statusCode)
@@ -134,8 +132,12 @@ function HTTPServer:sendContent(head, response, statusCode)
     self.client:send(content)
 end
 
-function HTTPServer:sendHead()
+function HTTPServer:makeHead(filename, statusCode)
+    local mimetype = mimetypes.guess(filename) or 'text/html'
+    local head = string.gsub(DEFAULT_HEAD, '{{ MIME_TYPE }}', mimetype)
+    head = string.gsub(head, '{{ STATUS_CODE }}', statusCode)
 
+    return head
 end
 
 function HTTPServer:sendResponse()
