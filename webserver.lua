@@ -1,4 +1,6 @@
 socket = require 'socket'
+mimetypes = require 'mimetypes'
+
 
 DEFAULT_ERROR_MESSAGE = [[
     <!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN'
@@ -16,7 +18,7 @@ DEFAULT_ERROR_MESSAGE = [[
     </html>
 ]]
 
-DEFAULT_HEAD = 'HTTP/1.1 {{ STATUS_CODE }} OK\r\nContent-Type: text/html;charset=utf-8\r\n\r\n'
+DEFAULT_HEAD = 'HTTP/1.1 {{ STATUS_CODE }} OK\r\nContent-Type: {{ MIME_TYPE }};charset=utf-8\r\n\r\n'
 
 RESPONSES = {
     [100] = 'Continue',
@@ -88,7 +90,7 @@ function HTTPServer:bind()
 
     while 1 do
         self.client = server:accept()
-        self.client:settimeout(10)
+        self.client:settimeout(30)
 
         local line, err = self.client:receive()
         local isValid = not err
@@ -107,18 +109,20 @@ end
 
 function HTTPServer:parser(line, method)
     local filename = '.' .. string.match(line, '^GET%s(.*)%sHTTP%/[0-9]%.[0-9]')
+    local mimetype = mimetypes.guess(filename)
     local response = fileOpen(filename)
 
     if response then
-        self:sendContent(response, 200)
+        local head = string.gsub(DEFAULT_HEAD, '{{ MIME_TYPE }}', mimetype)
+        self:sendContent(head, response, 200)
         return
     end
 
     self:sendContent(DEFAULT_ERROR_MESSAGE, 404)
 end
 
-function HTTPServer:sendContent(response, statusCode)
-    local head = string.gsub(DEFAULT_HEAD, '{{ STATUS_CODE }}', statusCode)
+function HTTPServer:sendContent(head, response, statusCode)
+    local head = string.gsub(head, '{{ STATUS_CODE }}', statusCode)
 
     if statusCode >= 400 then
         response = string.gsub(response, '{{ CODE }}', statusCode)
