@@ -108,7 +108,8 @@ function HTTPServer:doGET(line)
 end
 
 function HTTPServer:parser(line, method)
-    local filename = '.' .. string.match(line, '^GET%s(.*)%sHTTP%/[0-9]%.[0-9]')
+    local body = '.' .. string.match(line, '^GET%s(.*)%sHTTP%/[0-9]%.[0-9]')
+    local filename, querystring = string.match(body, '^([^#?]+)(.*)')
     local response = fileOpen(filename)
 
     if response then
