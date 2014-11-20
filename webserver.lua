@@ -1,8 +1,8 @@
-socket = require 'socket'
-mimetypes = require 'mimetypes'
+local socket = require 'socket'
+local mimetypes = require 'mimetypes'
 
 
-DEFAULT_ERROR_MESSAGE = [[
+local DEFAULT_ERROR_MESSAGE = [[
     <!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN'
         'http://www.w3.org/TR/html4/strict.dtd'>
     <html>
@@ -18,9 +18,9 @@ DEFAULT_ERROR_MESSAGE = [[
     </html>
 ]]
 
-DEFAULT_HEAD = 'HTTP/1.1 {{ STATUS_CODE }} OK\r\nContent-Type: {{ MIME_TYPE }};charset=utf-8\r\n\r\n'
+local DEFAULT_HEAD = 'HTTP/1.1 {{ STATUS_CODE }} OK\r\nContent-Type: {{ MIME_TYPE }};charset=utf-8\r\n\r\n'
 
-RESPONSES = {
+local RESPONSES = {
     [100] = 'Continue',
     [101] = 'Switching Protocols',
     [200] = 'OK',
@@ -63,7 +63,7 @@ RESPONSES = {
     [505] = 'HTTP Version not supported',
 }
 
-function fileOpen(filename)
+local function fileOpen(filename)
     local file = io.open(filename, 'r')
 
     if file then
@@ -73,7 +73,7 @@ function fileOpen(filename)
     return nil
 end
 
-HTTPServer = {}
+local HTTPServer = {}
 
 function HTTPServer:new(port)
     local self = {}
