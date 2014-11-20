@@ -76,10 +76,7 @@ end
 local HTTPServer = {}
 
 function HTTPServer:new(port)
-    local self = {}
     self.port = port or '9090'
-    setmetatable(self, { __index = HTTPServer })
-
     return self
 end
 
