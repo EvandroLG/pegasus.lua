@@ -109,18 +109,26 @@ function HTTPServer:start()
         local isValid = not err
 
         if isValid then
-            self:doGET(client, line)
+            self:callMethod(client, line)
+            -- self:doGET(client, line)
         end
         client:close()
     end
 end
 
-function HTTPServer:doGET(client, line)
-    self:parser(client, line, 'GET')
+function HTTPServer:callMethod(client, line)
+    local isGET = string.find(line, '^GET')
+    local isPOST = string.find(line, '^POST')
+
+    if isGET then
+        self:parser(client, line, 'GET')
+    elseif isPOST then
+        self:parser(client, line, 'POST')
+    end
 end
 
 function HTTPServer:parser(client, line, method)
-    local body = '.' .. string.match(line, '^GET%s(.*)%sHTTP%/[0-9]%.[0-9]')
+    local body = '.' .. string.match(line, '^'.. method ..'%s(.*)%sHTTP%/[0-9]%.[0-9]')
     local filename, querystring = string.match(body, '^([^#?]+)(.*)')
     local response = fileOpen(filename)
 
