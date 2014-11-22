@@ -65,11 +65,11 @@ local RESPONSES = {
 
 
 -- solution by @cwarden - https://gist.github.com/cwarden/1207556
-function catch(what)
+local function catch(what)
    return what[1]
 end
 
-function try(what)
+local function try(what)
    status, result = pcall(what[1])
 
    if not status then
