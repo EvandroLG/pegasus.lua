@@ -23,7 +23,11 @@ function Request:path()
 end
 
 function Request:method()
-  return 'GET'
+    if string.find(self.firstLine, '^GET')
+        return 'GET'
+    elseif string.find(self.firstLine, '^POST')
+        return 'POST'
+    end
 end
 
 return Request
