@@ -102,25 +102,24 @@ function HTTPServer:start()
     print("Server is up on port " .. self.port)
 
     while 1 do
-        self.client = server:accept()
-        self.client:settimeout(30)
+        local client = server:accept()
+        client:settimeout(30)
 
-        local line, err = self.client:receive()
+        local line, err = client:receive()
         local isValid = not err
 
         if isValid then
-            self:doGET(line)
+            self:doGET(client, line)
         end
-
-        self.client:close()
+        client:close()
     end
 end
 
-function HTTPServer:doGET(line)
-    self:parser(line, 'GET')
+function HTTPServer:doGET(client, line)
+    self:parser(client, line, 'GET')
 end
 
-function HTTPServer:parser(line, method)
+function HTTPServer:parser(client, line, method)
     local body = '.' .. string.match(line, '^GET%s(.*)%sHTTP%/[0-9]%.[0-9]')
     local filename, querystring = string.match(body, '^([^#?]+)(.*)')
     local response = fileOpen(filename)
@@ -128,12 +127,13 @@ function HTTPServer:parser(line, method)
     if response then
         try {
             function()
-                self:sendContent(filename, response, 200)
+                client:send(self:createContent(filename, response, 200))
             end,
 
             catch {
                 function(error)
-                    self:sendContent(filename, response, 500)
+                    client:send(
+                    self:createContent(filename, response, 500))
                 end
             }
         }
@@ -144,7 +144,7 @@ function HTTPServer:parser(line, method)
     self:sendContent(filename, DEFAULT_ERROR_MESSAGE, 404)
 end
 
-function HTTPServer:sendContent(filename, response, statusCode)
+function HTTPServer:createContent(filename, response, statusCode)
     local head = self:makeHead(filename, statusCode)
 
     if statusCode >= 400 then
@@ -152,9 +152,7 @@ function HTTPServer:sendContent(filename, response, statusCode)
         response = string.gsub(response, '{{ MESSAGE }}', RESPONSES[statusCode])
     end
 
-    local content = head .. response
-
-    self.client:send(content)
+    return head .. response
 end
 
 function HTTPServer:makeHead(filename, statusCode)
