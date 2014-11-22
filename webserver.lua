@@ -1,5 +1,7 @@
 local socket = require 'socket'
 local mimetypes = require 'mimetypes'
+local Request = require 'request'
+local Response = require 'response'
 
 
 local DEFAULT_ERROR_MESSAGE = [[
@@ -103,53 +105,42 @@ function HTTPServer:start()
 
     while 1 do
         local client = server:accept()
+
         client:settimeout(30)
-
-        local line, err = client:receive()
-        local isValid = not err
-
-        if isValid then
-            self:callMethod(client, line)
-            -- self:doGET(client, line)
-        end
+        self:processRequest(client)
         client:close()
     end
 end
 
-function HTTPServer:callMethod(client, line)
-    local isGET = string.find(line, '^GET')
-    local isPOST = string.find(line, '^POST')
+function HTTPServer:processRequest(client)
+    local request = Request:new(client)
+    local response =  Response:new(client)
 
-    if isGET then
-        self:parser(client, line, 'GET')
-    elseif isPOST then
-        self:parser(client, line, 'POST')
-    end
+    self:GET(request, response)
+    client:send(response.body)
 end
 
-function HTTPServer:parser(client, line, method)
-    local body = '.' .. string.match(line, '^'.. method ..'%s(.*)%sHTTP%/[0-9]%.[0-9]')
-    local filename, querystring = string.match(body, '^([^#?]+)(.*)')
-    local response = fileOpen(filename)
+function HTTPServer:GET(request, response)
+    print(request:path())
+    local content = fileOpen(request:path())
 
-    if response then
-        try {
-            function()
-                client:send(self:createContent(filename, response, 200))
-            end,
+    if content then
+          try {
+              function()
+                  response.body = self:createContent(request:path(), content, 200)
+              end,
 
-            catch {
-                function(error)
-                    client:send(
-                    self:createContent(filename, response, 500))
-                end
-            }
-        }
+              catch {
+                  function(error)
+                      response.body = self:createContent(request:path(), content, 500)
+                  end
+              }
+          }
 
-        return
-    end
+          return
+      end
 
-    self:sendContent(filename, DEFAULT_ERROR_MESSAGE, 404)
+      response.body = self:createContent(request:path(), DEFAULT_ERROR_MESSAGE, 404)
 end
 
 function HTTPServer:createContent(filename, response, statusCode)
