@@ -63,6 +63,22 @@ local RESPONSES = {
     [505] = 'HTTP Version not supported',
 }
 
+
+-- solution by @cwarden - https://gist.github.com/cwarden/1207556
+function catch(what)
+   return what[1]
+end
+
+function try(what)
+   status, result = pcall(what[1])
+
+   if not status then
+      what[2](result)
+   end
+
+   return result
+end
+
 local function fileOpen(filename)
     local file = io.open(filename, 'r')
 
@@ -80,7 +96,7 @@ function HTTPServer:new(port)
     return self
 end
 
-function HTTPServer:bind()
+function HTTPServer:start()
     local server = assert(socket.bind("*", self.port))
     local ip, port = server:getsockname()
     print("Server is up on port " .. self.port)
@@ -110,7 +126,18 @@ function HTTPServer:parser(line, method)
     local response = fileOpen(filename)
 
     if response then
-        self:sendContent(filename, response, 200)
+        try {
+            function()
+                self:sendContent(filename, response, 200)
+            end,
+
+            catch {
+                function(error)
+                    self:sendContent(filename, response, 500)
+                end
+            }
+        }
+
         return
     end
 
@@ -143,4 +170,4 @@ function HTTPServer:sendResponse()
 end
 
 http = HTTPServer:new('9090')
-http:bind()
+http:start()
