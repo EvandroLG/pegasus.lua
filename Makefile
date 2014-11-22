@@ -1,5 +1,5 @@
 run:
-	@lua webserver.lua
+	@lua lib/webserver.lua
 
 install_dependencies:
 	@luarocks install mimetypes

@@ -1,7 +1,7 @@
 local socket = require 'socket'
 local mimetypes = require 'mimetypes'
-local Request = require 'request'
-local Response = require 'response'
+local Request = require 'lib/request'
+local Response = require 'lib/response'
 
 
 local DEFAULT_ERROR_MESSAGE = [[

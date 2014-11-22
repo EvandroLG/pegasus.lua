@@ -19,11 +19,11 @@ function Request:path()
        self._path = filename
     end
 
-    return self._path 
+    return self._path
 end
 
 function Request:method()
-  return "GET"
+  return 'GET'
 end
 
 return Request
