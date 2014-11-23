@@ -127,6 +127,16 @@ function HTTPServer:processRequest(client)
 end
 
 function HTTPServer:GET(request, response)
+    print('GET')
+    self:processDatas(request, response)
+end
+
+function HTTPServer:POST(request, response)
+    print('POST')
+    self:processDatas(request, response)
+end
+
+function HTTPServer:processDatas(request, response)
     print(request:path())
     local content = fileOpen(request:path())
 
@@ -147,10 +157,6 @@ function HTTPServer:GET(request, response)
       end
 
       response.body = self:createContent(request:path(), DEFAULT_ERROR_MESSAGE, 404)
-end
-
-function HTTPServer:POST(request, response)
-    print('post')
 end
 
 function HTTPServer:createContent(filename, response, statusCode)
