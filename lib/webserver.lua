@@ -115,8 +115,14 @@ end
 function HTTPServer:processRequest(client)
     local request = Request:new(client)
     local response =  Response:new(client)
+    local method = request:method()
 
-    self:GET(request, response)
+    if method == 'GET' then
+        self:GET(request, response)
+    elseif method == 'POST' then
+        self:POST(request, response)
+    end
+
     client:send(response.body)
 end
 
@@ -141,6 +147,10 @@ function HTTPServer:GET(request, response)
       end
 
       response.body = self:createContent(request:path(), DEFAULT_ERROR_MESSAGE, 404)
+end
+
+function HTTPServer:POST(request, response)
+    print('post')
 end
 
 function HTTPServer:createContent(filename, response, statusCode)

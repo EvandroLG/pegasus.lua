@@ -4,30 +4,27 @@ function Request:new(client)
     local newObj = {}       
     self.__index = self  
     newObj.client = client
-    newObj.firstLine = nil
+    newObj.line = nil
 
     return setmetatable(newObj, self)
 end
 
 function Request:path()
-    local isFirstLine = self.firstLine == nil
-
-    if (isFirstLine) then
-       self.firstLine = self.client:receive()
-       local body = '.' .. string.match(self.firstLine, '^GET%s(.*)%sHTTP%/[0-9]%.[0-9]')
+    if (not self._path) then
+       self.line = self.line or self.client:receive()
+       local method, body = string.match(self.line, '^(.*)%s(.*)%sHTTP%/[0-9]%.[0-9]')
        local filename, querystring = string.match(body, '^([^#?]+)(.*)')
-       self._path = filename
+       self._path = '.' .. filename
     end
 
     return self._path
 end
 
 function Request:method()
-    if string.find(self.firstLine, '^GET')
-        return 'GET'
-    elseif string.find(self.firstLine, '^POST')
-        return 'POST'
-    end
+    self.line = self.line or self.client:receive()
+    local method, body = string.match(self.line, '^(.*)%s(.*)%sHTTP%/[0-9]%.[0-9]')
+
+    return method
 end
 
 return Request
