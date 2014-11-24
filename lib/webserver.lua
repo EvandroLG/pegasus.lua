@@ -65,32 +65,6 @@ local RESPONSES = {
     [505] = 'HTTP Version not supported',
 }
 
-
--- solution by @cwarden - https://gist.github.com/cwarden/1207556
-local function catch(what)
-   return what[1]
-end
-
-local function try(what)
-   status, result = pcall(what[1])
-
-   if not status then
-      what[2](result)
-   end
-
-   return result
-end
-
-local function fileOpen(filename)
-    local file = io.open(filename, 'r')
-
-    if file then
-        return file:read('*all')
-    end
-
-    return nil
-end
-
 local HTTPServer = {}
 
 function HTTPServer:new(port)
@@ -128,59 +102,14 @@ end
 
 function HTTPServer:GET(request, response)
     print('GET')
-    self:processDatas(request, response)
+    response:processes(request, response)
 end
 
 function HTTPServer:POST(request, response)
     print('POST')
-    self:processDatas(request, response)
+    response:processes(request)
 end
 
-function HTTPServer:processDatas(request, response)
-    print(request:path())
-    local content = fileOpen(request:path())
-
-    if content then
-          try {
-              function()
-                  response.body = self:createContent(request:path(), content, 200)
-              end,
-
-              catch {
-                  function(error)
-                      response.body = self:createContent(request:path(), content, 500)
-                  end
-              }
-          }
-
-          return
-      end
-
-      response.body = self:createContent(request:path(), DEFAULT_ERROR_MESSAGE, 404)
-end
-
-function HTTPServer:createContent(filename, response, statusCode)
-    local head = self:makeHead(filename, statusCode)
-
-    if statusCode >= 400 then
-        response = string.gsub(response, '{{ CODE }}', statusCode)
-        response = string.gsub(response, '{{ MESSAGE }}', RESPONSES[statusCode])
-    end
-
-    return head .. response
-end
-
-function HTTPServer:makeHead(filename, statusCode)
-    local mimetype = mimetypes.guess(filename) or 'text/html'
-    local head = string.gsub(DEFAULT_HEAD, '{{ MIME_TYPE }}', mimetype)
-    head = string.gsub(head, '{{ STATUS_CODE }}', statusCode)
-
-    return head
-end
-
-function HTTPServer:sendResponse()
-    
-end
 
 http = HTTPServer:new('9090')
 http:start()
