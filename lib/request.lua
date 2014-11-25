@@ -44,16 +44,18 @@ function Request:method()
 end
 
 function Request:headers()
-  local r, e = self.client:receive()
-  print('r='..r)
-  print('e='..e)
-  while e == nil do
-     local doubleDot = r:find(":")
-     self._headers[r:sub(1, doubleDot-1)] = r:sub(doubleDot+1)
-     r, e = self.client:receive()
-  end
+    local data = self.client:receive()
 
-  return self._headers
+    while data:len() > 0  do
+        local doubleDot = r:find(':')
+        local key = r:sub(1, doubleDot - 1)
+        local value = r:sub(doubleDot + 1)
+
+        self._headers[key] = value
+        data = self.client:receive()
+    end
+
+    return self._headers
 end
 
 return Request
