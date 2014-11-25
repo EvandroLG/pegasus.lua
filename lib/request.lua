@@ -48,10 +48,11 @@ function Request:headers()
 
     while data:len() > 0  do
         local doubleDot = data:find(':')
-        local key = data:sub(1, doubleDot - 1)
-        local value = data:sub(doubleDot + 1)
-
-        self._headers[key] = value
+        if doubleDot then
+          local key = data:sub(1, doubleDot - 1)
+          local value = data:sub(doubleDot + 1)
+          self._headers[key] = value
+        end
         data = self.client:receive()
     end
 
