@@ -102,6 +102,12 @@ end
 
 function HTTPServer:GET(request, response)
     print('GET')
+    print('path='..request:path())
+    -- Request:
+    -- url: http:\\caguei.com?chupeta=true
+    -- getParams = {chupeta=true}
+    -- postParams = {}
+    -- params = getParams + postParams
     response:processes(request, response)
 end
 

@@ -1,11 +1,12 @@
 local Request = {}
+
 function Request:new(client)
     local newObj = {}       
     self.__index = self  
     newObj.client = client
     newObj.firstLine = nil
-    newObj._method = 'GET'
-    newObj._query_string = 'GET'
+    newObj.method = nil
+    newObj._path = nil
     newObj._params = {}
     newObj._headers = {}
 
@@ -14,13 +15,13 @@ end
 
 function Request:parseFirstLine()
     if (self.firstLine == nil) then
-       self.firstLine = self.client:receive()      
-       local method, body = string.match(self.firstLine, '^(.*)%s(.*)%sHTTP%/[0-9]%.[0-9]')
-       local filename, querystring = string.match(body, '^([^#?]+)(.*)')
-       self._path = '.' .. filename
-       self._query_string = querystring
-       self_method = method
-    end 
+        self.firstLine = self.client:receive()
+        local method, body = string.match(self.firstLine, '^(.*)%s(.*)%sHTTP%/[0-9]%.[0-9]')
+        local filename, querystring = string.match(body, '^([^#?]+)(.*)')
+        self._path = '.' .. filename
+        self._query_string = querystring
+        self._method = method
+    end
 end
 
 function Request:params()
@@ -33,7 +34,7 @@ function Request:params()
 end
 
 function Request:path()
-  self:parseFirstLine() 
+  self:parseFirstLine()
   return self._path 
 end
 
