@@ -4,8 +4,8 @@ function Request:new(client)
     self.__index = self  
     newObj.client = client
     newObj.firstLine = nil
-    newObj._method = "GET"
-    newObj._query_string = "GET"
+    newObj._method = 'GET'
+    newObj._query_string = 'GET'
     newObj._params = {}
     newObj._headers = {}
 
@@ -15,22 +15,18 @@ end
 function Request:parseFirstLine()
     if (self.firstLine == nil) then
        self.firstLine = self.client:receive()      
-       local body = '.' .. string.match(self.firstLine, '^GET%s(.*)%sHTTP%/[0-9]%.[0-9]')
+       local method, body = string.match(self.firstLine, '^(.*)%s(.*)%sHTTP%/[0-9]%.[0-9]')
        local filename, querystring = string.match(body, '^([^#?]+)(.*)')
-       self._path = filename
+       self._path = '.' .. filename
        self._query_string = querystring
-
-       if not self.firstLine:find(self._method)  == 1 then
-          local firstSpace = self.firstLine:find(" ")
-          self._method = self.firstLine:sub(1, fisrtSpace)    
-       end
+       self_method = method
     end 
 end
 
 function Request:params()
-    for kv in string.gmatch(self._query_string, "%w=%w") do
-      local equal = kv:find("=")
-      self._params[kv:sub(1, equal-1)] = kv:sub(equal+1)
+    for param in string.gmatch(self._query_string, "%w=%w") do
+      local equal = param:find("=")
+      self._params[param:sub(1, equal-1)] = param:sub(equal+1)
      end 
 
      return self._params
