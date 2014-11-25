@@ -1,6 +1,6 @@
 local socket = require 'socket'
-local Request = require 'request'
-local Response = require 'response'
+local Request = require 'lib/request'
+local Response = require 'lib/response'
 
 
 local HTTPServer = {}
