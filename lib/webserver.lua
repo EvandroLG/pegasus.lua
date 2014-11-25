@@ -1,8 +1,6 @@
 local socket = require 'socket'
-local mimetypes = require 'mimetypes'
 local Request = require 'lib/request'
 local Response = require 'lib/response'
-
 
 local DEFAULT_ERROR_MESSAGE = [[
     <!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN'
