@@ -1,6 +1,6 @@
 local socket = require 'socket'
-local Request = require 'lib/request'
-local Response = require 'lib/response'
+local Request = require 'request'
+local Response = require 'response'
 
 local DEFAULT_ERROR_MESSAGE = [[
     <!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN'

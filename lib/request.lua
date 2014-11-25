@@ -9,28 +9,41 @@ function Request:new(client)
     newObj._path = nil
     newObj._params = {}
     newObj._headers = {}
-
+    newObj._is_valid = false
     return setmetatable(newObj, self)
 end
+
+Request.PATTERN_METHOD = '^(.*)%s'
+Request.PATTERN_PATH = '(.*)%s'
+Request.PATTERN_PROTOCOL = '(HTTP%/[0-9]%.[0-9])'
+Request.PATTERN_REQUEST = (Request.PATTERN_METHOD .. 
+  Request.PATTERN_PATH ..Request.PATTERN_PROTOCOL) 
 
 function Request:parseFirstLine()
     if (self.firstLine == nil) then
         self.firstLine = self.client:receive()
-        local method, body = string.match(self.firstLine, '^(.*)%s(.*)%sHTTP%/[0-9]%.[0-9]')
-        local filename, querystring = string.match(body, '^([^#?]+)(.*)')
-        self._path = '.' .. filename
+        -- Parse firstline http: METHOD PATH PROTOCOL, 
+        -- GET Makefile HTTP/1.1 
+        local method, path, protocol= string.match(self.firstLine, 
+            Request.PATTERN_REQUEST)
+            
+        local filename, querystring = string.match(path, '^([^#?]+)(.*)')
+        self._path = '.' .. path 
         self._query_string = querystring
         self._method = method
     end
 end
 
+Request.PATTERN_QUERY_STRING = '(%w)=(%w)'
 function Request:params()
-    for param in string.gmatch(self._query_string, "%w=%w") do
-      local equal = param:find("=")
-      self._params[param:sub(1, equal-1)] = param:sub(equal+1)
-     end 
-
-     return self._params
+    self:parseFirstLine()
+    --QueryString exists and params is empty
+    if self._query_string and next(self._params) == nil then
+      for k, v in  string.gmatch(self._query_string, Request.PATTERN_QUERY_STRING) do
+        self._params[k] = v
+      end 
+    end
+    return self._params
 end
 
 function Request:path()
@@ -43,15 +56,15 @@ function Request:method()
     return self._method
 end
 
-function Request:headers()
-    local data = self.client:receive()
+Request.PATTERN_HEADER = "(%w):(%w)"
 
-    while data:len() > 0  do
-        local doubleDot = data:find(':')
-        if doubleDot then
-          local key = data:sub(1, doubleDot - 1)
-          local value = data:sub(doubleDot + 1)
-          self._headers[key] = value
+function Request:headers()
+    self:parseFirstLine()
+    local data = self.client:receive()
+    while data  do
+        local k , v =string.match(data, Request.PATTERN_HEADER)
+        if k and v then
+           self._headers[k] = v
         end
         data = self.client:receive()
     end
