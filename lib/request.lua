@@ -5,7 +5,7 @@ function Request:new(client)
     self.__index = self  
     newObj.client = client
     newObj.firstLine = nil
-    newObj.method = nil
+    newObj._method = nil
     newObj._path = nil
     newObj._params = {}
     newObj._headers = {}
@@ -45,7 +45,8 @@ end
 
 function Request:headers()
   local r, e = self.client:receive()
-
+  print('r='..r)
+  print('e='..e)
   while e == nil do
      local doubleDot = r:find(":")
      self._headers[r:sub(1, doubleDot-1)] = r:sub(doubleDot+1)
