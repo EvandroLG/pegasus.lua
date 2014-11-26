@@ -1,1 +1,1 @@
-![pegasus.lua](//evandrolg.github.io/pegasus.lua/pegasus.lua.svg)
+![pegasus.lua](http://evandrolg.github.io/pegasus.lua/pegasus.lua.svg)
