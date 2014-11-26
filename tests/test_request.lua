@@ -16,7 +16,7 @@ describe('require', function()
 
     describe('instance', function()
         function verifyMethod(fn)
-        	local headers = { 'GET /index.html HTTP/1.1', 'A:B', 'C:D', nil , 'X=Y', '' }
+        	local headers = { 'GET /index.html HTTP/1.1' }
             local request = getInstance(headers)
             local method = request[fn]
 
@@ -24,7 +24,7 @@ describe('require', function()
         end
 
         it('should exists constructor to request class', function()
-        	local headers = { 'GET /index.html HTTP/1.1', 'A:B', 'C:D', nil , 'X=Y', '' }
+        	local headers = { 'GET /index.html HTTP/1.1' }
             local request = getInstance(headers)
             assert.equal(type(request), 'table')
         end)
@@ -75,16 +75,20 @@ describe('require', function()
         	verifyMethod('GET')
         end)
 
-        it('should returns correct method - it is get - when method is called', function()
+        it('should returns correct method - it is post - when method is called', function()
         	verifyMethod('POST')
         end)
 
-        it('should returns correct method - it is get - when method is called', function()
+        it('should returns correct method - it is delete - when method is called', function()
         	verifyMethod('DELETE')
         end)
 
-        it('should returns correct method - it is get - when method is called', function()
+        it('should returns correct method - it is put - when method is called', function()
         	verifyMethod('PUT')
+        end)
+
+        it('should returns', function()
+
         end)
     end)
 end)
