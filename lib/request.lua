@@ -1,6 +1,7 @@
 local Request = {}
 
 function Request:new(client)
+  
     local newObj = {}       
     self.__index = self  
     newObj.client = client
