@@ -63,7 +63,28 @@ describe('require', function()
         	assert.are.equal('./index.html', result)
         end)
 
-        it('should returns correct method - get, post, etc - when method is called', function()
+        function verifyMethod(method)
+        	local headers = { method .. ' /index.html HTTP/1.1' }
+        	local request = getInstance(headers)
+        	local result = request:method()
+
+        	assert.are.equal(method, result)
+        end
+
+        it('should returns correct method - it is get - when method is called', function()
+        	verifyMethod('GET')
+        end)
+
+        it('should returns correct method - it is get - when method is called', function()
+        	verifyMethod('POST')
+        end)
+
+        it('should returns correct method - it is get - when method is called', function()
+        	verifyMethod('DELETE')
+        end)
+
+        it('should returns correct method - it is get - when method is called', function()
+        	verifyMethod('PUT')
         end)
     end)
 end)
