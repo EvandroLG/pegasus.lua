@@ -56,7 +56,11 @@ describe('require', function()
 
     describe('methods', function()
         it('should returns correct filename when path is called', function()
-        	
+        	local headers = { 'GET /index.html HTTP/1.1' }
+        	local request = getInstance(headers)
+        	local result = request:path()
+
+        	assert.are.equal('./index.html', result)
         end)
 
         it('should returns correct method - get, post, etc - when method is called', function()
