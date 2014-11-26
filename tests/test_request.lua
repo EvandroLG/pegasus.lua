@@ -87,8 +87,15 @@ describe('require', function()
         	verifyMethod('PUT')
         end)
 
-        it('should returns', function()
+        it('should returns correct object when headers method is called', function()
+        	local headers = {'GET /Makefile?a=b&c=d HTTP/1.1', 'A:1', 'B:2', nil , 'C=3', ''}
+        	local request = getInstance(headers)
+        	local result = request:headers()
 
+        	assert.equal(type(result), 'table')
+        	assert.equal(#result, 2)
+        	assert.equal('1', result['A'])
+        	assert.equal('2', result['B'])
         end)
     end)
 end)
