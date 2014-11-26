@@ -36,6 +36,26 @@ describe('require', function()
         it('should exists path method', function()
             verifyMethod('path')
         end)
+
+        it('should exists params method', function()
+            verifyMethod('params')
+        end)
+
+        it('should exists method method', function()
+            verifyMethod('method')
+        end)
+
+        it('should exists headers method', function()
+            verifyMethod('headers')
+        end)
+
+        it('should exists body method', function()
+            verifyMethod('body')
+        end)
+
+        it('should exists form method', function()
+            verifyMethod('form')
+        end)
     end)
 end)
 
