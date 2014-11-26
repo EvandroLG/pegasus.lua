@@ -53,6 +53,14 @@ describe('require', function()
             verifyMethod('form')
         end)
     end)
+
+    describe('methods', function()
+        it('should returns correct filename when path is called', function()
+        end)
+
+        it('should returns correct method - get, post, etc - when method is called', function()
+        end)
+    end)
 end)
 
 -- local Request = require 'lib/request'
