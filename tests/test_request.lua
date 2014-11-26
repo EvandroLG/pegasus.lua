@@ -3,29 +3,29 @@ local Request = require 'lib/request'
 
 
 describe('require', function()
+	function getInstance(headers)
+        local err = {nil, nil, nil, nil, nil, 'error'}
+        local param = {
+            receive = function()
+                return headers[1], err[1]
+            end
+        }
+
+        return Request:new(param)
+    end
+
     describe('instance', function()
-        function getInstance()
-            local headers = { 'GET /index.html HTTP/1.1', 'A:B', 'C:D', nil , 'X=Y', '' }
-            local err = {nil, nil, nil, nil, nil, 'error'}
-            local param = {
-                receive = function()
-                    return headers[1], err[1]
-                end
-            }
-
-            return Request:new(param)
-        end
-
         function verifyMethod(fn)
-            local request = getInstance()
+        	local headers = { 'GET /index.html HTTP/1.1', 'A:B', 'C:D', nil , 'X=Y', '' }
+            local request = getInstance(headers)
             local method = request[fn]
 
             assert.equal(type(method), 'function')
         end
 
         it('should exists constructor to request class', function()
-            local request = getInstance()
-
+        	local headers = { 'GET /index.html HTTP/1.1', 'A:B', 'C:D', nil , 'X=Y', '' }
+            local request = getInstance(headers)
             assert.equal(type(request), 'table')
         end)
 
@@ -56,6 +56,7 @@ describe('require', function()
 
     describe('methods', function()
         it('should returns correct filename when path is called', function()
+        	
         end)
 
         it('should returns correct method - get, post, etc - when method is called', function()
