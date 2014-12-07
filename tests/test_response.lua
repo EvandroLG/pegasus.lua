@@ -55,10 +55,43 @@ describe('response', function()
     end)
 
     describe('response content', function()
+        local DEFAULT_ERROR_MESSAGE = [[
+            <!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN'
+                'http://www.w3.org/TR/html4/strict.dtd'>
+            <html>
+            <head>
+                <meta http-equiv='Content-Type' content='text/html;charset=utf-8'>
+                <title>Error response</title>
+            </head>
+            <body>
+                <h1>Error response</h1>
+                <p>Error code: {{ CODE }}</p>
+                <p>Message: {{ MESSAGE }}.</p>
+            </body>
+            </html>
+        ]]
+
+        function verifyCreateContentWithError(filename, response, statusCode, expectedErrorCode, expectedMessage)
+            local response = Response:new()
+            local content = response:createContent(filename, response, statusCode)
+
+
+            assert.truthy(string.find(content, expectedErrorCode))
+            assert.truthy(string.find(content, expectedStatusCode))
+        end
+
         it('should return a page with 404 as status code', function()
+            local expectedErrorCode = '<p>Error code: 404</p>'
+            local expectedMessage = '<p>Message: Not Found.</p>'
+
+            verifyCreateContentWithError('index.html', DEFAULT_ERROR_MESSAGE, 404, expectedErrorCode, expectedMessage)
         end)
 
         it('should return a page with 500 as status code', function()
+            local expectedErrorCode = '<p>Error code: 500</p>'
+            local expectedMessage = '<p>Message: Internal Server Error.</p>'
+
+            verifyCreateContentWithError('index.html', DEFAULT_ERROR_MESSAGE, 500, expectedErrorCode, expectedMessage)
         end)
 
         it('should return a content correct with status code 200', function()
