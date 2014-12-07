@@ -94,6 +94,10 @@ describe('response', function()
         end)
 
         it('should return a content correct with status code 200', function()
+            local response = Response:new()
+            local result = response:createContent('index.html', 'hello lua world!', 200)
+
+            assert.truthy(string.find(result, 'hello lua world!'))
         end)
     end)
 end)
