@@ -53,4 +53,15 @@ describe('response', function()
             verifyMakeHead('index.html', 200, '200 OK', 'text/html')
         end)
     end)
+
+    describe('response content', function()
+        it('should return a page with 404 as status code', function()
+        end)
+
+        it('should return a page with 500 as status code', function()
+        end)
+
+        it('should return a content correct with status code 200', function()
+        end)
+    end)
 end)
