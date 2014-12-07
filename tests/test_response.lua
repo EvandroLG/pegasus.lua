@@ -71,13 +71,12 @@ describe('response', function()
             </html>
         ]]
 
-        function verifyCreateContentWithError(filename, response, statusCode, expectedErrorCode, expectedMessage)
+        function verifyCreateContentWithError(filename, content, statusCode, expectedErrorCode, expectedMessage)
             local response = Response:new()
-            local content = response:createContent(filename, response, statusCode)
+            local result = response:createContent(filename, content, statusCode)
 
-
-            assert.truthy(string.find(content, expectedErrorCode))
-            assert.truthy(string.find(content, expectedStatusCode))
+            assert.truthy(string.find(result, expectedErrorCode))
+            assert.truthy(string.find(result, expectedMessage))
         end
 
         it('should return a page with 404 as status code', function()
