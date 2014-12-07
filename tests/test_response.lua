@@ -37,12 +37,20 @@ describe('response', function()
             assert.truthy(string.find(head, expectedMimetype))
         end
 
-        it('should return a mimetype text/html and a status code 404', function()
+        it('should return a mimetype text/html and status code 404', function()
             verifyMakeHead('', '404', 'text/html')
         end)
 
-        it('should return a mimetype text/css and a status code 200', function()
+        it('should return a mimetype text/css and status code 200', function()
             verifyMakeHead('style.css', '200', 'text/css')
+        end)
+
+        it('should return a mimetype application/javascript and status code 200', function()
+            verifyMakeHead('script.js', '200', 'application/javascript')
+        end)
+
+        it('should return a mimetype text/html and status code 200', function()
+            verifyMakeHead('index.html', '200', 'text/html')
         end)
     end)
 end)
