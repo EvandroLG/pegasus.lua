@@ -40,6 +40,7 @@ end
 
 function HTTPServer:GET(request, response)
     print('GET')
+    request:params()
     response:processes(request, response)
 end
 

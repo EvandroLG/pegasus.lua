@@ -38,17 +38,20 @@ function Request:parseFirstLine()
     end
 end
 
-Request.PATTERN_QUERY_STRING = '(%w)=(%w)'
+Request.PATTERN_QUERY_STRING = '(%w+)=(%w+)'
 
 function Request:parseURLEncoded(value, _table)
     --value exists and _table is empty
     if value and next(_table) == nil then
-        for k, v in  string.gmatch(value, Request.PATTERN_QUERY_STRING) do
-            _table[k] = v
-        end
+      print('here?')      
+      for k, v in  string.gmatch(value, Request.PATTERN_QUERY_STRING) do
+        print('k=', k)
+        print('v=', v)
+          _table[k] = v
+      end
     end
 
-    return _table   
+    return _table
 end
 
 function Request:params()
