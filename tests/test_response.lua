@@ -28,12 +28,21 @@ describe('response', function()
     end)
 
     describe('make head', function()
-        it('should return a mimetype text/html and a status code 404', function ()
+        function verifyMakeHead(filename, statusCode, expectedMimetype)
             local response = Response:new({})
-            local head = Response:makeHead('', '404')
+            local head = Response:makeHead(filename, statusCode)
+            local expectedHead = string.gsub('HTTP/1.1 {{ STATUS_CODE }}', '{{ STATUS_CODE }}', statusCode)
 
-            assert.truthy(string.find(head, 'HTTP/1.1 404'))
-            assert.truthy(string.find(head, 'text/html'))
+            assert.truthy(string.find(head, expectedHead))
+            assert.truthy(string.find(head, expectedMimetype))
+        end
+
+        it('should return a mimetype text/html and a status code 404', function()
+            verifyMakeHead('', '404', 'text/html')
+        end)
+
+        it('should return a mimetype text/css and a status code 200', function()
+            verifyMakeHead('style.css', '200', 'text/css')
         end)
     end)
 end)
