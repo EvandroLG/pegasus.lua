@@ -16,7 +16,7 @@ local DEFAULT_ERROR_MESSAGE = [[
     </html>
 ]]
 
-local DEFAULT_HEAD = 'HTTP/1.1 {{ STATUS_CODE }} OK\r\nContent-Type: {{ MIME_TYPE }};charset=utf-8\r\n\r\n'
+local DEFAULT_HEAD = 'HTTP/1.1 {{ STATUS_CODE }} {{ MESSAGE }}\r\nContent-Type: {{ MIME_TYPE }};charset=utf-8\r\n\r\n'
 
 local RESPONSES = {
     [100] = 'Continue',
@@ -133,6 +133,7 @@ function Response:makeHead(filename, statusCode)
     local mimetype = mimetypes.guess(filename) or 'text/html'
     local head = string.gsub(DEFAULT_HEAD, '{{ MIME_TYPE }}', mimetype)
     head = string.gsub(head, '{{ STATUS_CODE }}', statusCode)
+    head = string.gsub(head, '{{ MESSAGE }}', RESPONSES[statusCode])
 
     return head
 end
