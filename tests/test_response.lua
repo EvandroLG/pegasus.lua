@@ -4,24 +4,26 @@ local Response = require 'lib/response'
 
 describe('response', function()
     describe('instance', function()
+        function verifyMethod(method)
+            local response = Response:new({})
+            assert.equal(type(response[method]), 'function')
+        end
+
         it('should exists constructor to response class', function()
             local response = Response:new({})
             assert.equal(type(response), 'table')
         end)
 
         it('should exists processes method', function()
-            local response = Response:new({})
-            assert.equal(type(response.processes), 'function')
+            verifyMethod('processes')
         end)
 
         it('should exists createContent method', function()
-            local response = Response:new({})
-            assert.equal(type(response.createContent), 'function')
+            verifyMethod('createContent')
         end)
 
         it('should exists makeHead method', function()
-            local response = Response:new({})
-            assert.equal(type(response.makeHead), 'function')
+            verifyMethod('makeHead')
         end)
     end)
 end)
