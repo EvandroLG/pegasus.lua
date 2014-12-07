@@ -53,7 +53,7 @@ end
 
 function Request:params()
     self:parseFirstLine()
-    return self:parse_url_encoded(self._query_string, self._params)
+    return self:parseURLEncoded(self._query_string, self._params)
 end
 
 function Request:path()
