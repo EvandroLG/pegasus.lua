@@ -43,10 +43,7 @@ Request.PATTERN_QUERY_STRING = '(%w+)=(%w+)'
 function Request:parseURLEncoded(value, _table)
     --value exists and _table is empty
     if value and next(_table) == nil then
-      print('here?')      
       for k, v in  string.gmatch(value, Request.PATTERN_QUERY_STRING) do
-        print('k=', k)
-        print('v=', v)
           _table[k] = v
       end
     end

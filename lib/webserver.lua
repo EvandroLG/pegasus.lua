@@ -1,6 +1,7 @@
 local socket = require 'socket'
 local Request = require 'lib/request'
 local Response = require 'lib/response'
+local http = require 'lib/http'
 
 
 local HTTPServer = {}
@@ -39,8 +40,7 @@ function HTTPServer:processRequest(client)
 end
 
 function HTTPServer:GET(request, response)
-    print('GET')
-    request:params()
+    http._get = request:params()
     response:processes(request, response)
 end
 
