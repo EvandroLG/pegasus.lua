@@ -5,4 +5,6 @@ test:
 	@busted tests/*.lua
 
 install_dependencies:
-	. dependencies.sh
+	luarocks install mimetypes
+	luarocks install luasocket
+	luarocks install busted
