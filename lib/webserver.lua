@@ -14,12 +14,20 @@ function HTTPServer:start(callback)
   local server = assert(socket.bind("*", self.port))
   local ip, port = server:getsockname()
   print("Server is up on port " .. self.port)
+  local was_called = false
 
   while 1 do
     local client = server:accept()
 
     client:settimeout(30)
-    self:processRequest(client, callback)
+
+    if not was_called then
+      self:processRequest(client, callback)
+      was_called = true
+    else
+      self:processRequest(client)
+    end
+
     client:close()
   end
 end
@@ -39,9 +47,11 @@ function HTTPServer:processRequest(client, callback)
 end
 
 function HTTPServer:GET(request, response, callback)
-  -- http._get = request:params()
   response:processes(request, response)
-  callback(request, response)
+
+  if callback then
+    callback(request, response)
+  end
 end
 
 function HTTPServer:POST(request, response)
