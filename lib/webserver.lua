@@ -3,6 +3,7 @@ local Request = require 'lib/request'
 local Response = require 'lib/response'
 local http = require 'lib/http'
 
+
 local HTTPServer = {}
 
 function HTTPServer:new(port)
@@ -59,8 +60,9 @@ function HTTPServer:POST(request, response)
   response:processes(request)
 end
 
-httpServer = HTTPServer:new('9090')
+return HTTPServer
+-- httpServer = HTTPServer:new('9090')
 
-httpServer:start(function (req, rep)
-  print(req:params()['name'])
-end)
+-- httpServer:start(function (req, rep)
+--   print(req:params()['name'])
+-- end)

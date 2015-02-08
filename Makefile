@@ -1,8 +1,10 @@
-run:
-	@lua lib/webserver.lua
+.SILENT:
+
+run_example:
+	lua example/app.lua
 
 test:
-	@busted tests/*.lua
+	busted tests/*.lua
 
 install_dependencies:
 	luarocks install mimetypes
