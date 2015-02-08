@@ -1,6 +1,7 @@
 # Pegasus.lua
 Pegasus.lua is a basic http server to work with Lua language.
 
+
 ![pegasus.lua](http://evandrolg.github.io/pegasus.lua/pegasus.lua.svg)
 
 ## How it work?
