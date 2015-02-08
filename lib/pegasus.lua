@@ -4,14 +4,14 @@ local Response = require 'lib/response'
 local http = require 'lib/http'
 
 
-local HTTPServer = {}
+local Pegasus = {}
 
-function HTTPServer:new(port)
+function Pegasus:new(port)
   self.port = port or '9090'
   return self
 end
 
-function HTTPServer:start(callback)
+function Pegasus:start(callback)
   local server = assert(socket.bind("*", self.port))
   local ip, port = server:getsockname()
   print("Server is up on port " .. self.port)
@@ -33,7 +33,7 @@ function HTTPServer:start(callback)
   end
 end
 
-function HTTPServer:processRequest(client, callback)
+function Pegasus:processRequest(client, callback)
   local request = Request:new(client)
   local response =  Response:new(client)
   local method = request:method()
@@ -47,7 +47,7 @@ function HTTPServer:processRequest(client, callback)
   client:send(response.body)
 end
 
-function HTTPServer:GET(request, response, callback)
+function Pegasus:GET(request, response, callback)
   response:processes(request, response)
 
   if callback then
@@ -55,12 +55,12 @@ function HTTPServer:GET(request, response, callback)
   end
 end
 
-function HTTPServer:POST(request, response)
+function Pegasus:POST(request, response)
   print('POST')
   response:processes(request)
 end
 
-return HTTPServer
+return Pegasus
 -- httpServer = HTTPServer:new('9090')
 
 -- httpServer:start(function (req, rep)
