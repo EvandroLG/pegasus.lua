@@ -22,6 +22,5 @@ Follow an example:
 * <code>params</code> It return a dictionary with all the GET parameters
 * <code>path</code> A string with the request path
 
-## Response methods:
 ### Response:
 In development
