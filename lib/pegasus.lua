@@ -1,7 +1,6 @@
 local socket = require 'socket'
 local Request = require 'lib/request'
 local Response = require 'lib/response'
-local http = require 'lib/http'
 
 
 local Pegasus = {}
@@ -14,7 +13,7 @@ end
 function Pegasus:start(callback)
   local server = assert(socket.bind("*", self.port))
   local ip, port = server:getsockname()
-  print("Server is up on port " .. self.port)
+  print("Pegasus is up on port " .. self.port)
   local was_called = false
 
   while 1 do
@@ -61,8 +60,4 @@ function Pegasus:POST(request, response)
 end
 
 return Pegasus
--- httpServer = HTTPServer:new('9090')
 
--- httpServer:start(function (req, rep)
---   print(req:params()['name'])
--- end)
