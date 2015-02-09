@@ -63,7 +63,7 @@ function Pegasus:POST(client, request, response)
   while err == null and data ~= null  do
     body = body .. '\n' .. data
     print(body)
-    data, err = client:receive('')
+    data, err = client:receive()
     print('last')
   end
 
