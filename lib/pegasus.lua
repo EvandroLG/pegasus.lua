@@ -56,25 +56,31 @@ end
 
 function Pegasus:POST(client, request, response)
   print('POST')
+  print(request:post()['name']])
+  -- print('body=' .. request:body())
+  -- local data, err, partial = client:receive(1000)
+  -- local body = ''
 
-  local data, err, partial = client:receive(1000)
-  local body = ''
-  if err =='timeout' then
-      err = null
-      data = partial
-  end
-  while err == null and data ~= null  do
-    body = body .. '\n' .. data
+  -- if err =='timeout' then
+  --     err = nil
+  --     data = partial
+  -- end
+
+  -- while err == null and data ~= null  do
+  --   body = body .. '\n' .. data
   
-    data, err, partial = client:receive(1000)
-    print(err)
-    if err == 'timeout' then
-      print('timeout')
-      body = body .. '\n' .. partial 
-      break
-     end    
-  end
-  print(body)
+  --   data, err, partial = client:receive(1000)
+  --   print('here?')
+
+  --   if err == 'timeout' then
+  --     -- print('partial='..partial)
+  --     -- print('timeout')
+  --     body = body .. '\n' .. partial
+  --     break
+  --    end
+  -- end
+
+  -- print(body)
   -- print(client:receive())
   -- response:processes(request)
 end

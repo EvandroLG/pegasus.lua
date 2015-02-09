@@ -55,6 +55,11 @@ function Request:params()
   return self:parseURLEncoded(self._query_string, self._params)
 end
 
+function Request:post()
+  local data = self:receivePost()
+  return self:parseURLEncoded(data, {})
+end
+
 function Request:path()
   self:parseFirstLine()
   return self._path 
@@ -90,24 +95,35 @@ function Request:headers()
   return self._headers
 end
 
-function Request:body()
+function Request:receivePost()
   self:headers()
-  local data, err = self.client:receive()
+  local data, err, partial = self.client:receive(1000)  
 
-  while (err == nil) and (data ~= nil) do
-    self._body = self._body .. data
-    data = self.client:receive()
+  if err =='timeout' then
+    err = nil
+    data = partial
   end
 
-  return self._body
+  return data
+  -- while err == nil and data ~= nil do
+  --   self._body = self._body .. data
+  --   data, err, partial = self.client:receive(1000)
+
+  --   if err == 'timeout' then
+  --     self._body = self._body .. '\n' .. partial
+  --     break
+  --   end
+  -- end
+
+  -- return self._body
 end
 
-function Request:form()
-  return self:parseURLEncoded(self:body(), self._form)
-end
+-- function Request:form()
+--   return self:parseURLEncoded(self:body(), self._form)
+-- end
 
-function Request:file()
+-- function Request:file()
     
-end
+-- end
 
 return Request
