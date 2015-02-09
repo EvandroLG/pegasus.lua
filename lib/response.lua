@@ -97,8 +97,6 @@ function Response:new(client)
 end
 
 function Response:processes(request)
-  print(request:path())
-
   local content = fileOpen(request:path())
 
   if not content then

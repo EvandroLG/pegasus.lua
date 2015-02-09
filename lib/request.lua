@@ -94,7 +94,7 @@ function Request:body()
   self:headers()
   local data, err = self.client:receive()
 
-  while (err == nil) and (not (data == nil)) do
+  while (err == nil) and (data ~= nil) do
     self._body = self._body .. data
     data = self.client:receive()
   end

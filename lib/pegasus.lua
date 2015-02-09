@@ -40,7 +40,7 @@ function Pegasus:processRequest(client, callback)
   if method == 'GET' then
     self:GET(request, response, callback)
   elseif method == 'POST' then
-    self:POST(request, response)
+    self:POST(client, request, response)
   end
 
   client:send(response.body)
@@ -54,10 +54,21 @@ function Pegasus:GET(request, response, callback)
   end
 end
 
-function Pegasus:POST(request, response)
+function Pegasus:POST(client, request, response)
   print('POST')
-  response:processes(request)
+
+  local data, err = client:receive()
+  local body = ''
+
+  while err == null and data ~= null  do
+    body = body .. '\n' .. data
+    print(body)
+    data, err = client:receive('')
+    print('last')
+  end
+
+  -- print(client:receive())
+  -- response:processes(request)
 end
 
 return Pegasus
-
