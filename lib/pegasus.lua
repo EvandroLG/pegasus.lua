@@ -19,7 +19,7 @@ function Pegasus:start(callback)
   while 1 do
     local client = server:accept()
 
-    client:settimeout(30)
+    client:settimeout(1, 'b')
 
     if not was_called then
       self:processRequest(client, callback)
@@ -57,16 +57,24 @@ end
 function Pegasus:POST(client, request, response)
   print('POST')
 
-  local data, err = client:receive()
+  local data, err, partial = client:receive(1000)
   local body = ''
-
+  if err =='timeout' then
+      err = null
+      data = partial
+  end
   while err == null and data ~= null  do
     body = body .. '\n' .. data
-    print(body)
-    data, err = client:receive()
-    print('last')
+  
+    data, err, partial = client:receive(1000)
+    print(err)
+    if err == 'timeout' then
+      print('timeout')
+      body = body .. '\n' .. partial 
+      break
+     end    
   end
-
+  print(body)
   -- print(client:receive())
   -- response:processes(request)
 end
