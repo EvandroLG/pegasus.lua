@@ -105,17 +105,6 @@ function Request:receivePost()
   end
 
   return data
-  -- while err == nil and data ~= nil do
-  --   self._body = self._body .. data
-  --   data, err, partial = self.client:receive(1000)
-
-  --   if err == 'timeout' then
-  --     self._body = self._body .. '\n' .. partial
-  --     break
-  --   end
-  -- end
-
-  -- return self._body
 end
 
 -- function Request:form()
