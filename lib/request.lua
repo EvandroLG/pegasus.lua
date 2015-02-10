@@ -13,6 +13,7 @@ function Request:new(client)
   newObj._form = {}
   newObj._is_valid = false
   newObj._body = ''
+
   return setmetatable(newObj, self)
 end
 
@@ -23,18 +24,18 @@ Request.PATTERN_REQUEST = (Request.PATTERN_METHOD ..
 Request.PATTERN_PATH ..Request.PATTERN_PROTOCOL) 
 
 function Request:parseFirstLine()
-  if (self.firstLine == nil) then
-    self.firstLine = self.client:receive()
-    -- Parse firstline http: METHOD PATH PROTOCOL, 
-    -- GET Makefile HTTP/1.1 
-    local method, path, protocol = string.match(self.firstLine, 
-                                   Request.PATTERN_REQUEST)
-    local filename, querystring = string.match(path, '^([^#?]+)(.*)')
+  if (self.firstLine ~= nil) then return end
 
-    self._path = '.' .. filename
-    self._query_string = querystring
-    self._method = method
-  end
+  self.firstLine = self.client:receive()
+  -- Parse firstline http: METHOD PATH PROTOCOL, 
+  -- GET Makefile HTTP/1.1 
+  local method, path, protocol = string.match(self.firstLine, 
+                                 Request.PATTERN_REQUEST)
+  local filename, querystring = string.match(path, '^([^#?]+)(.*)')
+
+  self._path = '.' .. filename
+  self._query_string = querystring
+  self._method = method
 end
 
 Request.PATTERN_QUERY_STRING = '(%w+)=(%w+)'

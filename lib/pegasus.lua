@@ -14,20 +14,12 @@ function Pegasus:start(callback)
   local server = assert(socket.bind("*", self.port))
   local ip, port = server:getsockname()
   print("Pegasus is up on port " .. self.port)
-  local was_called = false
 
   while 1 do
     local client = server:accept()
 
-    client:settimeout(1, 'b')
-
-    -- if not was_called then
-      self:processRequest(client, callback)
-      -- was_called = true
-    -- else
-      -- self:processRequest(client)
-    -- end
-
+    client:settimeout(30, 'b')
+    self:processRequest(client, callback)
     client:close()
   end
 end
