@@ -17,8 +17,7 @@ function Pegasus:start(callback)
 
   while 1 do
     local client = server:accept()
-
-    client:settimeout(30, 'b')
+    client:settimeout(1, 'b')
     self:processRequest(client, callback)
     client:close()
   end
@@ -27,9 +26,10 @@ end
 function Pegasus:processRequest(client, callback)
   local request = Request:new(client)
   local response =  Response:new(client)
-  local method = request:method()
 
-  response:processes(request, response)
+  if request:path() then
+    response:processes(request)
+  end
 
   if callback then
     callback(request, response)

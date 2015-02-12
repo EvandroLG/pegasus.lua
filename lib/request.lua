@@ -24,9 +24,15 @@ Request.PATTERN_REQUEST = (Request.PATTERN_METHOD ..
 Request.PATTERN_PATH ..Request.PATTERN_PROTOCOL) 
 
 function Request:parseFirstLine()
-  if (self.firstLine ~= nil) then return end
+  if (self.firstLine ~= nil) then 
+    return 
+  end
 
-  self.firstLine = self.client:receive()
+  self.firstLine, err, partial = self.client:receive()
+
+  if (self.firstLine == nil and err == 'timeout' and partial == '') then
+    return
+  end
   -- Parse firstline http: METHOD PATH PROTOCOL, 
   -- GET Makefile HTTP/1.1 
   local method, path, protocol = string.match(self.firstLine, 
@@ -81,7 +87,7 @@ function Request:headers()
   self:parseFirstLine()
   local data = self.client:receive()
 
-  while (not (data == nil)) and (data:len() > 0)  do
+  while (data ~= nil) and (data:len() > 0)  do
     local key, value = string.match(data, Request.PATTERN_HEADER)
 
     if key and value then
