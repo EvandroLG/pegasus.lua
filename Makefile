@@ -4,12 +4,7 @@ run_example:
 	lua example/app.lua
 
 test:
-	echo "\nrequest test:"
-	busted tests/test_request.lua
-	echo "\nresponse test:"
-	busted tests/test_response.lua
-	echo "\npegasus test:"
-	busted tests/test_pegasus.lua
+	for f in tests/*.lua; do busted "$$f"; done
 
 install_dependencies:
 	luarocks install mimetypes
