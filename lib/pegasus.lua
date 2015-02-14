@@ -11,9 +11,9 @@ function Pegasus:new(port)
 end
 
 function Pegasus:start(callback)
-  local server = assert(socket.bind("*", self.port))
+  local server = assert(socket.bind('*', self.port))
   local ip, port = server:getsockname()
-  print("Pegasus is up on port " .. self.port)
+  print('Pegasus is up on port ' .. self.port)
 
   while 1 do
     local client = server:accept()
@@ -42,7 +42,9 @@ function Pegasus:executeCallback(callback, request, response)
   callback({
     path = request:path(),
     headers = request:headers(),
-    method = request:method()
+    method = request:method(),
+    querystring = request:params(),
+    post = request:post()
   }, response)
 end
 
