@@ -115,12 +115,4 @@ function Request:receivePost()
   return data
 end
 
--- function Request:form()
---   return self:parseURLEncoded(self:body(), self._form)
--- end
-
--- function Request:file()
-    
--- end
-
 return Request
