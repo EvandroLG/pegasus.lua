@@ -32,10 +32,18 @@ function Pegasus:processRequest(client, callback)
   end
 
   if callback then
-    callback(request, response)
+    self:executeCallback(callback, request, response)
   end
 
   client:send(response.body)
+end
+
+function Pegasus:executeCallback(callback, request, response)
+  callback({
+    path = request:path(),
+    headers = request:headers(),
+    method = request:method()
+  }, response)
 end
 
 return Pegasus

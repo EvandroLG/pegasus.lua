@@ -4,6 +4,8 @@ local Pegasus = require 'lib/pegasus'
 local server = Pegasus:new('9090')
 
 server:start(function (req, rep)
+  print(req.method)
+  -- print(req.path)
   -- print(req:post())
   -- print(req:headers())
   -- print('path = ' .. req:path())
