@@ -5,13 +5,28 @@ local Request = require 'lib/request'
 describe('require', function()
   function getInstance(headers)
     local err = {nil, nil, nil, nil, nil, 'error'}
+    local position = 1
     local param = {
       receive = function()
-        return headers[1], err[1]
+        if headers[position] ~= nil then
+          local outcome = headers[position], err[position]
+          position = position + 1
+
+          return outcome
+        end
+
+        return nil
       end
     }
 
     return Request:new(param)
+  end
+
+  function length(dict)
+    local count = 0
+    for k in pairs(dict) do count = count + 1 end
+
+    return count
   end
 
   describe('instance', function()
@@ -80,14 +95,14 @@ describe('require', function()
     end)
 
     it('should returns correct object when headers method is called', function()
-      local headers = {'GET /Makefile?a=b&c=d HTTP/1.1', 'A:1', 'B:2', nil , 'C=3', ''}
+      local headers = {'GET /Makefile?a=b&c=d HTTP/1.1', 'a: A', 'b: B', nil, 'C=3', ''}
       local request = getInstance(headers)
       local result = request:headers()
 
       assert.equal(type(result), 'table')
-      assert.equal(#result, 2)
-      assert.equal('1', result['A'])
-      assert.equal('2', result['B'])
+      assert.equal(length(result), 2)
+      assert.equal('A', result['a'])
+      assert.equal('B', result['b'])
     end)
   end)
 end)
