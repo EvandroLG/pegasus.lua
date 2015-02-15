@@ -1,5 +1,5 @@
 # Pegasus.lua
-Pegasus.lua is a basic http server to work with Lua language.
+Pegasus.lua is a http server to work with web applications written in Lua language.
 
 ![pegasus.lua](http://evandrolg.github.io/pegasus.lua/pegasus.lua.svg)
 
@@ -25,4 +25,16 @@ Follow an example:
 * <code>post</code> It return a dictionary with all the POST parameters
 
 ### Response:
-In development
+#### Methods:
+* <code>writeHead(number)</code> It creates the head; the function receives a status code by parameter
+* <code>finish(string)</code> It creates the body; it accepts a content as parameter
+
+```lua
+  local Pegasus = require 'pegasus'
+
+  local server = Pegasus:new('9090')
+
+  server:start(function (req, rep)
+    rep.writeHead(200).finish('hello pegasus world!')
+  end)
+```
