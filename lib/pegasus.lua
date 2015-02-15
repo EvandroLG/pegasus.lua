@@ -33,9 +33,9 @@ function Pegasus:processRequest(client, callback)
 
   if callback then
     self:executeCallback(callback, request, response, client)
+  else
+    client:send(response.body)
   end
-
-  client:send(response.body)
 end
 
 function Pegasus:executeCallback(callback, request, response, client)
@@ -46,6 +46,8 @@ function Pegasus:executeCallback(callback, request, response, client)
     querystring = request:params(),
     post = request:post()
   }
+
+  local wasFinishCalled = false
 
   rep = {
     statusCode = nil,
@@ -61,10 +63,15 @@ function Pegasus:executeCallback(callback, request, response, client)
     finish = function(body)
       local body = response:createBody(rep.head, body, rep.statusCode)
       client:send(body)
+      wasFinishCalled = true
     end
   }
 
   callback(req, rep)
+
+  if not wasFinishCalled then
+    client:send(response.body)
+  end
 end
 
 return Pegasus
