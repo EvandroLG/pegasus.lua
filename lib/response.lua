@@ -132,7 +132,7 @@ function Response:createBody(head, response, statusCode)
 end
 
 function Response:makeHead(statusCode, filename)
-  local mimetype = mimetypes.guess(filename) or 'text/html'
+  local mimetype = mimetypes.guess(filename or '') or 'text/html'
   local head = string.gsub(DEFAULT_HEAD, '{{ MIME_TYPE }}', mimetype)
   head = string.gsub(head, '{{ STATUS_CODE }}', statusCode)
   head = string.gsub(head, '{{ MESSAGE }}', RESPONSES[statusCode])

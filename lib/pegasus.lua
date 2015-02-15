@@ -32,13 +32,13 @@ function Pegasus:processRequest(client, callback)
   end
 
   if callback then
-    self:executeCallback(callback, request, response)
+    self:executeCallback(callback, request, response, client)
   end
 
   client:send(response.body)
 end
 
-function Pegasus:executeCallback(callback, request, response)
+function Pegasus:executeCallback(callback, request, response, client)
   local req = {
     path = request:path(),
     headers = request:headers(),
@@ -47,17 +47,20 @@ function Pegasus:executeCallback(callback, request, response)
     post = request:post()
   }
 
-  local rep = {
+  rep = {
     statusCode = nil,
     head = nil,
 
     writeHead = function(statusCode)
       rep.head = response:makeHead(statusCode)
       rep.statusCode = statusCode
+
+      return rep
     end,
 
     finish = function(body)
-      response:createBody(rep.head, body, rep.statusCode)
+      local body = response:createBody(rep.head, body, rep.statusCode)
+      client:send(body)
     end
   }
 
