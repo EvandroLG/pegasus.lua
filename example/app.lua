@@ -4,6 +4,8 @@ local Pegasus = require 'lib/pegasus'
 local server = Pegasus:new('9090')
 
 server:start(function (req, rep)
+  rep.writeHead('200')
+  rep.finish('hello pegasus lua!')
   -- print(req.path)
   -- print(req:post())
   -- print(req:headers())

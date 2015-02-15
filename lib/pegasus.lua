@@ -39,13 +39,29 @@ function Pegasus:processRequest(client, callback)
 end
 
 function Pegasus:executeCallback(callback, request, response)
-  callback({
+  local req = {
     path = request:path(),
     headers = request:headers(),
     method = request:method(),
     querystring = request:params(),
     post = request:post()
-  }, response)
+  }
+
+  local rep = {
+    statusCode = nil,
+    head = nil,
+
+    writeHead = function(statusCode)
+      rep.head = response:makeHead(statusCode)
+      rep.statusCode = statusCode
+    end,
+
+    finish = function(body)
+      response:createBody(rep.head, body, rep.statusCode)
+    end
+  }
+
+  callback(req, rep)
 end
 
 return Pegasus

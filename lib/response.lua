@@ -118,8 +118,11 @@ function Response:processes(request)
 end
 
 function Response:createContent(filename, response, statusCode)
-  local head = self:makeHead(filename, statusCode)
+  local head = self:makeHead(statusCode, filename)
+  return self:createBody(head, response, statusCode)
+end
 
+function Response:createBody(head, response, statusCode)
   if statusCode >= 400 then
     response = string.gsub(response, '{{ CODE }}', statusCode)
     response = string.gsub(response, '{{ MESSAGE }}', RESPONSES[statusCode])
@@ -128,7 +131,7 @@ function Response:createContent(filename, response, statusCode)
   return head .. response
 end
 
-function Response:makeHead(filename, statusCode)
+function Response:makeHead(statusCode, filename)
   local mimetype = mimetypes.guess(filename) or 'text/html'
   local head = string.gsub(DEFAULT_HEAD, '{{ MIME_TYPE }}', mimetype)
   head = string.gsub(head, '{{ STATUS_CODE }}', statusCode)
