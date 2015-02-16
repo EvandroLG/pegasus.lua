@@ -28,9 +28,9 @@ function Request:parseFirstLine()
     return 
   end
 
-  self.firstLine, err, partial = self.client:receive()
+  self.firstLine, status, partial = self.client:receive()
 
-  if (self.firstLine == nil and err == 'timeout' and partial == '') then
+  if (self.firstLine == nil and status == 'timeout' and partial == '' or status == 'closed') then
     return
   end
 
