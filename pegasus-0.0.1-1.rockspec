@@ -2,7 +2,8 @@ package = 'pegasus'
 version = '0.0.1-1'
 
 source = {
-  url = ''
+  url = 'git://github.com/evandrolg/pegasus.lua',
+  tag = 'v0.0.1'
 }
 
 description = {
