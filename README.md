@@ -3,7 +3,7 @@ Pegasus.lua is a http server to work with web applications written in Lua langua
 
 ![pegasus.lua](http://evandrolg.github.io/pegasus.lua/pegasus.lua.svg)
 
-## How it work?
+## How does it work?
 Follow an example:
 ```lua
   local Pegasus = require 'pegasus'
