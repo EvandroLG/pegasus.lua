@@ -30,7 +30,7 @@ describe('response', function()
   describe('make head', function()
     function verifyMakeHead(filename, statusCode, message, expectedMimetype)
       local response = Response:new({})
-      local head = Response:makeHead(filename, statusCode)
+      local head = Response:makeHead(statusCode, filename)
       local expectedHead = string.gsub('HTTP/1.1 {{ MESSAGE }}', '{{ MESSAGE }}', message)
 
       assert.truthy(string.find(head, expectedHead))
