@@ -21,8 +21,8 @@ Follow an example:
 * <code>path</code> A string with the request path
 * <code>headers</code> A table with all the headers data
 * <code>method</code> The output is the request method as a string ('GET', 'POST', etc)
-* <code>querystring</code> It return a dictionary with all the GET parameters
-* <code>post</code> It return a dictionary with all the POST parameters
+* <code>querystring</code> It returns a dictionary with all the GET parameters
+* <code>post</code> It returns a dictionary with all the POST parameters
 
 ### Response:
 #### Methods:
