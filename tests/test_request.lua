@@ -1,5 +1,4 @@
-package.path = package.path .. ';../?.lua'
-local Request = require 'lib/request'
+local Request = require 'pegasus.request'
 
 
 describe('require', function()

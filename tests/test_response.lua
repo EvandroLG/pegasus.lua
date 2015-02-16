@@ -1,5 +1,4 @@
-package.path = package.path .. ';../?.lua'
-local Response = require 'lib/response'
+local Response = require 'pegasus.response'
 
 
 describe('response', function()

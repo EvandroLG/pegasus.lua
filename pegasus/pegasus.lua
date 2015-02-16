@@ -1,6 +1,6 @@
 local socket = require 'socket'
-local Request = require 'lib/request'
-local Response = require 'lib/response'
+local Request = require 'pegasus.request'
+local Response = require 'pegasus.response'
 
 
 local Pegasus = {}

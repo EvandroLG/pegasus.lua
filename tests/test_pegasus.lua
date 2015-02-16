@@ -1,5 +1,4 @@
-package.path = package.path .. ';../?.lua'
-local Pegasus = require 'lib/pegasus'
+local Pegasus = require 'pegasus.pegasus'
 
 
 describe('pegasus', function()
