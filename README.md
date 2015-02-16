@@ -38,3 +38,9 @@ Follow an example:
     rep.writeHead(200).finish('hello pegasus world!')
   end)
 ```
+
+## Contributing
+### Running tests
+```shell
+  make test
+```
