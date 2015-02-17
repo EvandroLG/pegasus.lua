@@ -4,49 +4,49 @@ Pegasus.lua is a http server to work with web applications written in Lua langua
 ![pegasus.lua](http://evandrolg.github.io/pegasus.lua/pegasus.lua.svg)
 
 ## Installation
-To install Pegasus.lua, execute:
-```shell
-  luarocks install pegasus
+To install Pegasus.lua, run:
+```console
+$ luarocks install pegasus
 ```
 
 ## How does it work?
 Follow an example:
 ```lua
-  local Pegasus = require 'pegasus'
+local pegasus = require 'pegasus'
 
-  local server = Pegasus:new('9090')
+local server = pegasus:new('9090')
 
-  server:start(function (require, response) 
-    print "It's running..."
-  end)
+server:start(function (reqest, response)
+  print "It's running..."
+end)
 ```
 
 ## API
-### Require:
-#### Properties:
-* <code>path</code> A string with the request path
-* <code>headers</code> A table with all the headers data
-* <code>method</code> The output is the request method as a string ('GET', 'POST', etc)
-* <code>querystring</code> It returns a dictionary with all the GET parameters
-* <code>post</code> It returns a dictionary with all the POST parameters
+### Request
+#### Properties
+* `path` A string with the request path
+* `headers` A table with all the headers data
+* `method` The output is the request method as a string ('GET', 'POST', etc)
+* `querystring` It returns a dictionary with all the GET parameters
+* `post` It returns a dictionary with all the POST parameters
 
-### Response:
-#### Methods:
-* <code>writeHead(number)</code> It creates the head; the function receives a status code by parameter
-* <code>finish(string)</code> It creates the body; it accepts a content as parameter
+### Response
+#### Methods
+* `writeHead(number)` It creates the head; the function receives a status code by parameter
+* `finish(string)` It creates the body; it accepts a content as parameter
 
 ```lua
-  local Pegasus = require 'pegasus'
+local pegasus = require 'pegasus'
 
-  local server = Pegasus:new('9090')
+local server = pegasus:new('9090')
 
-  server:start(function (req, rep)
-    rep.writeHead(200).finish('hello pegasus world!')
-  end)
+server:start(function (req, rep)
+  rep.writeHead(200).finish('hello pegasus world!')
+end)
 ```
 
 ## Contributing
 ### Running tests
-```shell
-  make test
+```console
+$ make test
 ```
