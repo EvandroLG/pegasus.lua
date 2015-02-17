@@ -14,7 +14,7 @@ description = {
 }
 
 dependencies = {
-  "lua >= 5.2",
+  "lua >= 5.1",
   "mimetypes >= 1.0.0-1",
   "luasocket >= 0.1.0-0"
 }
