@@ -50,7 +50,7 @@ end)
 ### Install Dependencies
 
 ```sh
-	$ make install_dependencies
+$ make install_dependencies
 ```
 
 ### Running tests
