@@ -5,7 +5,7 @@ Pegasus.lua is a http server to work with web applications written in Lua langua
 
 ## Installation
 To install Pegasus.lua, run:
-```console
+```sh
 $ luarocks install pegasus
 ```
 
@@ -46,7 +46,16 @@ end)
 ```
 
 ## Contributing
+
+### Install Dependencies
+
+```sh
+	$ make install_dependencies
+```
+
 ### Running tests
-```console
+
+```sh
 $ make test
 ```
+
