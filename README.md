@@ -46,7 +46,16 @@ end)
 ```
 
 ## Contributing
+
+### Install Dependencies
+
+```sh
+	$ make install_dependencies
+```
+
 ### Running tests
+
 ```console
 $ make test
 ```
+
