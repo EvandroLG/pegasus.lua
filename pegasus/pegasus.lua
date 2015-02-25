@@ -41,7 +41,7 @@ end
 Pegasus.wasFinishCalled = false
 
 function Pegasus:executeCallback(callback, request, response, client)
-  local req = self:makeResponse(request)
+  local req = self:makeRequest(request)
   local rep = self:makeResponse(response, client)
 
   callback(req, rep)
@@ -51,7 +51,7 @@ function Pegasus:executeCallback(callback, request, response, client)
   end
 end
 
-function Pegasus:makeResponse(request)
+function Pegasus:makeRequest(request)
   return {
     path = request:path(),
     headers = request:headers(),
