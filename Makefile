@@ -1,8 +1,12 @@
-run:
-	@lua lib/webserver.lua
+.SILENT:
+
+run_example:
+	lua example/app.lua
 
 test:
-	@busted tests/*.lua
+	for f in tests/*.lua; do busted "$$f"; done
 
 install_dependencies:
-	. dependencies.sh
+	luarocks install mimetypes
+	luarocks install luasocket
+	luarocks install busted
