@@ -16,7 +16,7 @@
         color: rgb(74, 74, 74);
       }
 
-      body, h1, hr, ul {
+      body, h1, hr, p, ul {
         margin: 0;
       }
 
@@ -47,6 +47,7 @@
 
       html {
         background-color: rgb(255, 255, 255);
+        cursor: default;
         font-size: 16px;
         line-height: 1.61803;
       }
@@ -156,7 +157,7 @@
        * home
        */
 
-      .home-header, .home-moon, .home-pegasus, .home-title {
+      .home-header, .home-moon, .home-more, .home-pegasus, .home-text, .home-title {
         position: absolute;
       }
 
@@ -170,8 +171,16 @@
         fill: rgb(255, 255, 255);
       }
 
+      .home-arrow {
+        display: block;
+        fill: rgb(73, 73, 73);
+        margin: 0.4375rem auto;
+        width: 0.75rem;
+        height: 0.8125rem;
+      }
+
       .home-header {
-        top: 50%;
+        top: 40%;
         left: 50%;
         transform: translate(-50%, -50%);
         width: 30vh;
@@ -185,11 +194,32 @@
         height: 80%;
       }
 
+      .home-more {
+        bottom: 1rem;
+        left: 50%;
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-align: center;
+        transform: translateX(-50%);
+        text-transform: uppercase;
+      }
+
       .home-pegasus {
         top: -10%;
         left: 40%;
         width: 50%;
         height: 60%;
+      }
+
+      .home-text {
+        top: calc(60% + 1rem);
+        left: 0;
+        font-size: 1.25rem;
+        letter-spacing: -0.025rem;
+        text-align: center;
+        width: 100%;
+        height: auto;
       }
 
       .home-title {
@@ -226,9 +256,19 @@
           </svg>
         </header>
 
-        <footer class="home">
-          
-        </footer>
+        <p class="home-text">
+          simple HTTP server written in <a href="http://www.lua.org/" rel="external">Lua</a>
+          <br>
+          to work with web applications.
+        </p>
+
+        <a href="#about" rel="next" class="home-more">
+          Learn more
+
+          <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="home-arrow">
+            <use xlink:href="#vector-arrow"></use>
+          </svg>
+        </a>
       </section>
 
       <section id="about" class="body-page">
@@ -263,6 +303,10 @@
     </header>
 
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="hidden">
+      <symbol id="vector-arrow" viewBox="0 0 12 13">
+        <path d="M-0 7.04C-0 7.04 6 12.99 6 12.99 6 12.99 12 7.04 12 7.04 12 7.04 10.3 5.6 10.3 5.6 10.3 5.6 7 8.77 7 8.77 7 8.77 7 0.01 7 0.01 7 0.01 5 0.01 5 0.01 5 0.01 5 8.77 5 8.77 5 8.77 1.7 5.6 1.7 5.6 1.7 5.6-0 7.04-0 7.04Z"></path>
+      </symbol>
+
       <symbol id="vector-moon" viewBox="0 0 184 154">
         <path d="M23.0280698,25.2332526 C39.864818,13.00166 45.9272768,13.7424857 66.0188696,8.27144671 C86.1104624,2.80040771 80.2964151,-0.937748692 108.094726,2.06918571 C135.893038,5.07612011 142.420671,0.0153364079 162.515731,18.7094811 C182.610791,37.4036258 183.566846,43.0983748 182.8403,71.603914 C182.113754,100.109454 174.727345,112.081543 159.718243,128.467046 C144.709141,144.852549 143.332428,144.388202 112.045766,148.890619 C80.7591044,153.393035 71.4753238,155.29434 46.1912659,144.804543 C20.907208,134.314747 16.9098371,130.1783 7.20580987,105.394839 C-2.49821738,80.611378 1.48083408,73.584608 3.87186305,57.056592 C9.58367435,36.9406139 6.19132161,37.4648452 23.0280698,25.2332526 L23.0280698,25.2332526 Z" stroke-width="1.6875"></path>
         <path d="M13.7326434,17.3139936 L23.4670661,13.0491441 L31.8357177,8.92400046 L39.4520939,5.82373047 L43.608884,7.95315372 L51.3354031,9.84627757 L58.6758715,10.3799977 L39.5071653,15.0759708 L30.666001,19.5656595 L20.5400206,26.6939338 L13.793222,32.2030388 L11.2467199,34.5267406 L11.9813725,30.4250632 L14.2833575,25.1528033 L14.7239288,20.6936753 L13.7326434,17.3139936 L13.7326434,17.3139936 Z" stroke-width="1.125"></path>
