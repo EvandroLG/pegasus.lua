@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>pegasus.lua</title>
+
+    <style>
+      @import url('//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Ubuntu+Mono');
+
+      * {
+        box-sizing: border-box;
+      }
+
+      a, html {
+        color: rgb(74, 74, 74);
+      }
+
+      body, h1, hr, ul {
+        margin: 0;
+      }
+
+      body, html {
+        width: 100%;
+        height: 100%;
+      }
+
+      h1, html {
+        font-family: 'Source Sans Pro', sans-serif;
+      }
+
+      header, main, nav, section {
+        display: block;
+      }
+
+      a {
+        text-decoration: none;
+      }
+
+      h1 {
+        font-weight: normal;
+      }
+
+      hr {
+        border: 0;
+      }
+
+      html {
+        background-color: rgb(255, 255, 255);
+        font-size: 16px;
+        line-height: 1.61803;
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .body {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 11rem;
+        overflow: auto;
+        width: auto;
+        height: auto;
+      }
+
+      .body-page {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      .body-ruler {
+        background-color: rgb(238, 238, 238);
+        width: 100%;
+        height: 1px;
+      }
+
+      .header {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgb(246, 246, 246);
+        display: block;
+        width: 11rem;
+        height: auto;
+      }
+
+      .header-anchor {
+        display: block;
+        font-size: 1.375rem;
+        padding: 0.5rem 2.5rem;
+      }
+
+      .header-active {
+        font-weight: 700;
+      }
+
+      .header-link {
+        display: block;
+      }
+
+      .header-links {
+        position: absolute;
+        top: 50%;
+        right: 0;
+        left: 0;
+        transform: translateY(-50%);
+        width: auto;
+        height: auto;
+      }
+
+      .header-logo {
+        position: absolute;
+        top: 10%;
+        left: 10%;
+        fill: rgb(246, 246, 246);
+        stroke: rgb(246, 246, 246);
+        width: 80%;
+        height: 80%;
+      }
+
+      .header-nav {
+        position: absolute;
+        top: 5rem;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: auto;
+        height: auto;
+      }
+
+      .header-title {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        background-color: rgb(74, 74, 74);
+        width: auto;
+        height: 5rem;
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="body">
+      <section id="home" class="body-page">
+        <!-- home -->
+      </section>
+
+      <section id="about" class="body-page">
+        <!-- about -->
+      </section>
+
+      <section id="api" class="body-page">
+        <!-- api -->
+      </section>
+    </main>
+
+    <header class="header">
+      <h1 class="header-title">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="header-logo">
+          <use xlink:href="#vector-title"></use>
+        </svg>
+      </h1>
+
+      <nav class="header-nav">
+        <ul class="header-links">
+          <li class="header-link">
+            <a href="#home" class="header-anchor">Home</a>
+          </li>
+          <li class="header-link">
+            <a href="#about" class="header-anchor">About</a>
+          </li>
+          <li class="header-link">
+            <a href="#api" class="header-anchor">API</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="hidden">
+      <symbol id="vector-title" viewBox="0 0 177 30">
+        <path d="M3.96982081,6.02761576 L3.11422578,14.5734892 L3.54147413,26.8867046" fill="none" stroke-width="2.25"></path>
+        <path d="M3.85284922,7.12562972 L14.4813385,7.26698446 L15.9953792,16.383571 L3.75509831,16.7658112" fill="none" stroke-width="2.25"></path>
+        <path d="M21.7154549,6.50616146 L22.1547848,16.4669717 L22.496913,25.2745536 L33.0946491,25.1501962 L22.733602,24.9684432 L22.3667615,16.7087776 L32.1786462,16.0699848 L22.4776923,16.3495231 L21.7747644,6.41741071 L31.8738611,6.6177642 L21.7154549,6.50616146 L21.7154549,6.50616146 Z" fill="none" stroke-width="2.25"></path>
+        <path d="M46.3578017,5.85714286 L36.5291108,5.95685621 L38.1490078,25.2857143 L48.573837,25.0181418 L49.4629839,15.0473071 L42.8528325,15.0473071" fill="none" stroke-width="2.25"></path>
+        <path d="M53.4696733,26.5025847 L55.5087133,5.99829666 L65.0515084,5.62770221 L68.3662527,16.4827891 L69.489839,26.2091754" fill="none" stroke-width="2.25"></path>
+        <path d="M55.3137606,14.9427868 L67.8467451,15.0834118" fill="none" stroke-width="2.25"></path>
+        <path d="M81.6735557,5.57421875 L70.6968975,5.75677648 L73.8106484,13.7777255 L84.2260626,14.2070743 L85.2947327,24.7142857 L74.8123206,23.5170354" fill="none" stroke-width="2.25"></path>
+        <path d="M88.8033313,2.76674107 L90.110887,13.4768608 L90.4217129,24.7142857 L99.9952612,23.3423304 L102.193009,23.7280593 L101.356635,13.0077888 L100.42855,2.76674107" fill="none" stroke-width="2.25"></path>
+        <path d="M114.574974,3.77203631 L105.936649,3.39229911 L107.272761,13.214004 L112.383267,13.551488 L116.614014,13.0276565 L117.010509,24.5351562 L108.194805,24.053578" fill="none" stroke-width="2.25"></path>
+        <path d="M120.529542,25.352287 L121.420676,26.4285714 L123.917879,26.242978 L124.465938,24.0876156 L123.039478,23.5714286 L121.088631,23.9248067 L120.529542,25.352287 L120.529542,25.352287 Z" stroke-width="0.703125"></path>
+        <path d="M129.8837,2.87555804 L129.22443,13.8367746 L129.612139,24.9720982 L135.500258,24.5343192 L140.38396,24.5066964" fill="none" stroke-width="2.25"></path>
+        <path d="M143.159976,3.47098214 L143.535054,17.7273996 L143.828306,24.9012277 L153.629757,23.9743304 L155.882147,24.2938058 L156.560088,14.2226562 L155.656441,3.69503348" fill="none" stroke-width="2.25"></path>
+        <path d="M161.355923,24.8080357 L162.284007,14.8113839 L162.964694,3.79715402 L171.847121,3.79715402 L173.214536,11.452567 L174.145641,18.6453683 L174.414181,25.1127232" fill="none" stroke-width="2.25"></path>
+        <path d="M162.570945,14.4179688 L168.068884,13.8691406 L173.529755,14.7377232" fill="none" stroke-width="2.25"></path>
+      </symbol>
+    </svg>
+  </body>
+</html>
