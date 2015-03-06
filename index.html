@@ -6,7 +6,7 @@
     <title>pegasus.lua</title>
 
     <style>
-      @import url('//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Ubuntu+Mono');
+      @import url('//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,900|Ubuntu+Mono');
 
       * {
         box-sizing: border-box;
@@ -16,7 +16,7 @@
         color: rgb(74, 74, 74);
       }
 
-      body, h1, hr, p, ul {
+      body, h1, h2, h3, hr, ol, p, ul {
         margin: 0;
       }
 
@@ -25,7 +25,7 @@
         height: 100%;
       }
 
-      h1, html {
+      h1, h2, h3, html {
         font-family: 'Source Sans Pro', sans-serif;
       }
 
@@ -33,11 +33,16 @@
         display: block;
       }
 
+      ol, ul {
+        list-style: none;
+        padding: 0;
+      }
+
       a {
         text-decoration: none;
       }
 
-      h1 {
+      h1, h2, h3 {
         font-weight: normal;
       }
 
@@ -52,9 +57,8 @@
         line-height: 1.61803;
       }
 
-      ul {
-        list-style: none;
-        padding: 0;
+      var {
+        font-style: normal;
       }
 
       /*
@@ -235,6 +239,148 @@
       }
 
       /*
+       * kickoff
+       */
+
+      .kickoff {
+        position: relative;
+      }
+
+      .kickoff-api {
+        border-top: 1px solid rgb(238, 238, 238);
+        width: 100%;
+      }
+
+      .kickoff-blue {
+        color: rgb(24, 54, 145);
+      }
+
+      .kickoff-code {
+        background-color: rgb(238, 238, 238);
+        border-radius: 0.125rem;
+        display: block;
+        font-family: 'Ubuntu Mono', monospace;
+        font-size: 1.25rem;
+        overflow: auto;
+        padding: 1rem 1.61803rem;
+        white-space: nowrap;
+        width: 100%;
+      }
+
+      .kickoff-column {
+        padding: 0 4.55rem;
+        float: left;
+      }
+
+      .kickoff-cyan {
+        color: rgb(0, 134, 179);
+      }
+
+      .kickoff-install {
+        width: 45%;
+      }
+
+      .kickoff-kind {
+        font-size: 1.25rem;
+      }
+
+      .kickoff-list {
+        display: block;
+        list-style: disc;
+      }
+
+      .kickoff-name {
+        background-color: rgb(238, 238, 238);
+        border-radius: 0.125rem;
+        padding: 0.61803rem 0.809015rem;
+      }
+
+      .kickoff-item {
+        position: relative;
+        align-items: flex-start;
+        display: flex;
+        margin: 1rem 0;
+      }
+
+      .kickoff-item::before {
+        position: absolute;
+        top: 0;
+        left: -1.19098rem;
+        content: '\2022';
+        display: block;
+        font-size: 1.61803rem;
+        line-height: 2.8125rem;
+        height: 2.8125rem;
+      }
+
+      .kickoff-purple {
+        color: rgb(167, 29, 93);
+      }
+
+      .kickoff-requests {
+        width: 45%;
+      }
+
+      .kickoff-responses {
+        width: 55%;
+      }
+
+      .kickoff-step {
+        position: relative;
+        counter-increment: kickoff;
+        display: block;
+        float: left;
+        padding: 0 4.55rem 4.55rem 4.55rem;
+      }
+
+      .kickoff-step::before {
+        position: absolute;
+        top: 1rem;
+        left: 4rem;
+        color: rgb(238, 238, 238);
+        content: counter(kickoff);
+        font-size: 8.75rem;
+        font-weight: 900;
+        line-height: 1;
+        z-index: -5;
+      }
+
+      .kickoff-steps {
+        counter-reset: kickoff;
+        display: block;
+        overflow: hidden;
+      }
+
+      .kickoff-steps::after {
+        clear: both;
+        content: '';
+        display: table;
+      }
+
+      .kickoff-subtitle {
+        font-size: 2.5rem;
+        font-weight: 900;
+        line-height: 1;
+      }
+
+      .kickoff-title {
+        font-size: 2.5rem;
+        font-weight: 900;
+        line-height: 1;
+        margin: 4.25rem 0 4.25rem 3rem;
+      }
+
+      .kickoff-use {
+        border-left: 1px solid rgb(238, 238, 238);
+        width: 55%;
+      }
+
+      .kickoff-value {
+        flex: 1;
+        padding: 0.61803rem 0 0.61803rem 0.625rem;
+      }
+
+      /*
        * modifiers
        */
 
@@ -275,12 +421,87 @@
         </a>
       </section>
 
-      <section id="about" class="body-page">
-        <!-- about -->
-      </section>
+      <section class="body-page kickoff">
+        <ol class="kickoff-steps">
+          <li class="kickoff-step kickoff-install">
+            <h1 class="kickoff-title">Installation</h1>
 
-      <section id="api" class="body-page">
-        <!-- api -->
+            <code class="kickoff-code">
+              $ luarocks install pegasus
+            </code>
+          </li>
+          <li class="kickoff-step kickoff-use">
+            <h1 class="kickoff-title">Usage</h1>
+
+            <code class="kickoff-code">
+              <span class="kickoff-purple">local</span> pegasus <span class="kickoff-purple">=</span> <span class="kickoff-cyan">require</span> <span class="kickoff-blue">'pegasus'</span>
+              <br>
+              <br>
+              <span class="kickoff-purple">local</span> server <span class="kickoff-purple">=</span> pegasus:<span class="kickoff-cyan">new</span>(<span class="kickoff-blue">'9090'</span>)
+              <br>
+              <br>
+              server:<span class="kickoff-cyan">start</span>(<span class="kickoff-purple">function</span> (reqest, response)
+              <br>
+              &nbsp;&nbsp;<span class="kickoff-cyan">print</span> <span class="kickoff-blue">"It's running..."</span>
+              <br>
+              <span class="kickoff-">end</span>)
+            </code>
+          </li>
+          <li class="kickoff-step kickoff-api">
+            <h1 class="kickoff-title">API</h1>
+
+            <section class="kickoff-column kickoff-requests">
+              <h2 class="kickoff-subtitle">Requests</h2>
+              <h3 class="kickoff-kind">Properties</h3>
+
+              <ul class="kickoff-list">
+                <li class="kickoff-item">
+                  <var class="kickoff-name">path</var> <span class="kickoff-value">Request path</span>
+                </li>
+                <li class="kickoff-item">
+                  <var class="kickoff-name">headers</var> <span class="kickoff-value">Headers data table</span>
+                </li>
+                <li class="kickoff-item">
+                  <var class="kickoff-name">methods</var> <span class="kickoff-value">GET, POST, etc...</span>
+                </li>
+                <li class="kickoff-item">
+                  <var class="kickoff-name">querystring</var> <span class="kickoff-value">Dictionary with all the GET parameters</span>
+                </li>
+                <li class="kickoff-item">
+                  <var class="kickoff-name">post</var> <span class="kickoff-value">Dictionary with all the POST parameters</span>
+                </li>
+              </ul>
+            </section>
+
+            <section class="kickoff-column kickoff-responses">
+              <h2 class="kickoff-subtitle">Responses</h2>
+              <h3 class="kickoff-kind">Methods</h3>
+
+              <ul class="kickoff-list">
+                <li class="kickoff-item">
+                  <var class="kickoff-name">writeHead(number)</var> <span class="kickoff-value">Creates the header, using the given number as status code</span>
+                </li>
+                <li class="kickoff-item">
+                  <var class="kickoff-name">finish(string)</var> <span class="kickoff-value">Creates the body, using the given string as content</span>
+                </li>
+              </ul>
+
+              <code class="kickoff-code">
+                <span class="kickoff-purple">local</span> pegasus <span class="kickoff-purple">=</span> <span class="kickoff-cyan">require</span> <span class="kickoff-blue">'pegasus'</span>
+                <br>
+                <br>
+                <span class="kickoff-purple">local</span> server <span class="kickoff-purple">=</span> pegasus:<span class="kickoff-cyan">new</span>(<span class="kickoff-blue">'9090'</span>)
+                <br>
+                <br>
+                server:<span class="kickoff-cyan">start</span>(<span class="kickoff-purple">function</span> (req, rep)
+                <br>
+                &nbsp;&nbsp;rep.<span class="kickoff-cyan">writeHead</span>(<span class="kickoff-cyan">200</span>).<span class="kickoff-cyan">finish</span>(<span class="kickoff-blue">'hello pegasus world!'</span>)
+                <br>
+                <span class="kickoff-purple">end</span>)
+              </code>
+            </section>
+          </li>
+        </ol>
       </section>
     </main>
 
