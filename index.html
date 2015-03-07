@@ -62,103 +62,17 @@
       }
 
       /*
-       * body
+       * page
        */
 
-      .body {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 11rem;
-        overflow: auto;
-        width: auto;
-        height: auto;
-      }
-
-      .body-page {
+      .page {
         position: relative;
         width: 100%;
         min-height: 100%;
       }
 
-      .body-page + .body-page {
+      .page + .page {
         border-top: 1px solid rgb(238, 238, 238);
-      }
-
-      .body-ruler {
-        background-color: rgb(238, 238, 238);
-        width: 100%;
-        height: 1px;
-      }
-
-      /*
-       * header
-       */
-
-      .header {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        background-color: rgb(246, 246, 246);
-        display: block;
-        width: 11rem;
-        height: auto;
-      }
-
-      .header-anchor {
-        display: block;
-        font-size: 1.375rem;
-        padding: 0.5rem 2.5rem;
-      }
-
-      .header-active {
-        font-weight: 700;
-      }
-
-      .header-link {
-        display: block;
-      }
-
-      .header-links {
-        position: absolute;
-        top: 50%;
-        right: 0;
-        left: 0;
-        transform: translateY(-50%);
-        width: auto;
-        height: auto;
-      }
-
-      .header-logo {
-        position: absolute;
-        top: 10%;
-        left: 10%;
-        fill: rgb(246, 246, 246);
-        stroke: rgb(246, 246, 246);
-        width: 80%;
-        height: 80%;
-      }
-
-      .header-nav {
-        position: absolute;
-        top: 5rem;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        width: auto;
-        height: auto;
-      }
-
-      .header-title {
-        position: absolute;
-        top: 0;
-        right: 0;
-        left: 0;
-        background-color: rgb(74, 74, 74);
-        width: auto;
-        height: 5rem;
       }
 
       /*
@@ -268,8 +182,12 @@
       }
 
       .kickoff-column {
-        padding: 0 4.55rem;
+        padding: 0 4.55rem 0 0;
         float: left;
+      }
+
+      .kickoff-column + .kickoff-column {
+        padding: 0 0 0 4.55rem;
       }
 
       .kickoff-cyan {
@@ -390,48 +308,100 @@
     </style>
   </head>
   <body>
-    <main class="body">
-      <section id="home" class="body-page">
-        <header class="home-header">
-          <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="home-moon">
-            <use xlink:href="#vector-moon"></use>
-          </svg>
+    <section class="page home">
+      <header class="home-header">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="home-moon">
+          <use xlink:href="#vector-moon"></use>
+        </svg>
 
-          <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="home-title">
-            <use xlink:href="#vector-title"></use>
-          </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="home-title">
+          <use xlink:href="#vector-title"></use>
+        </svg>
 
-          <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="home-pegasus">
-            <use xlink:href="#vector-pegasus"></use>
-          </svg>
-        </header>
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="home-pegasus">
+          <use xlink:href="#vector-pegasus"></use>
+        </svg>
+      </header>
 
-        <p class="home-text">
-          simple HTTP server written in <a href="http://www.lua.org/" rel="external">Lua</a>
-          <br>
-          to work with web applications.
-        </p>
+      <p class="home-text">
+        simple HTTP server written in <a href="http://www.lua.org/" rel="external">Lua</a>
+        <br>
+        to work with web applications.
+      </p>
 
-        <a href="#about" rel="next" class="home-more">
-          Learn more
+      <a href="#about" rel="next" class="home-more">
+        Learn more
 
-          <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="home-arrow">
-            <use xlink:href="#vector-arrow"></use>
-          </svg>
-        </a>
-      </section>
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="home-arrow">
+          <use xlink:href="#vector-arrow"></use>
+        </svg>
+      </a>
+    </section>
 
-      <section class="body-page kickoff">
-        <ol class="kickoff-steps">
-          <li class="kickoff-step kickoff-install">
-            <h1 class="kickoff-title">Installation</h1>
+    <section class="page kickoff">
+      <ol class="kickoff-steps">
+        <li class="kickoff-step kickoff-install">
+          <h1 class="kickoff-title">Installation</h1>
 
-            <code class="kickoff-code">
-              $ luarocks install pegasus
-            </code>
-          </li>
-          <li class="kickoff-step kickoff-use">
-            <h1 class="kickoff-title">Usage</h1>
+          <code class="kickoff-code">
+            $ luarocks install pegasus
+          </code>
+        </li>
+        <li class="kickoff-step kickoff-use">
+          <h1 class="kickoff-title">Usage</h1>
+
+          <code class="kickoff-code">
+            <span class="kickoff-purple">local</span> pegasus <span class="kickoff-purple">=</span> <span class="kickoff-cyan">require</span> <span class="kickoff-blue">'pegasus'</span>
+            <br>
+            <br>
+            <span class="kickoff-purple">local</span> server <span class="kickoff-purple">=</span> pegasus:<span class="kickoff-cyan">new</span>(<span class="kickoff-blue">'9090'</span>)
+            <br>
+            <br>
+            server:<span class="kickoff-cyan">start</span>(<span class="kickoff-purple">function</span> (reqest, response)
+            <br>
+            &nbsp;&nbsp;<span class="kickoff-cyan">print</span> <span class="kickoff-blue">"It's running..."</span>
+            <br>
+            <span class="kickoff-">end</span>)
+          </code>
+        </li>
+        <li class="kickoff-step kickoff-api">
+          <h1 class="kickoff-title">API</h1>
+
+          <section class="kickoff-column kickoff-requests">
+            <h2 class="kickoff-subtitle">Requests</h2>
+            <h3 class="kickoff-kind">Properties</h3>
+
+            <ul class="kickoff-list">
+              <li class="kickoff-item">
+                <var class="kickoff-name">path</var> <span class="kickoff-value">Request path</span>
+              </li>
+              <li class="kickoff-item">
+                <var class="kickoff-name">headers</var> <span class="kickoff-value">Headers data table</span>
+              </li>
+              <li class="kickoff-item">
+                <var class="kickoff-name">methods</var> <span class="kickoff-value">GET, POST, etc...</span>
+              </li>
+              <li class="kickoff-item">
+                <var class="kickoff-name">querystring</var> <span class="kickoff-value">Dictionary with all the GET parameters</span>
+              </li>
+              <li class="kickoff-item">
+                <var class="kickoff-name">post</var> <span class="kickoff-value">Dictionary with all the POST parameters</span>
+              </li>
+            </ul>
+          </section>
+
+          <section class="kickoff-column kickoff-responses">
+            <h2 class="kickoff-subtitle">Responses</h2>
+            <h3 class="kickoff-kind">Methods</h3>
+
+            <ul class="kickoff-list">
+              <li class="kickoff-item">
+                <var class="kickoff-name">writeHead(number)</var> <span class="kickoff-value">Creates the header, using the given number as status code</span>
+              </li>
+              <li class="kickoff-item">
+                <var class="kickoff-name">finish(string)</var> <span class="kickoff-value">Creates the body, using the given string as content</span>
+              </li>
+            </ul>
 
             <code class="kickoff-code">
               <span class="kickoff-purple">local</span> pegasus <span class="kickoff-purple">=</span> <span class="kickoff-cyan">require</span> <span class="kickoff-blue">'pegasus'</span>
@@ -440,92 +410,16 @@
               <span class="kickoff-purple">local</span> server <span class="kickoff-purple">=</span> pegasus:<span class="kickoff-cyan">new</span>(<span class="kickoff-blue">'9090'</span>)
               <br>
               <br>
-              server:<span class="kickoff-cyan">start</span>(<span class="kickoff-purple">function</span> (reqest, response)
+              server:<span class="kickoff-cyan">start</span>(<span class="kickoff-purple">function</span> (req, rep)
               <br>
-              &nbsp;&nbsp;<span class="kickoff-cyan">print</span> <span class="kickoff-blue">"It's running..."</span>
+              &nbsp;&nbsp;rep.<span class="kickoff-cyan">writeHead</span>(<span class="kickoff-cyan">200</span>).<span class="kickoff-cyan">finish</span>(<span class="kickoff-blue">'hello pegasus world!'</span>)
               <br>
-              <span class="kickoff-">end</span>)
+              <span class="kickoff-purple">end</span>)
             </code>
-          </li>
-          <li class="kickoff-step kickoff-api">
-            <h1 class="kickoff-title">API</h1>
-
-            <section class="kickoff-column kickoff-requests">
-              <h2 class="kickoff-subtitle">Requests</h2>
-              <h3 class="kickoff-kind">Properties</h3>
-
-              <ul class="kickoff-list">
-                <li class="kickoff-item">
-                  <var class="kickoff-name">path</var> <span class="kickoff-value">Request path</span>
-                </li>
-                <li class="kickoff-item">
-                  <var class="kickoff-name">headers</var> <span class="kickoff-value">Headers data table</span>
-                </li>
-                <li class="kickoff-item">
-                  <var class="kickoff-name">methods</var> <span class="kickoff-value">GET, POST, etc...</span>
-                </li>
-                <li class="kickoff-item">
-                  <var class="kickoff-name">querystring</var> <span class="kickoff-value">Dictionary with all the GET parameters</span>
-                </li>
-                <li class="kickoff-item">
-                  <var class="kickoff-name">post</var> <span class="kickoff-value">Dictionary with all the POST parameters</span>
-                </li>
-              </ul>
-            </section>
-
-            <section class="kickoff-column kickoff-responses">
-              <h2 class="kickoff-subtitle">Responses</h2>
-              <h3 class="kickoff-kind">Methods</h3>
-
-              <ul class="kickoff-list">
-                <li class="kickoff-item">
-                  <var class="kickoff-name">writeHead(number)</var> <span class="kickoff-value">Creates the header, using the given number as status code</span>
-                </li>
-                <li class="kickoff-item">
-                  <var class="kickoff-name">finish(string)</var> <span class="kickoff-value">Creates the body, using the given string as content</span>
-                </li>
-              </ul>
-
-              <code class="kickoff-code">
-                <span class="kickoff-purple">local</span> pegasus <span class="kickoff-purple">=</span> <span class="kickoff-cyan">require</span> <span class="kickoff-blue">'pegasus'</span>
-                <br>
-                <br>
-                <span class="kickoff-purple">local</span> server <span class="kickoff-purple">=</span> pegasus:<span class="kickoff-cyan">new</span>(<span class="kickoff-blue">'9090'</span>)
-                <br>
-                <br>
-                server:<span class="kickoff-cyan">start</span>(<span class="kickoff-purple">function</span> (req, rep)
-                <br>
-                &nbsp;&nbsp;rep.<span class="kickoff-cyan">writeHead</span>(<span class="kickoff-cyan">200</span>).<span class="kickoff-cyan">finish</span>(<span class="kickoff-blue">'hello pegasus world!'</span>)
-                <br>
-                <span class="kickoff-purple">end</span>)
-              </code>
-            </section>
-          </li>
-        </ol>
-      </section>
-    </main>
-
-    <header class="header">
-      <h1 class="header-title">
-        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="header-logo">
-          <use xlink:href="#vector-title"></use>
-        </svg>
-      </h1>
-
-      <nav class="header-nav">
-        <ul class="header-links">
-          <li class="header-link">
-            <a href="#home" class="header-anchor">Home</a>
-          </li>
-          <li class="header-link">
-            <a href="#about" class="header-anchor">About</a>
-          </li>
-          <li class="header-link">
-            <a href="#api" class="header-anchor">API</a>
-          </li>
-        </ul>
-      </nav>
-    </header>
+          </section>
+        </li>
+      </ol>
+    </section>
 
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="hidden">
       <symbol id="vector-arrow" viewBox="0 0 12 13">
