@@ -45,7 +45,7 @@ function Request:parseFirstLine()
   self._method = method
 end
 
-Request.PATTERN_QUERY_STRING = '(%w+)=(%w+)'
+Request.PATTERN_QUERY_STRING = '([^=]*)=([^&]*)&?'
 
 function Request:parseURLEncoded(value, _table)
   --value exists and _table is empty
