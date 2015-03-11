@@ -76,6 +76,78 @@
       }
 
       /*
+       * about
+       */
+
+      .about {
+        overflow: hidden;
+      }
+
+      .about-avatar {
+        width: 48px;
+        height: 48px;
+      }
+
+      .about-box {
+        position: absolute;
+        top: 10%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50%;
+        height: 40%;
+      }
+
+      .about-contributor {
+        display: inline-block;
+      }
+
+      .about-contributor + .about-contributor {
+        margin-left: 0.5rem;
+      }
+
+      .about-contributors {
+        position: absolute;
+        top: 20%;
+        left: 50%;
+        display: inline-block;
+        font: 0 / 0 sans-serif;
+        text-align: center;
+        transform: translate(-50%, 1rem);
+        white-space: nowrap;
+      }
+
+      .about-moon, .about-pegasus {
+        fill: rgb(255, 255, 255);
+        stroke: rgb(73, 73, 73);
+      }
+
+      .about-moon {
+        position: absolute;
+        top: 80%;
+        left: 10%;
+        width: 80%;
+        height: 80%;
+      }
+
+      .about-pegasus {
+        position: absolute;
+        top: 50%;
+        left: 40%;
+        width: 40%;
+        height: 50%;
+      }
+
+      .about-title {
+        position: absolute;
+        top: 0;
+        left: 0;
+        fill: rgb(73, 73, 73);
+        stroke: rgb(73, 73, 73);
+        width: 100%;
+        height: 20%;
+      }
+
+      /*
        * home
        */
 
@@ -419,6 +491,43 @@
           </section>
         </li>
       </ol>
+    </section>
+
+    <section class="page about">
+      <div class="about-box">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="about-title">
+          <use xlink:href="#vector-title"></use>
+        </svg>
+
+        <ul class="about-contributors">
+          <li class="about-contributor">
+            <a href="https://github.com/EvandroLG" rel="external" title="@EvandroLG" class="about-user"><img src="https://avatars0.githubusercontent.com/u/444054?v=3&amp;s=96" alt="" class="about-avatar"></a>
+          </li>
+          <li class="about-contributor">
+            <a href="https://github.com/gibatronic" rel="external" title="@gibatronic" class="about-user"><img src="https://avatars2.githubusercontent.com/u/819643?v=3&amp;s=96" alt="" class="about-avatar"></a>
+          </li>
+          <li class="about-contributor">
+            <a href="https://github.com/marioidival" rel="external" title="@marioidival" class="about-user"><img src="https://avatars2.githubusercontent.com/u/1129263?v=3&amp;s=96" alt="" class="about-avatar"></a>
+          </li>
+          <li class="about-contributor">
+            <a href="https://github.com/comotion" rel="external" title="@comotion" class="about-user"><img src="https://avatars1.githubusercontent.com/u/62794?v=3&amp;s=96" alt="" class="about-avatar"></a>
+          </li>
+          <li class="about-contributor">
+            <a href="https://github.com/tralara" rel="external" title="@tralara" class="about-user"><img src="https://avatars0.githubusercontent.com/u/9885816?v=3&amp;s=96" alt="" class="about-avatar"></a>
+          </li>
+          <li class="about-contributor">
+            <a href="https://github.com/Xe" rel="external" title="@Xe" class="about-user"><img src="https://avatars3.githubusercontent.com/u/529003?v=3&amp;s=96" alt="" class="about-avatar"></a>
+          </li>
+        </ul>
+      </div>
+
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="about-moon">
+        <use xlink:href="#vector-moon"></use>
+      </svg>
+
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="about-pegasus">
+        <use xlink:href="#vector-pegasus"></use>
+      </svg>
     </section>
 
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="hidden">
