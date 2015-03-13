@@ -76,15 +76,21 @@ local function try(what)
   return result
 end
 
-local function isDir(filename)
-  local file = io.open(filename, 'r')
+local function isDir(path)
+  local file = io.open(path, 'r')
   local ok, err, code = f:read(1)
   f:close()
 
   return code == 21
 end
 
-local function fileOpen(filename)
+local function fileOpen(path)
+  local filename = path
+
+  if isDir(path) then
+    filename = table.concat({ path, 'index.html' }, '/')
+  end
+
   local file = io.open(filename, 'r')
 
   if file then
