@@ -76,6 +76,14 @@ local function try(what)
   return result
 end
 
+local function isDir(filename)
+  local file = io.open(filename, 'r')
+  local ok, err, code = f:read(1)
+  f:close()
+
+  return code == 21
+end
+
 local function fileOpen(filename)
   local file = io.open(filename, 'r')
 
@@ -89,8 +97,8 @@ end
 local Response = {}
 
 function Response:new(client)
-  local newObj = {}       
-  self.__index = self  
+  local newObj = {}
+  self.__index = self
   newObj.body = ''
 
   return setmetatable(newObj, self)
