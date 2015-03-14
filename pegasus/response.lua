@@ -95,7 +95,6 @@ local function fileOpen(path)
     filename = pathJoin(path, 'index.html')
   end
 
-  print(filename)
   local file = io.open(filename, 'r')
 
   if file then
