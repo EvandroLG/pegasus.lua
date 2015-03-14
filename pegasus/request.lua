@@ -1,8 +1,8 @@
 local Request = {}
 
 function Request:new(client)
-  local newObj = {}       
-  self.__index = self  
+  local newObj = {}
+  self.__index = self
   newObj.client = client
   newObj.firstLine = nil
   newObj._method = nil
@@ -20,12 +20,12 @@ end
 Request.PATTERN_METHOD = '^(.*)%s'
 Request.PATTERN_PATH = '(.*)%s'
 Request.PATTERN_PROTOCOL = '(HTTP%/[0-9]%.[0-9])'
-Request.PATTERN_REQUEST = (Request.PATTERN_METHOD .. 
-Request.PATTERN_PATH ..Request.PATTERN_PROTOCOL) 
+Request.PATTERN_REQUEST = (Request.PATTERN_METHOD ..
+Request.PATTERN_PATH ..Request.PATTERN_PROTOCOL)
 
 function Request:parseFirstLine()
-  if (self.firstLine ~= nil) then 
-    return 
+  if (self.firstLine ~= nil) then
+    return
   end
 
   self.firstLine, status, partial = self.client:receive()
@@ -34,9 +34,9 @@ function Request:parseFirstLine()
     return
   end
 
-  -- Parse firstline http: METHOD PATH PROTOCOL, 
-  -- GET Makefile HTTP/1.1 
-  local method, path, protocol = string.match(self.firstLine, 
+  -- Parse firstline http: METHOD PATH PROTOCOL,
+  -- GET Makefile HTTP/1.1
+  local method, path, protocol = string.match(self.firstLine,
                                  Request.PATTERN_REQUEST)
   local filename, querystring = string.match(path, '^([^#?]+)(.*)')
 
@@ -70,7 +70,7 @@ end
 
 function Request:path()
   self:parseFirstLine()
-  return self._path 
+  return self._path
 end
 
 function Request:method()
@@ -81,10 +81,10 @@ end
 Request.PATTERN_HEADER = '([%w-]+): ([%w-=]+)'
 
 function Request:headers()
-  if self._headers_parsed then 
+  if self._headers_parsed then
     return self._headers
   end
-      
+
   self:parseFirstLine()
   local data = self.client:receive()
 
@@ -105,7 +105,7 @@ end
 
 function Request:receivePost()
   self:headers()
-  local data, err, partial = self.client:receive(1000)  
+  local data, err, partial = self.client:receive(1000)
 
   if err =='timeout' then
     err = nil

@@ -78,15 +78,14 @@ end
 
 local function isDir(path)
   local file = io.open(path, 'r')
-  local ok, err, code = f:read(1)
-  f:close()
+  local ok, err, code = file:read(1)
+  file:close()
 
   return code == 21
 end
 
 local function pathJoin(path, file)
-  local pathname = string.gsub(path, '/', '')
-  return table.concat({ pathname, file }, '/')
+  return table.concat({ path, file }, '/')
 end
 
 local function fileOpen(path)
@@ -96,6 +95,7 @@ local function fileOpen(path)
     filename = pathJoin(path, 'index.html')
   end
 
+  print(filename)
   local file = io.open(filename, 'r')
 
   if file then
