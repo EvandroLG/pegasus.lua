@@ -84,11 +84,16 @@ local function isDir(path)
   return code == 21
 end
 
+local function pathJoin(path, file)
+  local pathname = string.gsub(path, '/', '')
+  return table.concat({ pathname, file }, '/')
+end
+
 local function fileOpen(path)
   local filename = path
 
   if isDir(path) then
-    filename = table.concat({ path, 'index.html' }, '/')
+    filename = pathJoin(path, 'index.html')
   end
 
   local file = io.open(filename, 'r')
