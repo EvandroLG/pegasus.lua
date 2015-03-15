@@ -5,18 +5,18 @@ local File = {
     file:close()
 
     return code == 21
-  end
+  end,
 
   pathJoin = function(path, file)
     return table.concat({ path, file }, '/')
-  end
+  end,
 
 
- fileOpen = function(path)
+ open = function(path)
     local filename = path
-
-    if isDir(path) then
-      filename = pathJoin(path, 'index.html')
+    --print(File)
+    if File.isDir(path) then
+      filename = File.pathJoin(path, 'index.html')
     end
 
     local file = io.open(filename, 'r')
