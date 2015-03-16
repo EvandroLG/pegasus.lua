@@ -65,6 +65,10 @@ describe('file', function()
     it('should return index.html content when path passed as parameter is a directory', function()
       verifyContent('tests/fixtures/', 'Hello, Pegasus!')
     end)
+
+    it('should return index.htm content when path passed as parameter is a directory and index.htm does not exist', function()
+      verifyContent('tests/fixtures/contact/', 'Hello, Pegasus!')
+    end)
   end)
 
   describe('exists', function()

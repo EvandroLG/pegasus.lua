@@ -25,17 +25,28 @@ local File = {
     return table.concat({ path, file }, '/')
   end,
 
+  getIndex = function(self, path)
+    filename = self.pathJoin(path, 'index.html')
+
+    if not self.exists(filename) then
+      filename = self.pathJoin(path, 'index.htm')
+      if not filename then return nil end
+    end
+
+    return filename
+  end,
+
   open = function(self, path)
     local filename = path
 
     if self.isDir(path) then
-      filename = self.pathJoin(path, 'index.html')
+      filename = self.getIndex(self, path)
     end
 
     local file = io.open(filename, 'r')
 
     if file then
-        return file:read('*all')
+      return file:read('*all')
     end
 
     return nil
