@@ -14,8 +14,7 @@ local File = {
     return table.concat({ path, file }, '/')
   end,
 
-
- open = function(self, path)
+  open = function(self, path)
     local filename = path
 
     if self.isDir(path) then
