@@ -1,6 +1,9 @@
 local File = {
   isDir = function(path)
     local file = io.open(path, 'r')
+
+    if (file == nil) then return false end
+
     local ok, err, code = file:read(1)
     file:close()
 
@@ -12,11 +15,11 @@ local File = {
   end,
 
 
- open = function(path)
+ open = function(self, path)
     local filename = path
-    --print(File)
-    if File.isDir(path) then
-      filename = File.pathJoin(path, 'index.html')
+
+    if self.isDir(path) then
+      filename = self.pathJoin(path, 'index.html')
     end
 
     local file = io.open(filename, 'r')
