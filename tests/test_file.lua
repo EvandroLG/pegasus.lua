@@ -66,4 +66,19 @@ describe('file', function()
       verifyContent('tests/fixtures/', 'Hello, Pegasus!')
     end)
   end)
+
+  describe('exists', function()
+    local verifyOutput = function(path, method)
+      local output = File.exists(path)
+      assert[method](output)
+    end
+
+    it('should return false when file that was passed as parameter does not exist', function()
+      verifyOutput('tests/fixtures/index.htm', 'falsy')
+    end)
+
+    it('shoud return true when file that was passed as parameter exist', function()
+      verifyOutput('tests/fixtures/index.html', 'truthy')
+    end)
+  end)
 end)

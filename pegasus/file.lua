@@ -10,6 +10,17 @@ local File = {
     return code == 21
   end,
 
+  exists = function(path)
+    local file = io.open(path, 'r')
+
+    if file ~= nil then
+      io.close(file)
+      return true
+    else
+      return false
+    end
+  end,
+
   pathJoin = function(path, file)
     return table.concat({ path, file }, '/')
   end,
