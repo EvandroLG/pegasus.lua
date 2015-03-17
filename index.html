@@ -8,6 +8,30 @@
     <style>
       @import url('//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,900|Ubuntu+Mono');
 
+      @keyframes home-arrow {
+        0%, 70%, 90%, 100% {
+          transform: translateY(0);
+        }
+
+        80% {
+          transform: translateY(50%);
+        }
+      }
+
+      @-webkit-keyframes home-arrow {
+        0%, 70%, 90%, 100% {
+          transform: translateY(0);
+        }
+
+        80% {
+          transform: translateY(50%);
+        }
+
+        95% {
+          transform: translateY(15%);
+        }
+      }
+
       * {
         box-sizing: border-box;
       }
@@ -166,9 +190,12 @@
       }
 
       .home-arrow {
+        -webkit-animation: home-arrow 2s ease 0 infinite;
+        animation: home-arrow 2s ease 0 infinite;
         display: block;
         fill: rgb(73, 73, 73);
         margin: 0.4375rem auto;
+        transform: translateY(0);
         width: 0.75rem;
         height: 0.8125rem;
       }
