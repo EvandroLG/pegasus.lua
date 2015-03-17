@@ -175,6 +175,10 @@
         height: 20%;
       }
 
+      .about-user {
+        display: block;
+      }
+
       /*
        * home
        */
@@ -532,22 +536,9 @@
 
         <ul class="about-contributors">
           <li class="about-contributor">
-            <a href="https://github.com/EvandroLG" rel="external" title="@EvandroLG" class="about-user"><img src="https://avatars0.githubusercontent.com/u/444054?v=3&amp;s=96" alt="" class="about-avatar"></a>
-          </li>
-          <li class="about-contributor">
-            <a href="https://github.com/gibatronic" rel="external" title="@gibatronic" class="about-user"><img src="https://avatars2.githubusercontent.com/u/819643?v=3&amp;s=96" alt="" class="about-avatar"></a>
-          </li>
-          <li class="about-contributor">
-            <a href="https://github.com/marioidival" rel="external" title="@marioidival" class="about-user"><img src="https://avatars2.githubusercontent.com/u/1129263?v=3&amp;s=96" alt="" class="about-avatar"></a>
-          </li>
-          <li class="about-contributor">
-            <a href="https://github.com/comotion" rel="external" title="@comotion" class="about-user"><img src="https://avatars1.githubusercontent.com/u/62794?v=3&amp;s=96" alt="" class="about-avatar"></a>
-          </li>
-          <li class="about-contributor">
-            <a href="https://github.com/tralara" rel="external" title="@tralara" class="about-user"><img src="https://avatars0.githubusercontent.com/u/9885816?v=3&amp;s=96" alt="" class="about-avatar"></a>
-          </li>
-          <li class="about-contributor">
-            <a href="https://github.com/Xe" rel="external" title="@Xe" class="about-user"><img src="https://avatars3.githubusercontent.com/u/529003?v=3&amp;s=96" alt="" class="about-avatar"></a>
+            <a href="https://github.com/EvandroLG" rel="external" title="@EvandroLG" class="about-user">
+              <img src="https://avatars.githubusercontent.com/u/444054?v=3&amp;s=96" alt="" class="about-avatar">
+            </a>
           </li>
         </ul>
       </div>
@@ -622,17 +613,35 @@
         };
 
         var dom = {
+          aboutContributors: '.about-contributors',
           homeMore: '.home-more',
           kickoff: '.kickoff'
         };
+
+        var template = [
+          '<li class="about-contributor">',
+          '<a href="{{html_url}}" rel="external" title="@{{login}}" class="about-user">',
+          '<img src="{{avatar_url}}&amp;s=96" alt="" class="about-avatar">',
+          '</a>',
+          '</li>'
+        ].join('');
 
         var bind = function() {
           dom.homeMore.addEventListener('click', kickoff);
         };
 
         var cache = function() {
+          dom.aboutContributors = document.querySelector(dom.aboutContributors);
           dom.homeMore = document.querySelector(dom.homeMore);
           dom.kickoff = document.querySelector(dom.kickoff);
+        };
+
+        var grab = function() {
+          var xhr = new XMLHttpRequest();
+
+          xhr.addEventListener('load', parse);
+          xhr.open('get', '//api.github.com/repos/EvandroLG/pegasus.lua/stats/contributors');
+          xhr.send();
         };
 
         var kickoff = function(event) {
@@ -652,10 +661,48 @@
         var main = function() {
           cache();
           bind();
+          grab();
+        };
+
+        var parse = function() {
+          var data;
+
+          var fguth = {
+            author: {
+              avatar_url: 'https://avatars2.githubusercontent.com/u/919722?v=3',
+              html_url: 'https://github.com/fguth',
+              login: 'fguth'
+            }
+          };
+
+          var rateLimitExceeded = +this.getResponseHeader('X-RateLimit-Limit') === 0;
+
+          if (rateLimitExceeded) {
+            return;
+          }
+
+          data = JSON.parse(this.responseText);
+          dom.aboutContributors.innerText = '';
+
+          data.sort(sort);
+          data.splice(2, 0, fguth);
+          data.forEach(render);
+        };
+
+        var render = function(contributor) {
+          var html = template.replace(/\{\{avatar_url\}\}/g, contributor.author.avatar_url)
+                             .replace(/\{\{html_url\}\}/g, contributor.author.html_url)
+                             .replace(/\{\{login\}\}/g, contributor.author.login);
+
+          dom.aboutContributors.insertAdjacentHTML('beforeend', html);
         };
 
         var scroll = function() {
           window.scrollTo(0, data.position);
+        };
+
+        var sort = function(a, b) {
+          return a.total < b.total;
         };
 
         document.addEventListener('DOMContentLoaded', main);
