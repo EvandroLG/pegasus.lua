@@ -612,5 +612,54 @@
         <path d="M162.570945,14.4179688 L168.068884,13.8691406 L173.529755,14.7377232" fill="none" stroke-width="2.25"></path>
       </symbol>
     </svg>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/gsap/1.16.1/TweenLite.min.js"></script>
+
+    <script>
+      !function() {
+        var data = {
+          position: null
+        };
+
+        var dom = {
+          homeMore: '.home-more',
+          kickoff: '.kickoff'
+        };
+
+        var bind = function() {
+          dom.homeMore.addEventListener('click', kickoff);
+        };
+
+        var cache = function() {
+          dom.homeMore = document.querySelector(dom.homeMore);
+          dom.kickoff = document.querySelector(dom.kickoff);
+        };
+
+        var kickoff = function(event) {
+          var href = dom.homeMore.getAttribute('href');
+          var time = Math.abs((dom.kickoff.offsetTop - window.scrollX) * 0.00125);
+
+          event.preventDefault();
+          history.pushState(null, null, href);
+          data.position = window.scrollY;
+
+          TweenLite.to(data, time, {
+            position: dom.kickoff.offsetTop,
+            onUpdate: scroll
+          });
+        };
+
+        var main = function() {
+          cache();
+          bind();
+        };
+
+        var scroll = function() {
+          window.scrollTo(0, data.position);
+        };
+
+        document.addEventListener('DOMContentLoaded', main);
+      }();
+    </script>
   </body>
 </html>
