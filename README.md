@@ -15,7 +15,7 @@ local pegasus = require 'pegasus'
 
 local server = pegasus:new('9090')
 
-server:start(function (reqest, response)
+server:start(function (request, response)
   print "It's running..."
 end)
 ```
