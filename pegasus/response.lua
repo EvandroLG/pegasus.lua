@@ -89,7 +89,7 @@ function Response:new(client)
 end
 
 function Response:processes(request)
-  local content = File.open(File, request:path())
+  local content = File:open(File, request:path())
 
   if not content then
     self.body = self:createContent(request:path(), DEFAULT_ERROR_MESSAGE, 404)

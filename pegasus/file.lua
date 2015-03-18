@@ -1,56 +1,56 @@
-local File = {
-  isDir = function(path)
-    local file = io.open(path, 'r')
+local File = {}
 
-    if (file == nil) then return false end
+function File:isDir(path)
+  local file = io.open(path, 'r')
 
-    local ok, err, code = file:read(1)
-    file:close()
+  if (file == nil) then return false end
 
-    return code == 21
-  end,
+  local ok, err, code = file:read(1)
+  file:close()
 
-  exists = function(path)
-    local file = io.open(path, 'r')
+  return code == 21
+end
 
-    if file ~= nil then
-      io.close(file)
-      return true
-    else
-      return false
-    end
-  end,
+function File:exists(path)
+  local file = io.open(path, 'r')
 
-  pathJoin = function(path, file)
-    return table.concat({ path, file }, '/')
-  end,
-
-  getIndex = function(self, path)
-    filename = self.pathJoin(path, 'index.html')
-
-    if not self.exists(filename) then
-      filename = self.pathJoin(path, 'index.htm')
-      if not filename then return nil end
-    end
-
-    return filename
-  end,
-
-  open = function(self, path)
-    local filename = path
-
-    if self.isDir(path) then
-      filename = self.getIndex(self, path)
-    end
-
-    local file = io.open(filename, 'r')
-
-    if file then
-      return file:read('*all')
-    end
-
-    return nil
+  if file ~= nil then
+    io.close(file)
+    return true
+  else
+    return false
   end
-}
+end
+
+function File:pathJoin(path, file)
+  return table.concat({ path, file }, '/')
+end
+
+function File:getIndex(path)
+  filename = self:pathJoin(path, 'index.html')
+
+  if not self:exists(filename) then
+    filename = self:pathJoin(path, 'index.htm')
+    if not filename then return nil end
+  end
+
+  return filename
+end
+
+function File:open(path)
+  local filename = path
+
+  if self:isDir(path) then
+    filename = self:getIndex(path)
+  end
+
+  local file = io.open(filename, 'r')
+
+  if file then
+    return file:read('*all')
+  end
+
+  return nil
+end
 
 return File

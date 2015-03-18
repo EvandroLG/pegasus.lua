@@ -21,7 +21,7 @@ describe('file', function()
 
   describe('isDir', function()
     local verifyOutput = function(path, expected)
-      local output = File.isDir(path)
+      local output = File:isDir(path)
       assert[expected](output)
     end
 
@@ -40,7 +40,7 @@ describe('file', function()
 
   describe('pathJoin', function()
     it('should return path and file concatenated with a bar', function()
-      local output = File.pathJoin('tests/fixtures', 'index.html')
+      local output = File:pathJoin('tests/fixtures', 'index.html')
       assert.equal(output, 'tests/fixtures/index.html')
     end)
   end)
@@ -73,7 +73,7 @@ describe('file', function()
 
   describe('exists', function()
     local verifyOutput = function(path, method)
-      local output = File.exists(path)
+      local output = File:exists(path)
       assert[method](output)
     end
 
