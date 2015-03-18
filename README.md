@@ -1,6 +1,6 @@
 [![pegasus.lua](http://evandrolg.github.io/pegasus.lua/pegasus.lua.svg)](http://evandrolg.github.io/pegasus.lua)
 
-simple HTTP server written in Lua to work with web applications. [check the site](http://evandrolg.github.io/pegasus.lua).
+A http server to work with web applications written in Lua language [check the site](http://evandrolg.github.io/pegasus.lua).
 
 ## Installation
 To install Pegasus.lua, run:
