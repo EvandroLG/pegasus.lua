@@ -88,22 +88,23 @@ function Response:new(client)
   return setmetatable(newObj, self)
 end
 
-function Response:processes(request)
-  local content = File:open(request:path())
+function Response:processes(request, location)
+  local path = '.' .. location .. request:path()
+  local content = File:open(path)
 
   if not content then
-    self.body = self:createContent(request:path(), DEFAULT_ERROR_MESSAGE, 404)
+    self.body = self:createContent(path, DEFAULT_ERROR_MESSAGE, 404)
     return
   end
 
   try {
     function()
-      self.body = self:createContent(request:path(), content, 200)
+      self.body = self:createContent(path, content, 200)
     end,
 
     catch {
       function(error)
-        self.body = self:createContent(request:path(), content, 500)
+        self.body = self:createContent(path, content, 500)
       end
     }
   }

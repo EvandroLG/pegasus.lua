@@ -5,8 +5,10 @@ local Response = require 'pegasus.response'
 
 local Pegasus = {}
 
-function Pegasus:new(port)
+function Pegasus:new(port, location)
   self.port = port or '9090'
+  self.location = location or ''
+
   return self
 end
 
@@ -28,7 +30,7 @@ function Pegasus:processRequest(client, callback)
   local response =  Response:new(client)
 
   if request:path() then
-    response:processes(request)
+    response:processes(request, self.location)
   end
 
   if callback then

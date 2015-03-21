@@ -40,7 +40,7 @@ function Request:parseFirstLine()
                                  Request.PATTERN_REQUEST)
   local filename, querystring = string.match(path, '^([^#?]+)(.*)')
 
-  self._path = '.' .. filename
+  self._path = filename
   self._query_string = querystring
   self._method = method
 end
