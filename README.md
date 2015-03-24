@@ -1,7 +1,6 @@
-# Pegasus.lua
-Pegasus.lua is a http server to work with web applications written in Lua language.
+[![pegasus.lua](http://evandrolg.github.io/pegasus.lua/pegasus.lua.svg)](http://evandrolg.github.io/pegasus.lua)
 
-![pegasus.lua](http://evandrolg.github.io/pegasus.lua/pegasus.lua.svg)
+A http server to work with web applications written in Lua language [check the site](http://evandrolg.github.io/pegasus.lua).
 
 ## Installation
 To install Pegasus.lua, run:
@@ -16,7 +15,7 @@ local pegasus = require 'pegasus'
 
 local server = pegasus:new('9090')
 
-server:start(function (reqest, response)
+server:start(function (request, response)
   print "It's running..."
 end)
 ```

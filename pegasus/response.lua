@@ -1,4 +1,6 @@
 local mimetypes = require 'mimetypes'
+local File = require 'pegasus.file'
+
 
 local DEFAULT_ERROR_MESSAGE = [[
   <!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN'
@@ -76,28 +78,18 @@ local function try(what)
   return result
 end
 
-local function fileOpen(filename)
-  local file = io.open(filename, 'r')
-
-  if file then
-      return file:read('*all')
-  end
-
-  return nil
-end
-
 local Response = {}
 
 function Response:new(client)
-  local newObj = {}       
-  self.__index = self  
+  local newObj = {}
+  self.__index = self
   newObj.body = ''
 
   return setmetatable(newObj, self)
 end
 
 function Response:processes(request)
-  local content = fileOpen(request:path())
+  local content = File:open(request:path())
 
   if not content then
     self.body = self:createContent(request:path(), DEFAULT_ERROR_MESSAGE, 404)
