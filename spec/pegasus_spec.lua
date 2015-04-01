@@ -1,4 +1,4 @@
-local Pegasus = require 'pegasus.pegasus'
+local Pegasus = require 'pegasus'
 
 
 describe('pegasus', function()
