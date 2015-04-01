@@ -27,7 +27,7 @@ function File:pathJoin(path, file)
 end
 
 function File:getIndex(path)
-  filename = self:pathJoin(path, 'index.html')
+  local filename = self:pathJoin(path, 'index.html')
 
   if not self:exists(filename) then
     filename = self:pathJoin(path, 'index.htm')
