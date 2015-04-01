@@ -7,6 +7,7 @@ local Pegasus = {}
 
 function Pegasus:new(port)
   local server = {}
+  self.__index = self
   server.port = port or '9090'
   
   return setmetatable(server, self)
