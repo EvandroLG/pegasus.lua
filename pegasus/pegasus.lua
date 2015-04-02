@@ -6,14 +6,16 @@ local Response = require 'pegasus.response'
 local Pegasus = {}
 
 function Pegasus:new(port)
-  self.port = port or '9090'
-  return self
+  local server = {}
+  server.port = port or '9090'
+  
+  return setmetatable(server, self)
 end
 
 function Pegasus:start(callback)
   local server = assert(socket.bind('*', self.port))
   local ip, port = server:getsockname()
-  print('Pegasus is up on port ' .. self.port)
+  print('Pegasus is up on ' .. ip .. ":".. port)
 
   while 1 do
     local client = server:accept()
@@ -62,6 +64,7 @@ function Pegasus:makeRequest(request)
 end
 
 function Pegasus:makeResponse(response, client)
+  local rep
   rep = {
     statusCode = nil,
     head = nil,

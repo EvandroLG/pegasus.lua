@@ -27,7 +27,8 @@ function Request:parseFirstLine()
   if (self.firstLine ~= nil) then
     return
   end
-
+  
+  local status, partial
   self.firstLine, status, partial = self.client:receive()
 
   if (self.firstLine == nil and status == 'timeout' and partial == '' or status == 'closed') then

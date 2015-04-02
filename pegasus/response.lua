@@ -69,7 +69,7 @@ local function catch(what)
 end
 
 local function try(what)
-  status, result = pcall(what[1])
+  local status, result = pcall(what[1])
 
   if not status then
     what[2](result)
