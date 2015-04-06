@@ -6,8 +6,11 @@ local Response = require 'pegasus.response'
 local Pegasus = {}
 
 function Pegasus:new(port)
-  self.port = port or '9090'
-  return self
+  local server = {}
+  self.__index = self
+  server.port = port or '9090'
+  
+  return setmetatable(server, self)
 end
 
 function Pegasus:start(callback)

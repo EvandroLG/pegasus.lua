@@ -1,14 +1,11 @@
 local File = {}
 
+local lfs = require 'lfs'
+
 function File:isDir(path)
-  local file = io.open(path, 'r')
-
-  if (file == nil) then return false end
-
-  local ok, err, code = file:read(1)
-  file:close()
-
-  return code == 21
+  path = path:match("(.-)(%/*)$")  -- drop a trailing /
+  local mode = lfs.attributes(path, "mode")
+  return mode == "directory"
 end
 
 function File:exists(path)

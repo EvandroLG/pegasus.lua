@@ -4,7 +4,7 @@ run_example:
 	lua example/app.lua
 
 test:
-	for f in tests/*.lua; do busted "$$f"; done
+	busted
 
 install_dependencies:
 	luarocks install mimetypes
