@@ -18,6 +18,7 @@ before_install:
   - sudo luarocks install Lua-cURL --server=https://rocks.moonscript.org/dev
   - sudo luarocks install luacov-coveralls --server=https://rocks.moonscript.org/dev
   - sudo luarocks install lunitx
+  - sudo make install
 
 install:
   - sudo luarocks make pegasus-0.0.1-5.rockspec CFLAGS="-O2 -fPIC -ftest-coverage -fprofile-arcs" LIBFLAG="-shared --coverage"
