@@ -1,0 +1,25 @@
+language: c
+
+env:
+  global:
+    - LUAROCKS=2.2.1
+  matrix:
+    - LUA=lua5.1
+    - LUA=lua5.2
+    - LUA=lua5.3
+
+branches:
+  only:
+    - dev
+
+install:
+  - make install
+
+script:
+  - make test
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always
+
