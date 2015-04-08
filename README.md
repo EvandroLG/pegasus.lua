@@ -1,5 +1,7 @@
 [![pegasus.lua](http://evandrolg.github.io/pegasus.lua/pegasus.lua.svg)](http://evandrolg.github.io/pegasus.lua)
 
+[!Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/EvandroLG/pegasus.lua?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 A http server to work with web applications written in Lua language [check the site](http://evandrolg.github.io/pegasus.lua).
 
 ## Installation
