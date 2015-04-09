@@ -1,4 +1,4 @@
-language: c
+language: erlang
 
 env:
   global:
@@ -17,7 +17,6 @@ branches:
 
 before_install:
   - bash .travis/setup_lua.sh
-
 
 install:
   - sudo luarocks make pegasus-0.0.1-5.rockspec CFLAGS="-O2 -fPIC -ftest-coverage -fprofile-arcs" LIBFLAG="-shared --coverage"
