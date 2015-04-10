@@ -1,6 +1,8 @@
 [![pegasus.lua](http://evandrolg.github.io/pegasus.lua/pegasus.lua.svg)](http://evandrolg.github.io/pegasus.lua)
 [![Build
 Status](https://api.travis-ci.org/EvandroLG/pegasus.lua.svg)](https://travis-ci.org/EvandroLG/pegasus.lua)
+[![HuBoard
+badge](http://img.shields.io/badge/Hu-Board-7965cc.svg)](https://huboard.com/EvandroLG/pegasus.lua)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/EvandroLG/pegasus.lua?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
