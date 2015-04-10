@@ -15,11 +15,12 @@ branches:
   only:
     - master
 
-before_install:
-  - bash .travis/setup_lua.sh
+#before_install:
+  #- bash .travis/setup_lua.sh
 
 install:
-  - sudo luarocks make pegasus-0.0.1-5.rockspec CFLAGS="-O2 -fPIC -ftest-coverage -fprofile-arcs" LIBFLAG="-shared --coverage"
+  #- sudo luarocks make pegasus-0.0.1-5.rockspec CFLAGS="-O2 -fPIC -ftest-coverage -fprofile-arcs" LIBFLAG="-shared --coverage"
+  - bash .travis/setup_lua.sh
 
 notifications:
   email:
