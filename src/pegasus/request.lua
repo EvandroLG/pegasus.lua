@@ -13,6 +13,7 @@ function Request:new(client)
   newObj._form = {}
   newObj._is_valid = false
   newObj._body = ''
+  newObj._content_done = 0
 
   return setmetatable(newObj, self)
 end
@@ -65,7 +66,8 @@ function Request:params()
 end
 
 function Request:post()
-  local data = self:receivePost()
+  if self:method() ~= "POST" then return nil end
+  local data = self:receiveBody()
   return self:parseURLEncoded(data, {})
 end
 
@@ -100,19 +102,29 @@ function Request:headers()
   end
 
   self._headers_parsed = true
-
+  self._content_length = tonumber(self._headers["Content-Length"] or 0)
+  
   return self._headers
 end
 
-function Request:receivePost()
-  self:headers()
-  local data, err, partial = self.client:receive(1000)
+function Request:receiveBody(size)
+  size = size or self._content_length
+  
+  -- do we have content?
+  if self._content_done >= self._content_length then return false end
+  
+  -- fetch in chunks
+  local fetch = math.min(self._content_length-self._content_done, size)
+  
+  local data, err, partial = self.client:receive(fetch)
 
   if err =='timeout' then
     err = nil
     data = partial
   end
 
+  self._content_done = self._content_done + #data
+  
   return data
 end
 
