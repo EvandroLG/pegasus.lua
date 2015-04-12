@@ -1,0 +1,28 @@
+language: erlang
+
+env:
+  global:
+    - LUAROCKS=2.2.1
+  matrix:
+    #- LUA=lua5.1
+    - LUA=lua5.2
+    #- LUA=lua5.3
+    #- LUA=luajit
+    # - LUA=luajit2.0
+    # - LUA=luajit2.1
+
+branches:
+  only:
+    - master
+
+#before_install:
+  #- bash .travis/setup_lua.sh
+
+install:
+  #- sudo luarocks make pegasus-0.0.1-5.rockspec CFLAGS="-O2 -fPIC -ftest-coverage -fprofile-arcs" LIBFLAG="-shared --coverage"
+  - bash .travis/setup_lua.sh
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always

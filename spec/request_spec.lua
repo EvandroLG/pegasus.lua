@@ -66,7 +66,7 @@ describe('require', function()
       local request = getInstance(headers)
       local result = request:path()
 
-      assert.are.equal('./index.html', result)
+      assert.are.equal('/index.html', result)
     end)
 
     function verifyMethod(method)

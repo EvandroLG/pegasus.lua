@@ -10,3 +10,4 @@ install_dependencies:
 	luarocks install mimetypes
 	luarocks install luasocket
 	luarocks install busted
+	luarocks install luacov
