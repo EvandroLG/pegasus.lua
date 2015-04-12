@@ -1,32 +1,18 @@
-local socket = require 'socket'
 local Request = require 'pegasus.request'
 local Response = require 'pegasus.response'
 
 
-local Pegasus = {}
+local Handler = {}
 
-function Pegasus:new(port)
-  local server = {}
+function Handler:new(callback)
+  local hdlr = {}
   self.__index = self
-  server.port = port or '9090'
+  hdlr.callback = callback
   
-  return setmetatable(server, self)
+  return setmetatable(hdlr, self)
 end
 
-function Pegasus:start(callback)
-  local server = assert(socket.bind('*', self.port))
-  local ip, port = server:getsockname()
-  print('Pegasus is up on ' .. ip .. ":".. port)
-
-  while 1 do
-    local client = server:accept()
-    client:settimeout(1, 'b')
-    self:processRequest(client, callback)
-    client:close()
-  end
-end
-
-function Pegasus:processRequest(client, callback)
+function Handler:processRequest(client)
   local request = Request:new(client)
   local response =  Response:new(client)
 
@@ -34,27 +20,27 @@ function Pegasus:processRequest(client, callback)
     response:processes(request)
   end
 
-  if callback then
-    self:executeCallback(callback, request, response, client)
+  if self.callback then
+    self:execute(request, response, client)
   else
     client:send(response.body)
   end
 end
 
-Pegasus.wasFinishCalled = false
+Handler.wasFinishCalled = false
 
-function Pegasus:executeCallback(callback, request, response, client)
+function Handler:execute(request, response, client)
   local req = self:makeRequest(request)
   local rep = self:makeResponse(response, client)
 
-  callback(req, rep)
+  self.callback(req, rep)
 
   if not self.wasFinishCalled then
     client:send(response.body)
   end
 end
 
-function Pegasus:makeRequest(request)
+function Handler:makeRequest(request)
   return {
     path = request:path(),
     headers = request:headers(),
@@ -64,7 +50,7 @@ function Pegasus:makeRequest(request)
   }
 end
 
-function Pegasus:makeResponse(response, client)
+function Handler:makeResponse(response, client)
   local rep
   rep = {
     statusCode = nil,
@@ -87,4 +73,4 @@ function Pegasus:makeResponse(response, client)
   return rep
 end
 
-return Pegasus
+return Handler
