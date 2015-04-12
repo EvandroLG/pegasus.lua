@@ -4,10 +4,11 @@ local Response = require 'pegasus.response'
 
 local Handler = {}
 
-function Handler:new(callback)
+function Handler:new(callback, location)
   local hdlr = {}
   self.__index = self
   hdlr.callback = callback
+  hdlr.location = location or ''
   
   return setmetatable(hdlr, self)
 end
@@ -17,7 +18,7 @@ function Handler:processRequest(client)
   local response =  Response:new(client)
 
   if request:path() then
-    response:processes(request)
+    response:processes(request, self.location)
   end
 
   if self.callback then

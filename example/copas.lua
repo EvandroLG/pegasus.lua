@@ -13,7 +13,7 @@ local copas = require('copas')
 
 local hdlr = Handler:new(function (req, rep)
     --rep.writeHead(200).finish('hello pegasus world!')
-  end)
+  end, '/root/')
 
 
 -- Create http server
