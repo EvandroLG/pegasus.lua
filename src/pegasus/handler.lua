@@ -8,7 +8,7 @@ function Handler:new(callback)
   local hdlr = {}
   self.__index = self
   hdlr.callback = callback
-  
+
   return setmetatable(hdlr, self)
 end
 
