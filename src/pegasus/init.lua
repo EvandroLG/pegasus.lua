@@ -6,12 +6,13 @@ local isNumber = function(value)
   return type(value) == 'number'
 end
 
-local isString = function(value)
-  return type(value) == 'string'
-end
-
 local isNil = function(value)
   return type(value) == 'nil'
+end
+
+local ternary = function(condition, success, failure)
+  if condition then return success
+  else return failure end
 end
 
 local Pegasus = {}
