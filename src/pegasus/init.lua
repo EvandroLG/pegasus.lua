@@ -2,30 +2,20 @@ local socket = require 'socket'
 local Handler = require 'pegasus.handler'
 
 
-local isNumber = function(value)
-  return type(value) == 'number'
-end
-
-local isNil = function(value)
-  return type(value) == 'nil'
-end
-
-local ternary = function(condition, success, failure)
-  if condition then return success
-  else return failure end
-end
-
 local Pegasus = {}
 
 function Pegasus:new(params)
   local server = {}
   self.__index = self
 
-  local port = params.port
-  if isNumber(port) then tostring(port) end
+  local port, location
+  if type(params) == 'table' then
+    port = params.port
+    location = params.location
+  end
 
   server.port = port or '9090'
-  server.location = params.location or ''
+  server.location = location or ''
 
   return setmetatable(server, self)
 end
@@ -45,3 +35,4 @@ function Pegasus:start(callback)
 end
 
 return Pegasus
+

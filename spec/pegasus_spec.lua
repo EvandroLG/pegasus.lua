@@ -7,7 +7,7 @@ describe('pegasus', function()
       assert.equal('table', type(server))
     end)
 
-    it('should definer correct port', function()
+    it('should define a correct port', function()
       local expectedPort = '6060'
       local server = Pegasus:new { port = expectedPort }
 
