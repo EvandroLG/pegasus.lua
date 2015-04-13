@@ -1,6 +1,5 @@
 local Pegasus = require 'pegasus'
 
-
 describe('pegasus', function()
   describe('instance', function()
     it('should exists constructor to pegasus class', function()
@@ -19,5 +18,11 @@ describe('pegasus', function()
       local server = Pegasus:new()
       assert.equal('9090', server.port)
     end)
+
+    it('should receive a location as parameter', function()
+      local server = Pegasus:new('8080', 'mimi/')
+      assert.equal('mimi/', server.location)
+    end)
+
   end)
 end)

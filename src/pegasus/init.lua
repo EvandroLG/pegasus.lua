@@ -8,7 +8,7 @@ function Pegasus:new(port, location)
   self.__index = self
   server.port = port or '9090'
   server.location = location or ''
-  
+
   return setmetatable(server, self)
 end
 
