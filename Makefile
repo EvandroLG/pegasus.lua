@@ -1,7 +1,6 @@
 .SILENT:
 
 run_example:
-	luarocks make
 	lua example/app.lua
 
 test:

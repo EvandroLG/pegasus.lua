@@ -9,7 +9,7 @@ function Handler:new(callback, location)
   self.__index = self
   hdlr.callback = callback
   hdlr.location = location or ''
-  
+
   return setmetatable(hdlr, self)
 end
 
