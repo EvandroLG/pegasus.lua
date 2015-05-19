@@ -44,7 +44,7 @@ end)
 ```lua
 local pegasus = require 'pegasus'
 
-local server = pegasus:new('9090')
+local server = pegasus:new({ port='9090' })
 
 server:start(function (req, rep)
   rep.writeHead(200).finish('hello pegasus world!')
