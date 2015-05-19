@@ -81,7 +81,7 @@ function Request:method()
   return self._method
 end
 
-Request.PATTERN_HEADER = '([%w-]+): ([%w %w]+)'
+Request.PATTERN_HEADER = '([%w-]+): ([%w %w]+=)'
 
 function Request:headers()
   if self._headers_parsed then
