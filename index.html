@@ -554,7 +554,7 @@
             <span class="kickoff-purple">local</span> pegasus <span class="kickoff-purple">=</span> <span class="kickoff-cyan">require</span> <span class="kickoff-blue">'pegasus'</span>
             <br>
             <br>
-            <span class="kickoff-purple">local</span> server <span class="kickoff-purple">=</span> pegasus:<span class="kickoff-cyan">new</span>(<span class="kickoff-blue">'9090'</span>)
+            <span class="kickoff-purple">local</span> server <span class="kickoff-purple">=</span> pegasus:<span class="kickoff-cyan">new</span>({ port=<span class="kickoff-blue">'9090'</span> })
             <br>
             <br>
             server:<span class="kickoff-cyan">start</span>(<span class="kickoff-purple">function</span> (request, response)
