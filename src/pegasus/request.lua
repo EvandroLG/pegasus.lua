@@ -28,7 +28,7 @@ function Request:parseFirstLine()
   if (self.firstLine ~= nil) then
     return
   end
-  
+
   local status, partial
   self.firstLine, status, partial = self.client:receive()
 
@@ -103,19 +103,19 @@ function Request:headers()
 
   self._headers_parsed = true
   self._content_length = tonumber(self._headers["Content-Length"] or 0)
-  
+
   return self._headers
 end
 
 function Request:receiveBody(size)
   size = size or self._content_length
-  
+
   -- do we have content?
   if self._content_done >= self._content_length then return false end
-  
+
   -- fetch in chunks
   local fetch = math.min(self._content_length-self._content_done, size)
-  
+
   local data, err, partial = self.client:receive(fetch)
 
   if err =='timeout' then
@@ -124,7 +124,7 @@ function Request:receiveBody(size)
   end
 
   self._content_done = self._content_done + #data
-  
+
   return data
 end
 
