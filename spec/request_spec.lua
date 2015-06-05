@@ -93,16 +93,16 @@ describe('require', function()
       verifyMethod('PUT')
     end)
 
-    --it('should returns correct object when headers method is called', function()
-      --local headers = {'GET /Makefile?a=b&c=d HTTP/1.1', 'a: A', 'b: B', nil, 'C=3', ''}
-      --local request = getInstance(headers)
-      --local result = request:headers()
+    it('should returns correct object when headers method is called', function()
+      local headers = {'GET /Makefile?a=b&c=d HTTP/1.1', 'a: A', 'b: B', nil, 'C=3', ''}
+      local request = getInstance(headers)
+      local result = request:headers()
 
-      --assert.equal(type(result), 'table')
-      --assert.equal(length(result), 2)
-      --assert.equal('A', result['a'])
-      --assert.equal('B', result['b'])
-    --end)
+      assert.equal(type(result), 'table')
+      assert.equal(length(result), 2)
+      assert.equal('A', result['a'])
+      assert.equal('B', result['b'])
+    end)
 
     it('should find value with = signal', function()
       local headers = { 'GET /Makefile?a=b= HTTP/1.1', 'a: A=', nil }
