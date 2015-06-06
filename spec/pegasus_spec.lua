@@ -24,5 +24,11 @@ describe('pegasus', function()
       assert.equal('mimi/', server.location)
     end)
 
+    it('should receive a location as plugins', function()
+      plugins = {}
+      local server = Pegasus:new { port = '8080', location = 'mimi/', plugins = plugins }
+      assert.equal(plugins, server.plugins)
+    end)
+
   end)
 end)

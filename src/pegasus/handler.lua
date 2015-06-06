@@ -13,7 +13,7 @@ function Handler:new(callback, location)
   return setmetatable(hdlr, self)
 end
 
-function Handler:processRequest(client, head)
+function Handler:processRequest(client, head, plugins)
   local request = Request:new(client)
   local response =  Response:new(client, head)
 
@@ -33,6 +33,10 @@ Handler.wasFinishCalled = false
 function Handler:execute(request, response, client)
   local req = self:makeRequest(request)
   local rep = self:makeResponse(response, client)
+
+  for plugin in ipairs(plugins) do
+    plugin(request, response)
+  end
 
   self.callback(req, rep)
 
