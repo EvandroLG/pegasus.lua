@@ -51,6 +51,11 @@ describe('response', function()
     it('should return a mimetype text/html and status code 200', function()
       verifyMakeHead('index.html', 200, '200 OK', 'text/html')
     end)
+
+    it('should return a content length', function()
+      local head = Response:makeHead(200, 'index.html');
+      assert.truthy(string.find(head, 'Content%-Length: 0'))
+    end)
   end)
 
   describe('response content', function()
