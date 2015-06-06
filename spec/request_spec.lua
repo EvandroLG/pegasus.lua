@@ -109,7 +109,6 @@ describe('require', function()
       local request = getInstance(headers)
       local result = request:headers()
 
-      print(result)
       assert.equal(type(result), 'table')
       assert.equal(length(result), 1)
     end)

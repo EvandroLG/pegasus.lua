@@ -18,7 +18,11 @@ local DEFAULT_ERROR_MESSAGE = [[
   </html>
 ]]
 
-local DEFAULT_HEAD = 'HTTP/1.1 {{ STATUS_CODE }} {{ MESSAGE }}\r\nContent-Type: {{ MIME_TYPE }};charset=utf-8\r\n\r\n'
+local DEFAULT_HEAD = table.concat({
+  'HTTP/1.1 {{ STATUS_CODE }} {{ MESSAGE }}\r\n',
+  'Content-Type: {{ MIME_TYPE }}{{ USER_HEAD }}',
+  ';charset=utf-8\r\n\r\n'
+}, '')
 
 local RESPONSES = {
   [100] = 'Continue',
@@ -78,12 +82,23 @@ local function try(what)
   return result
 end
 
+local function tableSize(params)
+  local count = 0
+
+  for _ in pairs(params) do
+    count = count + 1
+  end
+
+  return count
+end
+
 local Response = {}
 
-function Response:new(client)
+function Response:new(client, head)
   local newObj = {}
   self.__index = self
   newObj.body = ''
+  newObj.userHead = head or {}
 
   return setmetatable(newObj, self)
 end
@@ -124,11 +139,30 @@ function Response:createBody(head, response, statusCode)
   return head .. response
 end
 
+function Response:parseUserHead(head)
+    local strHead = {}
+
+    for key, value in pairs(self.userHead) do
+      table.insert(strHead, '\r\n ' .. key .. ': ' .. value)
+    end
+
+    return table.concat(strHead, '')
+end
+
 function Response:makeHead(statusCode, filename)
   local mimetype = mimetypes.guess(filename or '') or 'text/html'
   local head = string.gsub(DEFAULT_HEAD, '{{ MIME_TYPE }}', mimetype)
   head = string.gsub(head, '{{ STATUS_CODE }}', statusCode)
   head = string.gsub(head, '{{ MESSAGE }}', RESPONSES[statusCode])
+
+  local hasUserHead = tableSize(self.userHead) > 0
+
+  if hasUserHead then
+    local strHead = self:parseUserHead(head)
+    head = string.gsub(head, '{{ USER_HEAD }}', strHead)
+  else
+    head = string.gsub(head, '{{ USER_HEAD }};', '')
+  end
 
   return head
 end

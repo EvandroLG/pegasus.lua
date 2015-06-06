@@ -13,9 +13,9 @@ function Handler:new(callback, location)
   return setmetatable(hdlr, self)
 end
 
-function Handler:processRequest(client)
+function Handler:processRequest(client, head)
   local request = Request:new(client)
-  local response =  Response:new(client)
+  local response =  Response:new(client, head)
 
   if request:path() then
     response:processes(request, self.location)

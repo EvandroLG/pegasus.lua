@@ -29,7 +29,7 @@ describe('response', function()
   describe('make head', function()
     function verifyMakeHead(filename, statusCode, message, expectedMimetype)
       local response = Response:new({})
-      local head = Response:makeHead(statusCode, filename)
+      local head = response:makeHead(statusCode, filename)
       local expectedHead = string.gsub('HTTP/1.1 {{ MESSAGE }}', '{{ MESSAGE }}', message)
 
       assert.truthy(string.find(head, expectedHead))
@@ -50,6 +50,13 @@ describe('response', function()
 
     it('should return a mimetype text/html and status code 200', function()
       verifyMakeHead('index.html', 200, '200 OK', 'text/html')
+    end)
+
+    it('should return head with datas that where passed by the user', function()
+      local response = Response:new({}, { ['WWW-Authenticate'] = "Basic realm" })
+      local head = response:makeHead(200, 'style.css')
+
+      assert.truthy(string.find(head, 'Authenticate'))
     end)
   end)
 

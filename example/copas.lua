@@ -1,5 +1,5 @@
 -- setup path to find the project source files of Pegasus
-package.path = "../src/?.lua;../src/?/init.lua;"..package.path
+package.path = "./src/?.lua;./src/?/init.lua;"..package.path
 
 
 -- Example that uses Copas as a socket scheduler, allowing multiple
