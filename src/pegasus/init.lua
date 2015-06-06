@@ -5,19 +5,14 @@ local Handler = require 'pegasus.handler'
 local Pegasus = {}
 
 function Pegasus:new(params)
+  params = params or {}
   local server = {}
   self.__index = self
 
   local port, location
-  if type(params) == 'table' then
-    port = params.port
-    location = params.location
-    head = params.head
-  end
-
-  server.port = port or '9090'
-  server.location = location or ''
-  server.head = head or {}
+  server.port = params.port or '9090'
+  server.location = params.locatio or ''
+  server.head = params.head or {}
 
   return setmetatable(server, self)
 end
