@@ -20,7 +20,8 @@ local DEFAULT_ERROR_MESSAGE = [[
 
 local DEFAULT_HEAD = table.concat({
   'HTTP/1.1 {{ STATUS_CODE }} {{ MESSAGE }}\r\n',
-  'Content-Type: {{ MIME_TYPE }}{{ USER_HEAD }}',
+  'Content-Type: {{ MIME_TYPE }}\r\n',
+  'Content-Length: {{ CONTENT_LENGTH }}{{ USER_HEAD }}',
   ';charset=utf-8\r\n\r\n'
 }, '')
 
@@ -154,6 +155,7 @@ function Response:makeHead(statusCode, filename)
   local head = string.gsub(DEFAULT_HEAD, '{{ MIME_TYPE }}', mimetype)
   head = string.gsub(head, '{{ STATUS_CODE }}', statusCode)
   head = string.gsub(head, '{{ MESSAGE }}', RESPONSES[statusCode])
+  head = string.gsub(head, '{{ CONTENT_LENGTH }}', File:size(filename) or 0)
 
   local hasUserHead = tableSize(self.userHead) > 0
 

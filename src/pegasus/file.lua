@@ -19,6 +19,12 @@ function File:exists(path)
   end
 end
 
+function File:size(path)
+  path = path:match("(.-)(%/*)$")  -- drop a trailing /
+  local size = lfs.attributes(path, "size")
+  return size
+end
+
 function File:pathJoin(path, file)
   return table.concat({ path, file }, '/')
 end

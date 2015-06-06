@@ -58,6 +58,12 @@ describe('response', function()
 
       assert.truthy(string.find(head, 'Authenticate'))
     end)
+
+    it('should return a content length', function()
+      local response = Response:new({})
+      local head = response:makeHead(200, 'index.html');
+      assert.truthy(string.find(head, 'Content%-Length: 0'))
+    end)
   end)
 
   describe('response content', function()
