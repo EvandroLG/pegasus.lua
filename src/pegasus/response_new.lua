@@ -64,7 +64,7 @@ function Response:new(client)
   self.__index = self
   newObj.client = client
   newObj.body = ''
-  newObj.headFirstLine = 'HTTP/1.1 {{ STATUS_CODE }} {{ MESSAGE  }}\r\n'
+  newObj.headFirstLine = 'HTTP/1.1 {{ STATUS_CODE }} {{ STATUS_TEXT }}\r\n'
   newObj.headers = {}
 
   return setmetatable(newObj, self)
@@ -106,7 +106,7 @@ function Response:_getHeaders()
 end
 
 function Response:write(value)
-  local head = self._getHeaders()
+  head = self:_getHeaders()
   local content = head .. value
   self.client:send(content)
 
