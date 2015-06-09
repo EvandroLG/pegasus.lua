@@ -20,8 +20,10 @@ local DEFAULT_ERROR_MESSAGE = [[
 
 local DEFAULT_HEAD = table.concat({
   'HTTP/1.1 {{ STATUS_CODE }} {{ MESSAGE }}\r\n',
-  'Content-Type: {{ MIME_TYPE }}\r\n',
-  'Content-Length: {{ CONTENT_LENGTH }}{{ USER_HEAD }}',
+  --'Content-Type: {{ MIME_TYPE }}\r\n',
+  --'Content-Length: {{ CONTENT_LENGTH }}{{ USER_HEAD }}',
+  '{{ USER_HEAD  }}',
+  '{{ HEAD }}',
   ';charset=utf-8\r\n\r\n'
 }, '')
 
@@ -104,30 +106,30 @@ function Response:new(client, head)
   return setmetatable(newObj, self)
 end
 
-function Response:processes(request, location)
+function Response:processes(request, head, location)
   local path = '.' .. location .. request:path()
   local content = File:open(path)
 
   if not content then
-    self.body = self:createContent(path, DEFAULT_ERROR_MESSAGE, 404)
+    self.body = self:createContent(path, head, DEFAULT_ERROR_MESSAGE, 404)
     return
   end
 
   try {
     function()
-      self.body = self:createContent(path, content, 200)
+      self.body = self:createContent(path, head, content, 200)
     end,
 
     catch {
       function(error)
-        self.body = self:createContent(path, content, 500)
+        self.body = self:createContent(path, head, content, 500)
       end
     }
   }
 end
 
-function Response:createContent(filename, response, statusCode)
-  local head = self:makeHead(statusCode, filename)
+function Response:createContent(filename, head, response, statusCode)
+  local head = self:makeHead(head, statusCode, filename)
   return self:createBody(head, response, statusCode)
 end
 
@@ -140,33 +142,43 @@ function Response:createBody(head, response, statusCode)
   return head .. response
 end
 
-function Response:parseUserHead(head)
+function Response:parseHead(head)
     local strHead = {}
 
-    for key, value in pairs(self.userHead) do
-      table.insert(strHead, '\r\n ' .. key .. ': ' .. value)
+    for key, value in pairs(head) do
+      if value ~= 'Status' then
+        table.insert(strHead, '\r\n ' .. key .. ': ' .. value)
+      end
     end
 
     return table.concat(strHead, '')
 end
 
-function Response:makeHead(statusCode, filename)
-  local mimetype = mimetypes.guess(filename or '') or 'text/html'
-  local head = string.gsub(DEFAULT_HEAD, '{{ MIME_TYPE }}', mimetype)
-  head = string.gsub(head, '{{ STATUS_CODE }}', statusCode)
-  head = string.gsub(head, '{{ MESSAGE }}', RESPONSES[statusCode])
-  head = string.gsub(head, '{{ CONTENT_LENGTH }}', File:size(filename) or 0)
-
+function Response:makeHead(header, statusCode, filename)
   local hasUserHead = tableSize(self.userHead) > 0
+  local status = header['Status'] or statusCode
+  local head = string.gsub(DEFAULT_HEAD, '{{ STATUS_CODE }}', status)
+  head = string.gsub(head, '{{ MESSAGE }}', RESPONSES[status])
 
   if hasUserHead then
-    local strHead = self:parseUserHead(head)
-    head = string.gsub(head, '{{ USER_HEAD }}', strHead)
-  else
-    head = string.gsub(head, '{{ USER_HEAD }};', '')
+    local strHead = self:parseHead(self.userHead)
+    head = string.gsub(head, '{{ USER_HEAD  }}', strHead)
   end
+
+  local cacheHead = {}
+
+  if not string.match(head, 'Content-Type') then
+    cacheHead['Content-Type'] = mimetypes.guess(filename or '') or 'text/html'
+  end
+
+  if not string.match(head, 'Content-Length') then
+    cacheHead['Content-Length'] = File:size(filename) or 0
+  end
+
+  head = string.gsub(head, '{{ HEAD }}', self:parseHead(cacheHead))
 
   return head
 end
 
 return Response
+

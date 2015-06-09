@@ -29,7 +29,7 @@ describe('response', function()
   describe('make head', function()
     function verifyMakeHead(filename, statusCode, message, expectedMimetype)
       local response = Response:new({})
-      local head = response:makeHead(statusCode, filename)
+      local head = response:makeHead({}, statusCode, filename)
       local expectedHead = string.gsub('HTTP/1.1 {{ MESSAGE }}', '{{ MESSAGE }}', message)
 
       assert.truthy(string.find(head, expectedHead))
@@ -54,14 +54,14 @@ describe('response', function()
 
     it('should return head with datas that where passed by the user', function()
       local response = Response:new({}, { ['WWW-Authenticate'] = "Basic realm" })
-      local head = response:makeHead(200, 'style.css')
+      local head = response:makeHead({}, 200, 'style.css')
 
       assert.truthy(string.find(head, 'Authenticate'))
     end)
 
     it('should return a content length', function()
       local response = Response:new({})
-      local head = response:makeHead(200, 'index.html');
+      local head = response:makeHead({}, 200, 'index.html');
       assert.truthy(string.find(head, 'Content%-Length: 0'))
     end)
   end)
@@ -85,7 +85,7 @@ describe('response', function()
 
     function verifyCreateContentWithError(filename, content, statusCode, expectedErrorCode, expectedMessage)
       local response = Response:new()
-      local result = response:createContent(filename, content, statusCode)
+      local result = response:createContent(filename, {}, content, statusCode)
 
       assert.truthy(string.find(result, expectedErrorCode))
       assert.truthy(string.find(result, expectedMessage))
@@ -107,7 +107,7 @@ describe('response', function()
 
     it('should return a content correct with status code 200', function()
       local response = Response:new()
-      local result = response:createContent('index.html', 'hello lua world!', 200)
+      local result = response:createContent('index.html', {}, 'hello lua world!', 200)
 
       assert.truthy(string.find(result, 'hello lua world!'))
     end)

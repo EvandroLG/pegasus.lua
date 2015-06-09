@@ -15,10 +15,10 @@ end
 
 function Handler:processRequest(client, head, plugins)
   local request = Request:new(client)
-  local response =  Response:new(client, head)
+  local response =  Response:new(client)
 
   if request:path() then
-    response:processes(request, self.location)
+    response:processes(request, head, self.location)
   end
 
   if self.callback then
