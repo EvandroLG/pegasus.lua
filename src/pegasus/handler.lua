@@ -34,7 +34,8 @@ function Handler:execute(request, response, client)
   local req = self:makeRequest(request)
   local rep = self:makeResponse(response, client)
 
-  for plugin in ipairs(plugins) do
+
+  for plugin in ipairs(plugins or {}) do
     if (plugin.before) then
       plugin.before(request, response)
     end
@@ -42,7 +43,7 @@ function Handler:execute(request, response, client)
 
   self.callback(req, rep)
 
-  for plugin in ipairs(plugins) do
+  for plugin in ipairs(plugins or {}) do
     if (plugin.after) then
       plugin.after(request, response)
     end
