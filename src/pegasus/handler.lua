@@ -22,7 +22,7 @@ function Handler:processRequest(client, head, plugins)
   end
 
   if self.callback then
-    self:execute(request, response, client)
+    self:execute(request, response, client, plugins)
   else
     client:send(response.body)
   end
@@ -35,11 +35,18 @@ function Handler:execute(request, response, client)
   local rep = self:makeResponse(response, client)
 
   for plugin in ipairs(plugins) do
-    plugin(request, response)
+    if (plugin.before) then
+      plugin.before(request, response)
+    end
   end
 
   self.callback(req, rep)
 
+  for plugin in ipairs(plugins) do
+    if (plugin.after) then
+      plugin.after(request, response)
+    end
+  end
   if not self.wasFinishCalled then
     client:send(response.body)
   end
