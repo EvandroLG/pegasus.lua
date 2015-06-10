@@ -151,7 +151,7 @@ function Response:_prepareWrite(body, statusCode)
   local content = body
 
   if statusCode >= 400 then
-    content = string.gsub(DEFAULT_ERROR_MESSAGE, '{{ STATUS_CODE  }}', statusCode)
+    content = string.gsub(DEFAULT_ERROR_MESSAGE, '{{ STATUS_CODE }}', statusCode)
     content = string.gsub(content, '{{ STATUS_TEXT }}', STATUS_TEXT[statusCode])
   end
 

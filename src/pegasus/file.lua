@@ -1,6 +1,6 @@
-local File = {}
-
 local lfs = require 'lfs'
+
+local File = {}
 
 function File:isDir(path)
   path = path:match("(.-)(%/*)$")  -- drop a trailing /

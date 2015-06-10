@@ -39,7 +39,7 @@ describe('response', function()
   end)
 
   describe('request process', function()
-    local verifyProcess = function(path, location)
+    local verifyProcess = function(path, location, statusCode)
       local Request = {
         path = function()
           return path
@@ -53,18 +53,49 @@ describe('response', function()
       local response = Response:new(client)
       response:process(Request, location)
 
-      assert.equal(404, response.status)
+      assert.equal(statusCode, response.status)
     end
 
     it('should set status code as 200', function()
-      --verifyProcess('', '')
+      verifyProcess('index.html', '/spec/fixtures/', 200)
     end)
 
     it('should set status code as 404', function()
-      verifyProcess('', '')
+      verifyProcess('', '', 404)
     end)
 
     it('should set status code as 500', function()
+    end)
+  end)
+
+  describe('prepare write', function()
+    local verifyOutput = function(statusCode, expectedBody)
+      local client = {
+        send = function(self, content)
+          local isOk = not not string.match(content, expectedBody)
+          assert.is_true(isOk)
+        end
+      }
+
+      local response = Response:new(client)
+      response:_prepareWrite(expectedBody, statusCode)
+    end
+
+    local verifyErrorOutput = function(statusCode)
+      local expectedBody = 'Error code: ' .. tostring(statusCode)
+      verifyOutput(statusCode, expectedBody)
+    end
+
+    it('should deliver proper content with status 200', function()
+      verifyOutput(200, 'Hello Pegasus World!')
+    end)
+
+    it('should deliver error page with status 404', function()
+      verifyErrorOutput(404)
+    end)
+
+    it('should deliver error page with status 500', function()
+      verifyErrorOutput(500)
     end)
   end)
 
@@ -93,53 +124,53 @@ describe('response', function()
     end)
   end)
 
-  --describe('status code', function()
-    --local verifyStatus = function(statusCode, statusText, expectedMessage)
-      --local response = Response:new({})
-      --response:statusCode(statusCode, statusText)
-      --local expectedStatus = 'HTTP/1.1 ' .. tostring(statusCode)
-      --local isStatusCorrect = not not string.match(response.headFirstLine, expectedStatus)
-      --local isMessageCorrect = not not string.match(response.headFirstLine, expectedMessage)
+  describe('status code', function()
+    local verifyStatus = function(statusCode, statusText, expectedMessage)
+      local response = Response:new({})
+      response:statusCode(statusCode, statusText)
+      local expectedStatus = 'HTTP/1.1 ' .. tostring(statusCode)
+      local isStatusCorrect = not not string.match(response.headFirstLine, expectedStatus)
+      local isMessageCorrect = not not string.match(response.headFirstLine, expectedMessage)
 
-      --assert.is_true(isStatusCorrect)
-      --assert.is_true(isMessageCorrect)
-    --end
+      assert.is_true(isStatusCorrect)
+      assert.is_true(isMessageCorrect)
+    end
 
-    --it('should add status code passed as a parameter', function()
-      --verifyStatus(200, nil, 'OK')
-    --end)
+    it('should add status code passed as a parameter', function()
+      verifyStatus(200, nil, 'OK')
+    end)
 
-    --it('should add status and message passed as parameters', function()
-      --verifyStatus(200, 'Perfect!', 'Perfect!')
-    --end)
-  --end)
+    it('should add status and message passed as parameters', function()
+      verifyStatus(200, 'Perfect!', 'Perfect!')
+    end)
+  end)
 
-  --describe('write', function()
-    --local verifyClient = function(expectedBody, body, header)
-      --local client = {
-        --send = function(obj, content)
-          --for key, value in pairs(header) do
-            --assert.is_true(not not string.match(content, value))
-          --end
+  describe('write', function()
+    local verifyClient = function(expectedBody, body, header)
+      local client = {
+        send = function(obj, content)
+          for key, value in pairs(header) do
+            assert.is_true(not not string.match(content, value))
+          end
 
-          --local isBodyCorrect = not not string.match(content, expectedBody)
-          --assert.is_true(isBodyCorrect)
-        --end
-      --}
+          local isBodyCorrect = not not string.match(content, expectedBody)
+          assert.is_true(isBodyCorrect)
+        end
+      }
 
-      --local response = Response:new(client)
-      --response:addHeaders(header)
-      --response:write(body)
-    --end
+      local response = Response:new(client)
+      response:addHeaders(header)
+      response:write(body)
+    end
 
-    --it('should call send method passing body', function()
-      --verifyClient("It's a content", "It's a content", {})
-    --end)
+    it('should call send method passing body', function()
+      verifyClient("It's a content", "It's a content", {})
+    end)
 
-    --it('should call send method passing head and body both', function()
-      --verifyClient("It's a content", "It's a content", { ['Content-Type'] = 'text/javascript' })
-    --end)
-  --end)
+    it('should call send method passing head and body both', function()
+      verifyClient("It's a content", "It's a content", { ['Content-Type'] = 'text/javascript' })
+    end)
+  end)
 
 
   --describe('make head', function()
