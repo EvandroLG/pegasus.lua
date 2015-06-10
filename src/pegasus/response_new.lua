@@ -70,8 +70,8 @@ local DEFAULT_ERROR_MESSAGE = [[
   </head>
   <body>
       <h1>Error response</h1>
-      <p>Error code: {{ CODE }}</p>
-      <p>Message: {{ MESSAGE }}.</p>
+      <p>Error code: {{ STATUS_CODE }}</p>
+      <p>Message: {{ STATUS_TEXT }}</p>
   </body>
   </html>
 ]]
@@ -95,18 +95,17 @@ function Response:process(request, location)
   local content = File:open(path)
 
   if not content then
-    --self:statusCode(404)
-    self:write(content, 404)
+    self:_prepareWrite(content, 404)
     return
   end
 
   try {
     function()
-      self:write(content, 200)
+      self:_prepareWrite(content, 200)
     end
   } catch {
     function(error)
-      self:write(content, 500)
+      self:_prepareWrite(content, 500)
     end
   }
 end
@@ -147,10 +146,21 @@ function Response:_getHeaders()
   return headers
 end
 
-function Response:write(value, statusCode)
+function Response:_prepareWrite(body, statusCode)
   self:statusCode(statusCode or 200)
+  local content = body
+
+  if statusCode >= 400 then
+    content = string.gsub(DEFAULT_ERROR_MESSAGE, '{{ STATUS_CODE  }}', statusCode)
+    content = string.gsub(content, '{{ STATUS_TEXT }}', STATUS_TEXT[statusCode])
+  end
+
+  self:write(content)
+end
+
+function Response:write(body)
   local head = self:_getHeaders()
-  local content = self.headFirstLine .. head .. value
+  local content = self.headFirstLine .. head .. body
   self.client:send(content)
 
   return self

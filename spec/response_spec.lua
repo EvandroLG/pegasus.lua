@@ -46,7 +46,11 @@ describe('response', function()
         end
       }
 
-      local response = Response:new({})
+      local client = {
+        send = function() end
+      }
+
+      local response = Response:new(client)
       response:process(Request, location)
 
       assert.equal(404, response.status)
@@ -57,6 +61,7 @@ describe('response', function()
     end)
 
     it('should set status code as 404', function()
+      verifyProcess('', '')
     end)
 
     it('should set status code as 500', function()
@@ -109,32 +114,32 @@ describe('response', function()
     --end)
   --end)
 
-  describe('write', function()
-    local verifyClient = function(expectedBody, body, header)
-      local client = {
-        send = function(obj, content)
-          for key, value in pairs(header) do
-            assert.is_true(not not string.match(content, value))
-          end
+  --describe('write', function()
+    --local verifyClient = function(expectedBody, body, header)
+      --local client = {
+        --send = function(obj, content)
+          --for key, value in pairs(header) do
+            --assert.is_true(not not string.match(content, value))
+          --end
 
-          local isBodyCorrect = not not string.match(content, expectedBody)
-          assert.is_true(isBodyCorrect)
-        end
-      }
+          --local isBodyCorrect = not not string.match(content, expectedBody)
+          --assert.is_true(isBodyCorrect)
+        --end
+      --}
 
-      local response = Response:new(client)
-      response:addHeaders(header)
-      response:write(body)
-    end
+      --local response = Response:new(client)
+      --response:addHeaders(header)
+      --response:write(body)
+    --end
 
-    it('should call send method passing body', function()
-      verifyClient("It's a content", "It's a content", {})
-    end)
+    --it('should call send method passing body', function()
+      --verifyClient("It's a content", "It's a content", {})
+    --end)
 
-    it('should call send method passing head and body both', function()
-      verifyClient("It's a content", "It's a content", { ['Content-Type'] = 'text/javascript' })
-    end)
-  end)
+    --it('should call send method passing head and body both', function()
+      --verifyClient("It's a content", "It's a content", { ['Content-Type'] = 'text/javascript' })
+    --end)
+  --end)
 
 
   --describe('make head', function()
