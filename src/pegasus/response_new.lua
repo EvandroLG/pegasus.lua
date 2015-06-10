@@ -66,8 +66,30 @@ function Response:new(client)
   newObj.body = ''
   newObj.headFirstLine = 'HTTP/1.1 {{ STATUS_CODE }} {{ STATUS_TEXT }}\r\n'
   newObj.headers = {}
+  newObj.status = ''
 
   return setmetatable(newObj, self)
+end
+
+function Response:process(request, location)
+  local path = '.' .. location .. request:path()
+  local content = File:open(path)
+
+  if not content then
+    self:statusCode('404')
+  end
+
+  try {
+    function()
+      self:statusCode('200')
+    end
+  }
+
+  catch {
+    function(error)
+      self:statusCode('500')
+    end
+  }
 end
 
 function Response:addHeader(key, value)
@@ -88,9 +110,10 @@ function Response:contentType(value)
   return self
 end
 
-function Response:statusCode(status, statusText)
-  self.headFirstLine = string.gsub(self.headFirstLine, '{{ STATUS_CODE }}', status)
-  self.headFirstLine = string.gsub(self.headFirstLine, '{{ STATUS_TEXT }}', statusText or STATUS_TEXT[status])
+function Response:statusCode(statusCode, statusText)
+  self.status = statusCode
+  self.headFirstLine = string.gsub(self.headFirstLine, '{{ STATUS_CODE }}', statusCode)
+  self.headFirstLine = string.gsub(self.headFirstLine, '{{ STATUS_TEXT }}', statusText or STATUS_TEXT[statusCode])
 
   return self
 end

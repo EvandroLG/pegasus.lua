@@ -2,87 +2,87 @@ local Response = require 'pegasus.response_new'
 
 
 describe('response', function()
-  --describe('instance', function()
-    --function verifyMethod(method)
-      --local response = Response:new({})
-      --assert.equal(type(response[method]), 'function')
-    --end
+  describe('instance', function()
+    function verifyMethod(method)
+      local response = Response:new({})
+      assert.equal(type(response[method]), 'function')
+    end
 
-    --it('should exists constructor to response class', function()
-      --local response = Response:new({})
-      --assert.equal(type(response), 'table')
-    --end)
+    it('should exists constructor to response class', function()
+      local response = Response:new({})
+      assert.equal(type(response), 'table')
+    end)
 
-    --it('should exists addHeader method', function()
-      --verifyMethod('addHeader')
-    --end)
+    it('should exists addHeader method', function()
+      verifyMethod('addHeader')
+    end)
 
-    --it('should exists addHeaders method', function()
-      --verifyMethod('addHeaders')
-    --end)
+    it('should exists addHeaders method', function()
+      verifyMethod('addHeaders')
+    end)
 
-    --it('should exists contentType method', function()
-      --verifyMethod('contentType')
-    --end)
+    it('should exists contentType method', function()
+      verifyMethod('contentType')
+    end)
 
-    --it('should exists statusCode method', function()
-      --verifyMethod('statusCode')
-    --end)
+    it('should exists statusCode method', function()
+      verifyMethod('statusCode')
+    end)
 
-    --it('should exists write method', function()
-      --verifyMethod('write')
-    --end)
+    it('should exists write method', function()
+      verifyMethod('write')
+    end)
 
-    --it('should exists writeFile method', function()
-      --verifyMethod('writeFile')
-    --end)
-  --end)
+    it('should exists writeFile method', function()
+      verifyMethod('writeFile')
+    end)
+  end)
 
-  --describe('add header', function()
-    --it('should add correct header passed as a parameter', function()
-      --local response = Response:new({})
-      --response:addHeader('Content-Length', 100)
+  describe('add header', function()
+    it('should add correct header passed as a parameter', function()
+      local response = Response:new({})
+      response:addHeader('Content-Length', 100)
 
-      --assert.equal(response.headers['Content-Length'], 100)
-    --end)
+      assert.equal(response.headers['Content-Length'], 100)
+    end)
 
-    --it('should do a merge with headers already passed', function()
-      --local response = Response:new({})
-      --response:addHeader('Content-Length', 100)
-      --response:addHeader('Content-Type', 'text/html')
-      --response:addHeaders({
-        --['Age'] = 15163,
-        --['Connection'] = 'keep-alive'
-      --})
-      --local headers = response.headers
+    it('should do a merge with headers already passed', function()
+      local response = Response:new({})
+      response:addHeader('Content-Length', 100)
+      response:addHeader('Content-Type', 'text/html')
+      response:addHeaders({
+        ['Age'] = 15163,
+        ['Connection'] = 'keep-alive'
+      })
+      local headers = response.headers
 
-      --assert.equal(headers['Content-Length'], 100)
-      --assert.equal(headers['Content-Type'], 'text/html')
-      --assert.equal(headers['Age'], 15163)
-      --assert.equal(headers['Connection'], 'keep-alive')
-    --end)
-  --end)
+      assert.equal(headers['Content-Length'], 100)
+      assert.equal(headers['Content-Type'], 'text/html')
+      assert.equal(headers['Age'], 15163)
+      assert.equal(headers['Connection'], 'keep-alive')
+    end)
+  end)
 
-  --describe('status code', function()
-    --local verifyStatus = function(statusCode, statusText, expectedMessage)
-      --local response = Response:new({})
-      --response:statusCode(statusCode, statusText)
-      --local expectedStatus = 'HTTP/1.1 ' .. tostring(statusCode)
-      --local isStatusCorrect = not not string.match(response.headFirstLine, expectedStatus)
-      --local isMessageCorrect = not not string.match(response.headFirstLine, expectedMessage)
+  describe('status code', function()
+    local verifyStatus = function(statusCode, statusText, expectedMessage)
+      local response = Response:new({})
+      response:statusCode(statusCode, statusText)
+      local expectedStatus = 'HTTP/1.1 ' .. tostring(statusCode)
+      local isStatusCorrect = not not string.match(response.headFirstLine, expectedStatus)
+      local isMessageCorrect = not not string.match(response.headFirstLine, expectedMessage)
 
-      --assert.is_true(isStatusCorrect)
-      --assert.is_true(isMessageCorrect)
-    --end
+      assert.is_true(isStatusCorrect)
+      assert.is_true(isMessageCorrect)
+    end
 
-    --it('should add status code passed as a parameter', function()
-      --verifyStatus(200, nil, 'OK')
-    --end)
+    it('should add status code passed as a parameter', function()
+      verifyStatus(200, nil, 'OK')
+    end)
 
-    --it('should add status and message passed as parameters', function()
-      --verifyStatus(200, 'Perfect!', 'Perfect!')
-    --end)
-  --end)
+    it('should add status and message passed as parameters', function()
+      verifyStatus(200, 'Perfect!', 'Perfect!')
+    end)
+  end)
 
   describe('write', function()
     local verifyClient = function(expectedBody, body, header)
