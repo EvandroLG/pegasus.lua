@@ -38,6 +38,31 @@ describe('response', function()
     end)
   end)
 
+  describe('request process', function()
+    local verifyProcess = function(path, location)
+      local Request = {
+        path = function()
+          return path
+        end
+      }
+
+      local response = Response:new({})
+      response:process(Request, location)
+
+      assert.equal(404, response.status)
+    end
+
+    it('should set status code as 200', function()
+      --verifyProcess('', '')
+    end)
+
+    it('should set status code as 404', function()
+    end)
+
+    it('should set status code as 500', function()
+    end)
+  end)
+
   describe('add header', function()
     it('should add correct header passed as a parameter', function()
       local response = Response:new({})
@@ -63,26 +88,26 @@ describe('response', function()
     end)
   end)
 
-  describe('status code', function()
-    local verifyStatus = function(statusCode, statusText, expectedMessage)
-      local response = Response:new({})
-      response:statusCode(statusCode, statusText)
-      local expectedStatus = 'HTTP/1.1 ' .. tostring(statusCode)
-      local isStatusCorrect = not not string.match(response.headFirstLine, expectedStatus)
-      local isMessageCorrect = not not string.match(response.headFirstLine, expectedMessage)
+  --describe('status code', function()
+    --local verifyStatus = function(statusCode, statusText, expectedMessage)
+      --local response = Response:new({})
+      --response:statusCode(statusCode, statusText)
+      --local expectedStatus = 'HTTP/1.1 ' .. tostring(statusCode)
+      --local isStatusCorrect = not not string.match(response.headFirstLine, expectedStatus)
+      --local isMessageCorrect = not not string.match(response.headFirstLine, expectedMessage)
 
-      assert.is_true(isStatusCorrect)
-      assert.is_true(isMessageCorrect)
-    end
+      --assert.is_true(isStatusCorrect)
+      --assert.is_true(isMessageCorrect)
+    --end
 
-    it('should add status code passed as a parameter', function()
-      verifyStatus(200, nil, 'OK')
-    end)
+    --it('should add status code passed as a parameter', function()
+      --verifyStatus(200, nil, 'OK')
+    --end)
 
-    it('should add status and message passed as parameters', function()
-      verifyStatus(200, 'Perfect!', 'Perfect!')
-    end)
-  end)
+    --it('should add status and message passed as parameters', function()
+      --verifyStatus(200, 'Perfect!', 'Perfect!')
+    --end)
+  --end)
 
   describe('write', function()
     local verifyClient = function(expectedBody, body, header)

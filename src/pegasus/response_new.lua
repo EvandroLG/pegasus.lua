@@ -1,3 +1,22 @@
+local mimetypes = require 'mimetypes'
+local File = require 'pegasus.file'
+
+
+-- solution by @cwarden - https://gist.github.com/cwarden/1207556
+local function catch(what)
+   return what[1]
+end
+
+local function try(what)
+  local status, result = pcall(what[1])
+
+  if not status then
+    what[2](result)
+  end
+
+  return result
+end
+
 local STATUS_TEXT = {
   [100] = 'Continue',
   [101] = 'Switching Protocols',
@@ -76,18 +95,18 @@ function Response:process(request, location)
   local content = File:open(path)
 
   if not content then
-    self:statusCode('404')
+    --self:statusCode(404)
+    self:write(content, 404)
+    return
   end
 
   try {
     function()
-      self:statusCode('200')
+      self:write(content, 200)
     end
-  }
-
-  catch {
+  } catch {
     function(error)
-      self:statusCode('500')
+      self:write(content, 500)
     end
   }
 end
@@ -128,9 +147,10 @@ function Response:_getHeaders()
   return headers
 end
 
-function Response:write(value)
-  head = self:_getHeaders()
-  local content = head .. value
+function Response:write(value, statusCode)
+  self:statusCode(statusCode or 200)
+  local head = self:_getHeaders()
+  local content = self.headFirstLine .. head .. value
   self.client:send(content)
 
   return self
