@@ -40,7 +40,7 @@ function Request:parseFirstLine()
   -- GET Makefile HTTP/1.1
   local method, path, protocol = string.match(self.firstLine,
                                  Request.PATTERN_REQUEST)
-  local filename, querystring = string.match(path, '^([^#?]+)(.*)')
+  local filename, querystring = string.match(path, '^([^#?]+)[#|?]?(.*)')
 
   self._path = filename
   self._query_string = querystring
