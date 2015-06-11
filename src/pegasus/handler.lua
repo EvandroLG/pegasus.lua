@@ -14,6 +14,7 @@ function Handler:new(callback, location)
 end
 
 function Handler:processRequest(client, plugins)
+  print('processRequest (handler)')
   local request = Request:new(client)
   local response =  Response:new(client)
 
@@ -22,16 +23,15 @@ function Handler:processRequest(client, plugins)
   end
 
   if self.callback then
-    self:execute(request, response, client, plugins)
-  else
-    client:send(response.body)
+    self.callback(self:makeRequest(request), response)
+    --self:execute(request, response, client, plugins)
   end
+
+  client:send(response.content)
 end
 
-Handler.wasFinishCalled = false
-
-function Handler:execute(request, response, client)
-  local req = self:makeRequest(request)
+--function Handler:execute(request, response, client)
+  --local req = self:makeRequest(request)
   --local rep = self:makeResponse(response, client)
 
   --for plugin in ipairs(plugins or {}) do
@@ -40,7 +40,8 @@ function Handler:execute(request, response, client)
     --end
   --end
 
-  self.callback(req, response)
+  --self.callback(req, response)
+
 
   --for plugin in ipairs(plugins or {}) do
     --if (plugin.after) then
@@ -48,10 +49,10 @@ function Handler:execute(request, response, client)
     --end
   --end
 
-  if not self.wasFinishCalled then
-    client:send(response.body)
-  end
-end
+  --if not self.wasFinishCalled then
+    --client:send(response.body)
+  --end
+--end
 
 function Handler:makeRequest(request)
   return {

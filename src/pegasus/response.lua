@@ -78,19 +78,20 @@ local DEFAULT_ERROR_MESSAGE = [[
 
 local Response = {}
 
-function Response:new(client)
+function Response:new()
   local newObj = {}
   self.__index = self
-  newObj.client = client
   newObj.body = ''
   newObj.headFirstLine = 'HTTP/1.1 {{ STATUS_CODE }} {{ STATUS_TEXT }}\r\n'
   newObj.headers = {}
-  newObj.status = ''
+  newObj.status = 200
+  newObj.content = ''
 
   return setmetatable(newObj, self)
 end
 
 function Response:_process(request, location)
+  print('process')
   local path = '.' .. location .. request:path()
   local content = File:open(path)
 
@@ -160,8 +161,7 @@ end
 
 function Response:write(body)
   local head = self:_getHeaders()
-  local content = self.headFirstLine .. head .. body
-  self.client:send(content)
+  self.content = self.headFirstLine .. head .. body
 
   return self
 end

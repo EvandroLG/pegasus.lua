@@ -66,7 +66,7 @@ function Request:params()
 end
 
 function Request:post()
-  if self:method() ~= "POST" then return nil end
+  if self:method() ~= 'POST' then return nil end
   local data = self:receiveBody()
   return self:parseURLEncoded(data, {})
 end
