@@ -5,20 +5,20 @@ local Response = require 'pegasus.response'
 local Handler = {}
 
 function Handler:new(callback, location)
-  local hdlr = {}
+  local handler = {}
   self.__index = self
-  hdlr.callback = callback
-  hdlr.location = location or ''
+  handler.callback = callback
+  handler.location = location or ''
 
-  return setmetatable(hdlr, self)
+  return setmetatable(handler, self)
 end
 
-function Handler:processRequest(client, head, plugins)
+function Handler:processRequest(client, plugins)
   local request = Request:new(client)
   local response =  Response:new(client)
 
   if request:path() then
-    response:processes(request, head, self.location)
+    response:_process(request, self.location)
   end
 
   if self.callback then
@@ -32,22 +32,22 @@ Handler.wasFinishCalled = false
 
 function Handler:execute(request, response, client)
   local req = self:makeRequest(request)
-  local rep = self:makeResponse(response, client)
+  --local rep = self:makeResponse(response, client)
 
+  --for plugin in ipairs(plugins or {}) do
+    --if (plugin.before) then
+      --plugin.before(request, response)
+    --end
+  --end
 
-  for plugin in ipairs(plugins or {}) do
-    if (plugin.before) then
-      plugin.before(request, response)
-    end
-  end
+  self.callback(req, response)
 
-  self.callback(req, rep)
+  --for plugin in ipairs(plugins or {}) do
+    --if (plugin.after) then
+      --plugin.after(request, response)
+    --end
+  --end
 
-  for plugin in ipairs(plugins or {}) do
-    if (plugin.after) then
-      plugin.after(request, response)
-    end
-  end
   if not self.wasFinishCalled then
     client:send(response.body)
   end
@@ -63,27 +63,27 @@ function Handler:makeRequest(request)
   }
 end
 
-function Handler:makeResponse(response, client)
-  local rep
-  rep = {
-    statusCode = nil,
-    head = nil,
+--function Handler:makeResponse(response, client)
+  --local rep
+  --rep = {
+    --statusCode = nil,
+    --head = nil,
 
-    writeHead = function(statusCode)
-      rep.head = response:makeHead(statusCode)
-      rep.statusCode = statusCode
+    --writeHead = function(statusCode)
+      --rep.head = response:makeHead(statusCode)
+      --rep.statusCode = statusCode
 
-      return rep
-    end,
+      --return rep
+    --end,
 
-    finish = function(body)
-      local body = response:createBody(rep.head, body, rep.statusCode)
-      client:send(body)
-      self.wasFinishCalled = true
-    end
-  }
+    --finish = function(body)
+      --local body = response:createBody(rep.head, body, rep.statusCode)
+      --client:send(body)
+      --self.wasFinishCalled = true
+    --end
+  --}
 
-  return rep
-end
+  --return rep
+--end
 
 return Handler

@@ -2,32 +2,22 @@ local mimetypes = require 'mimetypes'
 local File = require 'pegasus.file'
 
 
-local DEFAULT_ERROR_MESSAGE = [[
-  <!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN'
-      'http://www.w3.org/TR/html4/strict.dtd'>
-  <html>
-  <head>
-      <meta http-equiv='Content-Type' content='text/html;charset=utf-8'>
-      <title>Error response</title>
-  </head>
-  <body>
-      <h1>Error response</h1>
-      <p>Error code: {{ CODE }}</p>
-      <p>Message: {{ MESSAGE }}.</p>
-  </body>
-  </html>
-]]
+-- solution by @cwarden - https://gist.github.com/cwarden/1207556
+local function catch(what)
+   return what[1]
+end
 
-local DEFAULT_HEAD = table.concat({
-  'HTTP/1.1 {{ STATUS_CODE }} {{ MESSAGE }}\r\n',
-  --'Content-Type: {{ MIME_TYPE }}\r\n',
-  --'Content-Length: {{ CONTENT_LENGTH }}{{ USER_HEAD }}',
-  '{{ USER_HEAD  }}',
-  '{{ HEAD }}',
-  ';charset=utf-8\r\n\r\n'
-}, '')
+local function try(what)
+  local status, result = pcall(what[1])
 
-local RESPONSES = {
+  if not status then
+    what[2](result)
+  end
+
+  return result
+end
+
+local STATUS_TEXT = {
   [100] = 'Continue',
   [101] = 'Switching Protocols',
   [200] = 'OK',
@@ -70,114 +60,118 @@ local RESPONSES = {
   [505] = 'HTTP Version not supported',
 }
 
--- solution by @cwarden - https://gist.github.com/cwarden/1207556
-local function catch(what)
-   return what[1]
-end
-
-local function try(what)
-  local status, result = pcall(what[1])
-
-  if not status then
-    what[2](result)
-  end
-
-  return result
-end
-
-local function tableSize(params)
-  local count = 0
-
-  for _ in pairs(params) do
-    count = count + 1
-  end
-
-  return count
-end
+local DEFAULT_ERROR_MESSAGE = [[
+  <!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN'
+      'http://www.w3.org/TR/html4/strict.dtd'>
+  <html>
+  <head>
+      <meta http-equiv='Content-Type' content='text/html;charset=utf-8'>
+      <title>Error response</title>
+  </head>
+  <body>
+      <h1>Error response</h1>
+      <p>Error code: {{ STATUS_CODE }}</p>
+      <p>Message: {{ STATUS_TEXT }}</p>
+  </body>
+  </html>
+]]
 
 local Response = {}
 
-function Response:new(client, head)
+function Response:new(client)
   local newObj = {}
   self.__index = self
+  newObj.client = client
   newObj.body = ''
-  newObj.userHead = head or {}
+  newObj.headFirstLine = 'HTTP/1.1 {{ STATUS_CODE }} {{ STATUS_TEXT }}\r\n'
+  newObj.headers = {}
+  newObj.status = ''
 
   return setmetatable(newObj, self)
 end
 
-function Response:processes(request, head, location)
+function Response:_process(request, location)
   local path = '.' .. location .. request:path()
   local content = File:open(path)
 
   if not content then
-    self.body = self:createContent(path, head, DEFAULT_ERROR_MESSAGE, 404)
+    self:_prepareWrite(content, 404)
     return
   end
 
   try {
     function()
-      self.body = self:createContent(path, head, content, 200)
-    end,
-
-    catch {
-      function(error)
-        self.body = self:createContent(path, head, content, 500)
-      end
-    }
+      self:_prepareWrite(content, 200)
+    end
+  } catch {
+    function(error)
+      self:_prepareWrite(content, 500)
+    end
   }
 end
 
-function Response:createContent(filename, head, response, statusCode)
-  local head = self:makeHead(head, statusCode, filename)
-  return self:createBody(head, response, statusCode)
+function Response:addHeader(key, value)
+  self.headers[key] = value
+  return self
 end
 
-function Response:createBody(head, response, statusCode)
+function Response:addHeaders(params)
+  for key, value in pairs(params) do
+    self.headers[key] = value
+  end
+
+  return self
+end
+
+function Response:contentType(value)
+  self.headers['Content-Type'] = value
+  return self
+end
+
+function Response:statusCode(statusCode, statusText)
+  self.status = statusCode
+  self.headFirstLine = string.gsub(self.headFirstLine, '{{ STATUS_CODE }}', statusCode)
+  self.headFirstLine = string.gsub(self.headFirstLine, '{{ STATUS_TEXT }}', statusText or STATUS_TEXT[statusCode])
+
+  return self
+end
+
+function Response:_getHeaders()
+  local headers = ''
+
+  for key, value in pairs(self.headers) do
+    headers = headers .. key .. ': ' .. value .. '\r\n'
+  end
+
+  return headers
+end
+
+function Response:_prepareWrite(body, statusCode)
+  self:statusCode(statusCode or 200)
+  local content = body
+
   if statusCode >= 400 then
-    response = string.gsub(response, '{{ CODE }}', statusCode)
-    response = string.gsub(response, '{{ MESSAGE }}', RESPONSES[statusCode])
+    content = string.gsub(DEFAULT_ERROR_MESSAGE, '{{ STATUS_CODE }}', statusCode)
+    content = string.gsub(content, '{{ STATUS_TEXT }}', STATUS_TEXT[statusCode])
   end
 
-  return head .. response
+  self:write(content)
 end
 
-function Response:parseHead(head)
-    local strHead = {}
+function Response:write(body)
+  local head = self:_getHeaders()
+  local content = self.headFirstLine .. head .. body
+  self.client:send(content)
 
-    for key, value in pairs(head) do
-      if value ~= 'Status' then
-        table.insert(strHead, '\r\n ' .. key .. ': ' .. value)
-      end
-    end
-
-    return table.concat(strHead, '')
+  return self
 end
 
-function Response:makeHead(header, statusCode, filename)
-  local hasUserHead = tableSize(self.userHead) > 0
-  local status = header['Status'] or statusCode
-  local head = string.gsub(DEFAULT_HEAD, '{{ STATUS_CODE }}', status)
-  head = string.gsub(head, '{{ MESSAGE }}', RESPONSES[status])
+function Response:writeFile(file)
+  local file = io.open(file, 'r')
+  local value = file:read('*all')
+  self:write(value)
 
-  if hasUserHead then
-    local strHead = self:parseHead(self.userHead)
-    head = string.gsub(head, '{{ USER_HEAD  }}', strHead)
-  end
-
-  local cacheHead = {}
-
-  if not string.match(head, 'Content-Type') then
-    cacheHead['Content-Type'] = mimetypes.guess(filename or '') or 'text/html'
-  end
-
-  if not string.match(head, 'Content-Length') then
-    cacheHead['Content-Length'] = File:size(filename) or 0
-  end
-
-  head = string.gsub(head, '{{ HEAD }}', self:parseHead(cacheHead))
-
-  return head
+  return self
 end
 
 return Response

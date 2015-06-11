@@ -1,4 +1,4 @@
-local Response = require 'pegasus.response_new'
+local Response = require 'pegasus.response'
 
 
 describe('response', function()
@@ -51,7 +51,7 @@ describe('response', function()
       }
 
       local response = Response:new(client)
-      response:process(Request, location)
+      response:_process(Request, location)
 
       assert.equal(statusCode, response.status)
     end
