@@ -145,6 +145,40 @@ describe('response', function()
     end)
   end)
 
+  describe('set default headers', function()
+    it('should define a default value to content-type and content-length', function()
+      local response = Response:new()
+      response:_setDefaultHeaders()
+
+      assert.equal('text/html', response.headers['Content-Type'])
+      assert.equal(0, response.headers['Content-Length'])
+    end)
+
+    it('should keep value previously set', function()
+      local response = Response:new()
+      response:addHeader('Content-Type', 'application/javascript')
+      response:addHeader('Content-Length', 100)
+      response:_setDefaultHeaders()
+
+      assert.equal('application/javascript', response.headers['Content-Type'])
+      assert.equal(100, response.headers['Content-Length'])
+    end)
+
+    it('should get values the correct file values', function()
+      local response = Response:new()
+      local request = {
+        path = function()
+          return '/spec/fixtures/index.html'
+        end
+      }
+      response:_process(request, '')
+      response:_setDefaultHeaders()
+
+      assert.equal(16, response.headers['Content-Length'])
+      assert.equal('text/html', response.headers['Content-Type'])
+    end)
+  end)
+
   describe('write', function()
     local verifyClient = function(expectedBody, body, header)
       local client = {

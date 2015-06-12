@@ -16,7 +16,7 @@ end
 function Handler:processRequest(client, plugins)
   print('processRequest (handler)')
   local request = Request:new(client)
-  local response =  Response:new(client)
+  local response =  Response:new()
 
   if request:path() then
     response:_process(request, self.location)

@@ -86,14 +86,14 @@ function Response:new()
   newObj.headers = {}
   newObj.status = 200
   newObj.content = ''
+  newObj.filename = ''
 
   return setmetatable(newObj, self)
 end
 
 function Response:_process(request, location)
-  print('process')
-  local path = '.' .. location .. request:path()
-  local content = File:open(path)
+  self.filename = '.' .. location .. request:path()
+  local content = File:open(self.filename)
 
   if not content then
     self:_prepareWrite(content, 404)
@@ -159,7 +159,18 @@ function Response:_prepareWrite(body, statusCode)
   self:write(content)
 end
 
+function Response:_setDefaultHeaders()
+  if not self.headers['Content-Type'] then
+    self:addHeader('Content-Type', mimetypes.guess(self.filename or '') or 'text/html')
+  end
+
+  if not self.headers['Content-Length'] then
+    self:addHeader('Content-Length', File:size(self.filename) or 0)
+  end
+end
+
 function Response:write(body)
+  self:_setDefaultHeaders()
   local head = self:_getHeaders()
   self.content = self.headFirstLine .. head .. body
 
