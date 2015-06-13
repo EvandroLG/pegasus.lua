@@ -93,20 +93,20 @@ end
 
 function Response:_process(request, location)
   self.filename = '.' .. location .. request:path()
-  local content = File:open(self.filename)
+  local body = File:open(self.filename)
 
-  if not content then
-    self:_prepareWrite(content, 404)
+  if not body then
+    self:_prepareWrite(body, 404)
     return
   end
 
   try {
     function()
-      self:_prepareWrite(content, 200)
+      self:_prepareWrite(body, 200)
     end
   } catch {
     function(error)
-      self:_prepareWrite(content, 500)
+      self:_prepareWrite(body, 500)
     end
   }
 end
@@ -173,7 +173,7 @@ function Response:write(body)
   self.body = body
   self:_setDefaultHeaders()
   local head = self:_getHeaders()
-  self.content = self.headFirstLine .. head ..'\r\n\r\n'.. body
+  self.content = self.headFirstLine .. head .. '\r\n\r\n' .. self.body
 
   return self
 end

@@ -3,9 +3,8 @@ package.path = "./src/?.lua;./src/?/init.lua;"..package.path
 
 local Pegasus = require 'pegasus'
 
-local server = Pegasus:new({
-  port='9090',
-  location='/example/root/'
-})
+local server = Pegasus:new()
 
-server:start()
+server:start(function (req, rep)
+  rep:write('hello pegasus world!')
+end)
