@@ -14,7 +14,6 @@ function Handler:new(callback, location)
 end
 
 function Handler:processRequest(client, plugins)
-  print('processRequest (handler)')
   local request = Request:new(client)
   local response =  Response:new()
 
@@ -26,7 +25,6 @@ function Handler:processRequest(client, plugins)
     self.callback(self:makeRequest(request), response)
     --self:execute(request, response, client, plugins)
   end
-
   client:send(response.content)
 end
 

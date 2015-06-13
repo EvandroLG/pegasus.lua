@@ -172,7 +172,7 @@ end
 function Response:write(body)
   self:_setDefaultHeaders()
   local head = self:_getHeaders()
-  self.content = self.headFirstLine .. head .. body
+  self.content = self.headFirstLine .. head ..'\r\n\r\n'.. body
 
   return self
 end
