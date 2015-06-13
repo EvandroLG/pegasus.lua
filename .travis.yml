@@ -1,28 +1,21 @@
 language: erlang
 
 env:
-  global:
-    - LUAROCKS=2.2.1
-  matrix:
-    #- LUA=lua5.1
-    - LUA=lua5.2
-    #- LUA=lua5.3
-    #- LUA=luajit
-    # - LUA=luajit2.0
-    # - LUA=luajit2.1
+  - LUA=""
+  - LUA="luajit"
 
 branches:
   only:
     - master
 
-#before_install:
-  #- bash .travis/setup_lua.sh
-
 install:
-  #- sudo luarocks make pegasus-0.0.1-5.rockspec CFLAGS="-O2 -fPIC -ftest-coverage -fprofile-arcs" LIBFLAG="-shared --coverage"
-  - bash .travis/setup_lua.sh
+  - sudo apt-get install luajit
+  - sudo apt-get install luarocks
+  - sudo luarocks install mimetypes
+  - sudo luarocks install luasocket
+  - sudo luarocks install busted
+  - sudo luarocks install luacov
+  - sudo luarocks install luafilesystem
+  - sudo luarocks make *.rockspec;
 
-notifications:
-  email:
-    on_success: change
-    on_failure: always
+script: "busted spec"
