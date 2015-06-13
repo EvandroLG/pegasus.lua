@@ -8,4 +8,6 @@ local server = Pegasus:new({
   location='/example/root/'
 })
 
-server:start()
+server:start(function(req, rep)
+  print(req['post']['name'])
+end)

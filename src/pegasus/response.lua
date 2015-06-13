@@ -82,7 +82,8 @@ function Response:new()
   local newObj = {}
   self.__index = self
   newObj.body = ''
-  newObj.headFirstLine = 'HTTP/1.1 {{ STATUS_CODE }} {{ STATUS_TEXT }}\r\n'
+  newObj.templateFirstLine = 'HTTP/1.1 {{ STATUS_CODE }} {{ STATUS_TEXT }}\r\n'
+  newObj.headFirstLine = ''
   newObj.headers = {}
   newObj.status = 200
   newObj.content = ''
@@ -131,7 +132,7 @@ end
 
 function Response:statusCode(statusCode, statusText)
   self.status = statusCode
-  self.headFirstLine = string.gsub(self.headFirstLine, '{{ STATUS_CODE }}', statusCode)
+  self.headFirstLine = string.gsub(self.templateFirstLine, '{{ STATUS_CODE }}', statusCode)
   self.headFirstLine = string.gsub(self.headFirstLine, '{{ STATUS_TEXT }}', statusText or STATUS_TEXT[statusCode])
 
   return self

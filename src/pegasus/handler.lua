@@ -17,10 +17,15 @@ function Handler:processRequest(client, plugins)
   local request = Request:new(client)
   local response =  Response:new()
 
-  if self.callback then
-    self.callback(self:makeRequest(request), response)
-  elseif request:path() then
+  if request:path() then
     response:_process(request, self.location)
+  end
+
+  if self.callback then
+    response:statusCode(200)
+    response.headers = {}
+    response:addHeader('Content-Type', 'text/html')
+    self.callback(self:makeRequest(request), response)
   end
 
   client:send(response.content)
@@ -32,7 +37,7 @@ function Handler:makeRequest(request)
     headers = request:headers(),
     method = request:method(),
     querystring = request:params(),
-    post = request:post()
+    post = request:post() or {}
   }
 end
 
