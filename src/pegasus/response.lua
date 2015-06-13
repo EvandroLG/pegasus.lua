@@ -163,16 +163,15 @@ function Response:_setDefaultHeaders()
   if not self.headers['Content-Type'] then
     self:addHeader('Content-Type', mimetypes.guess(self.filename or '') or 'text/html')
   end
-
-  if not self.headers['Content-Length'] then
-    self:addHeader('Content-Length', File:size(self.filename) or 0)
-  end
 end
 
 function Response:write(body)
+  if not self.headers['Content-Length'] then
+    self:addHeader('Content-Length', body:len() )
+  end
   self:_setDefaultHeaders()
   local head = self:_getHeaders()
-  self.content = self.headFirstLine .. head .. body
+  self.content = self.headFirstLine .. head ..'\r\n\r\n'.. body
 
   return self
 end
