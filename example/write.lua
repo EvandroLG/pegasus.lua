@@ -6,5 +6,6 @@ local Pegasus = require 'pegasus'
 local server = Pegasus:new()
 
 server:start(function (req, rep)
-  rep:write('hello pegasus world!')
+  print('method=' .. req.method)
+  rep:addHeader('Content-Type', 'text/html'):write('hello pegasus world!')
 end)
