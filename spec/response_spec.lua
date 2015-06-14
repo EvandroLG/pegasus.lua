@@ -175,8 +175,6 @@ describe('response', function()
         end
       }
       response:_process(request, '')
-      response.closed = true
-      response:_setDefaultHeaders()
 
       assert.equal(16, response.headers['Content-Length'])
       assert.equal('text/html', response.headers['Content-Type'])

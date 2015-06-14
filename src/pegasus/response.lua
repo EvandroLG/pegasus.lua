@@ -108,9 +108,6 @@ end
 function Response:_process(request, location)
   self.filename = '.' .. location .. request:path()
   local body = File:open(self.filename)
-  print(request:path())
-  print(self.filename)
-  print(body)
   if not body then
     self:_prepareWrite(body, 404)
     return
