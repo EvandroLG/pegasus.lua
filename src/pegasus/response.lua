@@ -17,6 +17,17 @@ local function try(what)
   return result
 end
 
+function DEC_HEX(IN)
+local B,K,OUT,I,D=16,"0123456789ABCDEF","",0
+  while IN>0 do
+    I=I+1
+    local m = IN- math.floor(IN/B)*B
+    IN,D=math.floor(IN/B), m + 1
+    OUT=string.sub(K,D,D)..OUT
+  end
+  return OUT
+end
+
 local STATUS_TEXT = {
   [100] = 'Continue',
   [101] = 'Switching Protocols',
@@ -78,16 +89,18 @@ local DEFAULT_ERROR_MESSAGE = [[
 
 local Response = {}
 
-function Response:new()
+function Response:new(client)
   local newObj = {}
   self.__index = self
   newObj.body = ''
+  newObj.headers_sended = false
   newObj.templateFirstLine = 'HTTP/1.1 {{ STATUS_CODE }} {{ STATUS_TEXT }}\r\n'
   newObj.headFirstLine = ''
   newObj.headers = {}
   newObj.status = 200
-  newObj.content = ''
   newObj.filename = ''
+  self.closed = false
+  self.client = client
 
   return setmetatable(newObj, self)
 end
@@ -95,7 +108,9 @@ end
 function Response:_process(request, location)
   self.filename = '.' .. location .. request:path()
   local body = File:open(self.filename)
-
+  print(request:path())
+  print(self.filename)
+  print(body)
   if not body then
     self:_prepareWrite(body, 404)
     return
@@ -161,8 +176,10 @@ function Response:_prepareWrite(body, statusCode)
 end
 
 function Response:_setDefaultHeaders()
-  if not self.headers['Content-Length'] then
+  if self.closed then
     self:addHeader('Content-Length', self.body:len() )
+  else
+    self:addHeader('Transfer-Encoding', 'chunked')
   end
 
   if not self.headers['Content-Type'] then
@@ -170,20 +187,41 @@ function Response:_setDefaultHeaders()
   end
 end
 
-function Response:write(body)
+function Response:close()
+  self.client:send('0\r\n\r\n')
+end
+function Response:write(body, stayopen)
   self.body = body
+  self.closed = not (stayopen or false)
   self:_setDefaultHeaders()
-  local head = self:_getHeaders()
-  self.content = self.headFirstLine .. head .. '\r\n\r\n' .. self.body
-
+  local cont = self:_content()
+  self.client:send(cont)
+  self.body = ''
+  self.headers_sended = true
+  if self.closed then
+    self.client:close()
+  end
   return self
+end
+function Response:_content()
+  if self.headers_sended then
+    return  DEC_HEX(self.body:len())..'\r\n'..self.body..'\r\n'
+  else
+    local head = self:_getHeaders()
+    result = self.headFirstLine .. head
+    if self.closed then
+      result = result ..'\r\n\r\n' .. self.body
+    else
+      result = result ..'\r\n'.. DEC_HEX(self.body:len())..'\r\n'..self.body..'\r\n'
+    end
+    return result
+  end
 end
 
 function Response:writeFile(file)
   local file = io.open(file, 'r')
   local value = file:read('*all')
   self:write(value)
-
   return self
 end
 

@@ -4,12 +4,12 @@ local Response = require 'pegasus.response'
 describe('response', function()
   describe('instance', function()
     function verifyMethod(method)
-      local response = Response:new({})
+      local response = Response:new({close=function () end})
       assert.equal(type(response[method]), 'function')
     end
 
     it('should exists constructor to response class', function()
-      local response = Response:new({})
+      local response = Response:new({close=function () end})
       assert.equal(type(response), 'table')
     end)
 
@@ -47,7 +47,8 @@ describe('response', function()
       }
 
       local client = {
-        send = function() end
+        send = function() end,
+        close = function() end
       }
 
       local response = Response:new(client)
@@ -74,7 +75,8 @@ describe('response', function()
         send = function(self, content)
           local isOk = not not string.match(content, expectedBody)
           assert.is_true(isOk)
-        end
+        end,
+        close = function () end
       }
 
       local response = Response:new(client)
@@ -148,6 +150,7 @@ describe('response', function()
   describe('set default headers', function()
     it('should define a default value to content-type and content-length', function()
       local response = Response:new()
+      response.closed = true
       response:_setDefaultHeaders()
 
       assert.equal('text/html', response.headers['Content-Type'])
@@ -165,13 +168,14 @@ describe('response', function()
     end)
 
     it('should get values the correct file values', function()
-      local response = Response:new()
+      local response = Response:new({send = function () end, close = function() end})
       local request = {
         path = function()
           return '/spec/fixtures/index.html'
         end
       }
       response:_process(request, '')
+      response.closed = true
       response:_setDefaultHeaders()
 
       assert.equal(16, response.headers['Content-Length'])
@@ -189,7 +193,8 @@ describe('response', function()
 
           local isBodyCorrect = not not string.match(content, expectedBody)
           assert.is_true(isBodyCorrect)
-        end
+        end,
+        close = function () end
       }
 
       local response = Response:new(client)

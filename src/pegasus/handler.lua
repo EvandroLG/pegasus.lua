@@ -15,9 +15,8 @@ end
 
 function Handler:processRequest(client, plugins)
   local request = Request:new(client)
-  local response =  Response:new()
-
-  if request:path() then
+  local response =  Response:new(client)
+  if request:path() and self.location ~= '' then
     response:_process(request, self.location)
   end
 
@@ -27,8 +26,6 @@ function Handler:processRequest(client, plugins)
     response:addHeader('Content-Type', 'text/html')
     self.callback(self:makeRequest(request), response)
   end
-
-  client:send(response.content)
 end
 
 function Handler:makeRequest(request)
