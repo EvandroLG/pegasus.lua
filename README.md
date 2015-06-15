@@ -40,8 +40,15 @@ end)
 
 ### Response
 #### Methods
-* `writeHead(number)` It creates the head; the function receives a status code by parameter
-* `finish(string)` It creates the body; it accepts a content as parameter
+* `addHeader(string:key, string:value)` Adds a new header
+  parameter is the key and the second is the value
+* `addHeaders(table:headers)` It adds news headers
+* `statusCode(number:statusCode, string:statusMessage) It adds a Status Code
+* `contentType(string:value)` Adds a value to Content-Type field
+* `write(string:body)` It creates the body with the value passed as
+  parameter
+* `writeFile(string:file)` It creates the body with the content of the
+  file passed as parameter
 
 ```lua
 local pegasus = require 'pegasus'
@@ -49,7 +56,7 @@ local pegasus = require 'pegasus'
 local server = pegasus:new({ port='9090' })
 
 server:start(function (req, rep)
-  rep.writeHead(200).finish('hello pegasus world!')
+  rep.addHeader('Date', 'Mon, 15 Jun 2015 14:24:53 GMT').write('hello pegasus world!')
 end)
 ```
 
