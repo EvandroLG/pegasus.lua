@@ -628,7 +628,7 @@
               <br>
               server:<span class="kickoff-cyan">start</span>(<span class="kickoff-purple">function</span> (req, rep)
               <br>
-              &nbsp;&nbsp;rep.<span class="kickoff-cyan">writeHead</span>(<span class="kickoff-cyan">200</span>).<span class="kickoff-cyan">finish</span>(<span class="kickoff-blue">'hello pegasus world!'</span>)
+              &nbsp;&nbsp;rep.<span class="kickoff-cyan">addHeader</span>(<span class="kickoff-cyan">Cache-Control</span>, <span class="kickoff-cyan">no-cache</span>).<span class="kickoff-cyan">write</span>(<span class="kickoff-blue">'hello pegasus world!'</span>)
               <br>
               <span class="kickoff-purple">end</span>)
             </code>
