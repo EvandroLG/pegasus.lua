@@ -41,7 +41,6 @@ end)
 ### Response
 #### Methods
 * `addHeader(string:key, string:value)` Adds a new header
-  parameter
 * `addHeaders(table:headers)` It adds news headers
 * `statusCode(number:statusCode, string:statusMessage)` It adds a Status Code
 * `contentType(string:value)` Adds a value to Content-Type field
