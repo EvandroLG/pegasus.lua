@@ -600,10 +600,22 @@
 
             <ul class="kickoff-list">
               <li class="kickoff-item">
-                <var class="kickoff-name">writeHead(number)</var> <span class="kickoff-value">Creates the header, using the given number as status code</span>
+                <var class="kickoff-name">addHeader(string:key, string:value)</var> <span class="kickoff-value"></span>
               </li>
               <li class="kickoff-item">
-                <var class="kickoff-name">finish(string)</var> <span class="kickoff-value">Creates the body, using the given string as content</span>
+                <var class="kickoff-name">addHeaders(table:headers)</var> <span class="kickoff-value"></span>
+              </li>
+              <li class="kickoff-item">
+                <var class="kickoff-name">statusCode(number:statusCode, string:statusMessage)</var> <span class="kickoff-value"></span>
+              </li>
+              <li class="kickoff-item">
+                <var class="kickoff-name">contentType(string:value)</var> <span class="kickoff-value"></span>
+              </li>
+              <li class="kickoff-item">
+                <var class="kickoff-name">write(string:body)</var> <span class="kickoff-value"></span>
+              </li>
+              <li class="kickoff-item">
+                <var class="kickoff-name">writeFile(string:file)</var>
               </li>
             </ul>
 
