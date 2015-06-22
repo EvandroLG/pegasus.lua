@@ -5,7 +5,6 @@ START_APP=spec/start_app.lua
 run_example:
 	lua example/app.lua
 
-
 unit_test:
 	busted
 

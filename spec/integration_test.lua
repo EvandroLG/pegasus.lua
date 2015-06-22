@@ -9,7 +9,7 @@ describe('integration', function()
     local handle = io.popen(command .. ' ' .. url)
     local result = handle:read('*a')
     handle:close()
-    print(result)
+
     return result
   end
 
