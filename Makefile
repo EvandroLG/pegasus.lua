@@ -13,6 +13,12 @@ integration_test:
 	ps aux | grep $(START_APP) | awk "{print $2}" \
 	       | xargs kill
 
+load_test:
+	lua $(START_APP) & \
+	ab -n 16000 -c 10 http://127.0.0.1:7070/ 
+	ps aux | grep $(START_APP) | awk "{print $2}" \
+	       | xargs kill
+
 install_dependencies:
 	luarocks install mimetypes
 	luarocks install luasocket
