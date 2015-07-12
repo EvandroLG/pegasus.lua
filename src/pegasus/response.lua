@@ -187,6 +187,7 @@ end
 function Response:close()
   self.client:send('0\r\n\r\n')
 end
+
 function Response:write(body, stayopen)
   self.body = body
   self.closed = not (stayopen or false)
@@ -200,6 +201,7 @@ function Response:write(body, stayopen)
   end
   return self
 end
+
 function Response:_content()
   if self.headers_sended then
     return  DEC_HEX(self.body:len())..'\r\n'..self.body..'\r\n'
