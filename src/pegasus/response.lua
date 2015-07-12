@@ -18,13 +18,15 @@ local function try(what)
 end
 
 function DEC_HEX(IN)
-local B,K,OUT,I,D=16,"0123456789ABCDEF","",0
+local B,K,OUT,I,D=16,"0123456789ABCDEF", "", 0
+
   while IN>0 do
     I=I+1
     local m = IN- math.floor(IN/B)*B
     IN,D=math.floor(IN/B), m + 1
     OUT=string.sub(K,D,D)..OUT
   end
+
   return OUT
 end
 
@@ -196,9 +198,11 @@ function Response:write(body, stayopen)
   self.client:send(cont)
   self.body = ''
   self.headers_sended = true
+
   if self.closed then
     self.client:close()
   end
+
   return self
 end
 
@@ -210,7 +214,7 @@ function Response:_content()
     result = self.headFirstLine .. head
 
     if self.closed then
-      result = result ..'\r\n\r\n' .. self.body
+      result = result ..'\r\n' .. self.body
     else
       result = result ..'\r\n'.. DEC_HEX(self.body:len())..'\r\n'..self.body..'\r\n'
     end
@@ -223,6 +227,7 @@ function Response:writeFile(file)
   local file = io.open(file, 'r')
   local value = file:read('*all')
   self:write(value)
+
   return self
 end
 
