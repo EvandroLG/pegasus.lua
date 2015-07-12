@@ -27,7 +27,6 @@ function Pegasus:start(callback)
     local client = server:accept()
     client:settimeout(1, 'b')
     handler:processRequest(client, self.plugins)
-    client:close()
   end
 end
 
