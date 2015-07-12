@@ -29,6 +29,12 @@ server:start(function (request, response)
 end)
 ```
 
+## Features
+- Compatible with Linux, Mac and Windows systems
+- Easy API
+- Support Lua >= 5.1
+- Native support for HTTP Streaming, aka chunked responses. [See here a example of how it works](https://github.com/EvandroLG/pegasus.lua/blob/master/example/app_stream.lua).
+
 ## API
 ### Request
 #### Properties

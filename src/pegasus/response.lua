@@ -208,12 +208,14 @@ function Response:_content()
   else
     local head = self:_getHeaders()
     result = self.headFirstLine .. head
+
     if self.closed then
       result = result ..'\r\n\r\n' .. self.body
     else
       result = result ..'\r\n'.. DEC_HEX(self.body:len())..'\r\n'..self.body..'\r\n'
     end
-    return result
+   
+   return result
   end
 end
 
