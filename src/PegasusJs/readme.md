@@ -40,3 +40,7 @@ implementing `:respond` and otherwise putting things together.
 
 * Make callbacks/regular optional? i.e.
   `{function, what}` with `what` `"callback"` or `"function"` or `"both"`
+
+* Lack of tests, just the example right now.
+
+* Lack of lua rock.

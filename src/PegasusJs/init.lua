@@ -51,5 +51,4 @@ function PegasusJs:respond(request, response)
    -- If it doesnt apply, then the user comes with his/her own response.
 end
 
-
 return PegasusJs
