@@ -7,15 +7,15 @@ function httpGet_callback(url, data, callback) {
     var req = new XMLHttpRequest();
     req.open("POST", url, true);
 
-    req.setRequestHeader('Content-Type', 'text/json')
-    req.setRequestHeader("Content-length", data.length + 5);
+    req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    req.setRequestHeader("Content-length", data.length + 2);
     
     req.onreadystatechange = function() {
         if(req.readyState == 4 && req.status == 200) {
             callback(req.responseText);
         }
     }
-    req.send("data=" + data);
+    req.send("d=" + data);
 }
 ]]
 

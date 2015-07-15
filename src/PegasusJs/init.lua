@@ -35,14 +35,14 @@ local json = require "json"
 function PegasusJs:respond(request, response)
    local n = #(self.from_path)
    if string.sub(request.path, 1, n) == self.from_path then
-      local _, j = string.find(request.path, "/", n, true)
-      local name = string.sub(request.path, n, j)
+      local _, j = string.find(request.path, "/", n + 2, true)
+      local name = string.sub(request.path, n + 2, j - 1)
       local fun = self.funs[name]
       if fun then
-         --request.headers
-         local result = json.encode(fun(json.decode(data)))
+         assert(request.post.d, "Didnt get response data?")
+         local result = json.encode(fun(table.unpack(json.decode(request.post.d))))
+         response:addHeader('Cache-Control: no-cache')  -- Dont cache, want it fresh.
          response:addHeader('Content-Type', 'text/json'):write(result)
-         response:addHeader('Cache-Control: no-cache')  -- Dont cache, want it fresh.         
          return true
       else
          return "no_fun:" .. name

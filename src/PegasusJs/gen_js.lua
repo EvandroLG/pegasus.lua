@@ -9,10 +9,10 @@ function httpGet(url, data) {
     var req = new XMLHttpRequest();
     req.open("POST", url, false);
 
-    req.setRequestHeader('Content-Type', 'text/json')
-    req.setRequestHeader("Content-length", data.length + 5);
+    req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    req.setRequestHeader("Content-length", data.length + 2);
     
-    req.send("data=" + data);
+    req.send("d=" + data);
 
     return req.responseText;
 }

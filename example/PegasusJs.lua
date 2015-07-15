@@ -6,15 +6,16 @@ package.path = "./src/?.lua;./src/?/init.lua;"..package.path
 local Pegasus = require 'pegasus'
 local PegasusJs = require 'PegasusJs'
 
-local server = Pegasus:new("/comms")
+local server = Pegasus:new()
 
-js = PegasusJs.new()
+local js = PegasusJs.new("/comms")
+assert(js.from_path)
 
 local counter = 0
 js:add({
       do_random = function(x)
          counter = counter + 1
-         local r = random()
+         local r = math.random()
          return { cnt = counter, r_server = r, r_browser = x, r_total = x + r }
       end,
 })
@@ -22,20 +23,26 @@ js:add({
 local script = js:script()
 
 server:start(function (req, rep)
-  --print('method=' .. req.method)
       local html = [[
 <script>]] .. script ..
 [[
 function do_it() {
-    var got = do_random(Math.random());
-    for(k in got) { document.getElementByID(k).innerText = got[k]; }
+    var x = Math.random();
+    var got = do_random(x);
+    for(k in got){ document.getElementById(k).innerText = got[k]; }
+    document.getElementById("js_calced").innerText = (x + got["r_server"]);
 }
+do_it();
 </script>
 <button onclick="do_it()">Do it</button>
 <span id="cnt">Count not set</span>
 <p>
-<span id="r_server"></span> + <span id="r_browser"></span> = <span id="r_total"></span>
-</p>
+<table>
+<tr><td><span id="r_server"></span> + <span id="r_browser"></span></td>
+     <td>= <span id="r_total"></span></td>
+</tr>
+<tr><td>javascript:<td>= <span id="js_calced"></span></td></tr>
+</table>
 ]]
      if not js:respond(req, rep) then
         rep:addHeader('Content-Type', 'text/html'):write(html)
