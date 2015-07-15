@@ -4,6 +4,8 @@ You load this completely separately to Pegasus, and feed the
 method of this thing. If it returns `nil`/`false`, then you can
 do your own thing.
 
+Depends on `json` package, there is an example in `examples/PegasusJs.lua`.
+
 ### Api:
 
 `local PegasusJs = require "PegasusJs"` to get the lib, assuming it is
