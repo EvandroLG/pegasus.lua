@@ -1,5 +1,4 @@
 local mimetypes = require 'mimetypes'
-local File = require 'pegasus.file'
 
 
 -- solution by @cwarden - https://gist.github.com/cwarden/1207556
@@ -17,17 +16,15 @@ local function try(what)
   return result
 end
 
-function DEC_HEX(IN)
-local B,K,OUT,I,D=16,"0123456789ABCDEF", "", 0
-
-  while IN>0 do
-    I=I+1
-    local m = IN- math.floor(IN/B)*B
-    IN,D=math.floor(IN/B), m + 1
-    OUT=string.sub(K,D,D)..OUT
+function dec2hex(dec)
+local b,k,out,i,d=16,"0123456789ABCDEF","",0
+  while dec>0 do
+    i=i+1
+    local m = dec - math.floor(dc/b)*b
+    dec, d = math.floor(dec/b), m + 1
+    out = string.sub(k,d,d)..out
   end
-
-  return OUT
+  return out
 end
 
 local STATUS_TEXT = {
@@ -107,24 +104,6 @@ function Response:new(client)
   return setmetatable(newObj, self)
 end
 
-function Response:_process(request, location)
-  self.filename = '.' .. location .. request:path()
-  local body = File:open(self.filename)
-  if not body then
-    self:_prepareWrite(body, 404)
-    return
-  end
-
-  try {
-    function()
-      self:_prepareWrite(body, 200)
-    end
-  } catch {
-    function(error)
-      self:_prepareWrite(body, 500)
-    end
-  }
-end
 
 function Response:addHeader(key, value)
   self.headers[key] = value
@@ -148,7 +127,6 @@ function Response:statusCode(statusCode, statusText)
   self.status = statusCode
   self.headFirstLine = string.gsub(self.templateFirstLine, '{{ STATUS_CODE }}', statusCode)
   self.headFirstLine = string.gsub(self.headFirstLine, '{{ STATUS_TEXT }}', statusText or STATUS_TEXT[statusCode])
-
   return self
 end
 
@@ -162,16 +140,10 @@ function Response:_getHeaders()
   return headers
 end
 
-function Response:_prepareWrite(body, statusCode)
-  self:statusCode(statusCode or 200)
-  local content = body
-
-  if statusCode >= 400 then
-    content = string.gsub(DEFAULT_ERROR_MESSAGE, '{{ STATUS_CODE }}', statusCode)
-    content = string.gsub(content, '{{ STATUS_TEXT }}', STATUS_TEXT[statusCode])
-  end
-
-  self:write(content)
+function Response:writeDefaultErrorMessage(statusCode)
+  self:statusCode(statusCode)
+  content = string.gsub(DEFAULT_ERROR_MESSAGE, '{{ STATUS_CODE }}', statusCode)
+  self:write(string.gsub(content, '{{ STATUS_TEXT }}', STATUS_TEXT[statusCode]))
 end
 
 function Response:_setDefaultHeaders()
@@ -208,7 +180,7 @@ end
 
 function Response:_content()
   if self.headers_sended then
-    return  DEC_HEX(self.body:len())..'\r\n'..self.body..'\r\n'
+    return  dec2hex(self.body:len())..'\r\n'..self.body..'\r\n'
   else
     local head = self:_getHeaders()
     result = self.headFirstLine .. head
@@ -216,18 +188,17 @@ function Response:_content()
     if self.closed then
       result = result ..'\r\n' .. self.body
     else
-      result = result ..'\r\n'.. DEC_HEX(self.body:len())..'\r\n'..self.body..'\r\n'
+      result = result ..'\r\n'.. dec2hex(self.body:len())..'\r\n'..self.body..'\r\n'
     end
-   
+
    return result
   end
 end
 
 function Response:writeFile(file)
-  local file = io.open(file, 'r')
+  self:statusCode(200)
   local value = file:read('*all')
   self:write(value)
-
   return self
 end
 

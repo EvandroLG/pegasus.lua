@@ -38,38 +38,7 @@ describe('response', function()
     end)
   end)
 
-  describe('request process', function()
-    local verifyProcess = function(path, location, statusCode)
-      local Request = {
-        path = function()
-          return path
-        end
-      }
-
-      local client = {
-        send = function() end,
-        close = function() end
-      }
-
-      local response = Response:new(client)
-      response:_process(Request, location)
-
-      assert.equal(statusCode, response.status)
-    end
-
-    it('should set status code as 200', function()
-      verifyProcess('index.html', '/spec/fixtures/', 200)
-    end)
-
-    it('should set status code as 404', function()
-      verifyProcess('', '', 404)
-    end)
-
-    it('should set status code as 500', function()
-    end)
-  end)
-
-  describe('prepare write', function()
+  describe('write', function()
     local verifyOutput = function(statusCode, expectedBody)
       local client = {
         send = function(self, content)
@@ -80,7 +49,8 @@ describe('response', function()
       }
 
       local response = Response:new(client)
-      response:_prepareWrite(expectedBody, statusCode)
+      response:statusCode(statusCode)
+      response:write(expectedBody)
     end
 
     local verifyErrorOutput = function(statusCode)
@@ -167,18 +137,6 @@ describe('response', function()
       assert.equal(100, response.headers['Content-Length'])
     end)
 
-    it('should get values the correct file values', function()
-      local response = Response:new({send = function () end, close = function() end})
-      local request = {
-        path = function()
-          return '/spec/fixtures/index.html'
-        end
-      }
-      response:_process(request, '')
-
-      assert.equal(16, response.headers['Content-Length'])
-      assert.equal('text/html', response.headers['Content-Type'])
-    end)
   end)
 
   describe('write', function()

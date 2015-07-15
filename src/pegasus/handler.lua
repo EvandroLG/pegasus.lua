@@ -17,7 +17,11 @@ function Handler:processRequest(client, plugins)
   local request = Request:new(client)
   local response =  Response:new(client)
   if request:path() and self.location ~= '' then
-    response:_process(request, self.location)
+    self.filename = '.' .. self.location .. request:path()
+    local file= io.open(self.filename, 'rb')
+    if file then
+      response:writeFile(file)
+    end
   end
 
   if self.callback then
