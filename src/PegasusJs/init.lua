@@ -40,7 +40,7 @@ function PegasusJs:respond(request, response)
       local fun = self.funs[name]
       if fun then
          assert(request.post.d, "Didnt get response data?")
-         local result = json.encode(fun(table.unpack(json.decode(request.post.d))))
+         local result = json.encode(fun(unpack(json.decode(request.post.d))))
          response:addHeader('Cache-Control: no-cache')  -- Dont cache, want it fresh.
          response:addHeader('Content-Type', 'text/json'):write(result)
          return true
