@@ -17,36 +17,47 @@ end
 -- TODO cachers inbetween assume they can keep it, afaict.
 local poke_cnt = 0
 server:start(function (req, rep)
+      print(req.path)
       if req.path == "/" then
          local html = [[
 <script>
-function httpGet(url, request) {
+function httpGet(url, data, callback) {
     var req = new XMLHttpRequest();
-    req.open("GET", url, false);
-    req.send(request);
-    return req.responseText;
+    req.open("POST", url, true);
+    req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    req.setRequestHeader("Content-length", data.length);
+    req.setRequestHeader("Connection", "close");
+
+    req.onreadystatechange = function() {//Call a function when the state changes.
+        if(req.readyState == 4 && req.status == 200) {
+            callback(req.responseText);
+        }
+    }
+    req.send("data=" + data);
 }
 var cnt = 0;
 function pokewrite(data){
    cnt = cnt + 1;
-   document.getElementById("ch").innerHTML = httpGet("/poke", data);
+   httpGet("/poke/", data, function(txt){ document.getElementById("ch").innerHTML = txt; })
    document.getElementById("cnt").innerText = cnt;
 }
 </script>
-<button onclick="pokewrite()">poke</button>
+<button onclick="pokewrite('some data')">poke</button>
 <p id="cnt"></p>
 <p id="ch"></p>
 ]]
          rep:addHeader('Content-Type', 'text/html'):write(html)
-         rep:addHeader('Expires', os.date("%c", os.time() + 4)) -- lasts a mere 4 seconds.
-      elseif req.path == "/poke" then
+         rep:addHeader('Expires: ', os.date("%c", os.time() + 4)) -- lasts a mere 4 seconds.
+      elseif string.match(req.path, "^/poke") then
          poke_cnt = poke_cnt + 1
          local html = string.format("(%d)<br>", poke_cnt) ..
             "<b>headers</b><table>" .. html_table(req.headers) .. "</table>" ..
             "<b>methods</b><table>" .. html_table(req.methods or {}) .. "</table>" ..
-            "<b>post</b><table>" .. html_table(req.post) .. "</table>"
+            "<b>post</b><table>" .. html_table(req.post) .. "</table>" ..
+            "<b>querystring</b><table>" .. html_table(req.querystring) .. "</table>" ..
+            "<b>top</b><table>" .. html_table(req) .. "</table>" 
          rep:addHeader('Content-Type', 'text/html'):write(html)
-         rep:addHeader('Cache-Control', 'no-cache')  -- Dont cache, want it fresh.
+         rep:addHeader('Cache-Control: no-cache')  -- Dont cache, want it fresh.
       else
          rep:addHeader('Content-Type', 'text/html'):write("aint got nothing here")
       end
