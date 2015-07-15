@@ -26,9 +26,8 @@ function httpGet(url, data, callback) {
     req.open("POST", url, true);
     req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     req.setRequestHeader("Content-length", data.length);
-    req.setRequestHeader("Connection", "close");
 
-    req.onreadystatechange = function() {//Call a function when the state changes.
+    req.onreadystatechange = function() {
         if(req.readyState == 4 && req.status == 200) {
             callback(req.responseText);
         }
