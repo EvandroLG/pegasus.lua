@@ -1,6 +1,3 @@
-local mimetypes = require 'mimetypes'
-
-
 -- solution by @cwarden - https://gist.github.com/cwarden/1207556
 local function catch(what)
    return what[1]
@@ -20,7 +17,7 @@ function dec2hex(dec)
 local b,k,out,i,d=16,"0123456789ABCDEF","",0
   while dec>0 do
     i=i+1
-    local m = dec - math.floor(dc/b)*b
+    local m = dec - math.floor(dec/b)*b
     dec, d = math.floor(dec/b), m + 1
     out = string.sub(k,d,d)..out
   end
@@ -144,58 +141,52 @@ function Response:writeDefaultErrorMessage(statusCode)
   self:statusCode(statusCode)
   content = string.gsub(DEFAULT_ERROR_MESSAGE, '{{ STATUS_CODE }}', statusCode)
   self:write(string.gsub(content, '{{ STATUS_TEXT }}', STATUS_TEXT[statusCode]))
-end
-
-function Response:_setDefaultHeaders()
-  if self.closed then
-    self:addHeader('Content-Length', self.body:len() )
-  else
-    self:addHeader('Transfer-Encoding', 'chunked')
-  end
-
-  if not self.headers['Content-Type'] then
-    self:addHeader('Content-Type', mimetypes.guess(self.filename or '') or 'text/html')
-  end
-end
-
-function Response:close()
-  self.client:send('0\r\n\r\n')
-end
-
-function Response:write(body, stayopen)
-  self.body = body
-  self.closed = not (stayopen or false)
-  self:_setDefaultHeaders()
-  local cont = self:_content()
-  self.client:send(cont)
-  self.body = ''
-  self.headers_sended = true
-
-  if self.closed then
-    self.client:close()
-  end
-
   return self
 end
 
-function Response:_content()
-  if self.headers_sended then
-    return  dec2hex(self.body:len())..'\r\n'..self.body..'\r\n'
-  else
-    local head = self:_getHeaders()
-    result = self.headFirstLine .. head
 
-    if self.closed then
-      result = result ..'\r\n' .. self.body
-    else
-      result = result ..'\r\n'.. dec2hex(self.body:len())..'\r\n'..self.body..'\r\n'
-    end
-
-   return result
-  end
+function Response:close()
+  self.client:send('0\r\n\r\n')
+  self.close = true
 end
 
-function Response:writeFile(file)
+
+function Response:sendHeaders(stayopen, body)
+  if self.headers_sended then
+    return self
+  end
+  if stayopen then
+    self:addHeader('Transfer-Encoding', 'chunked')
+  else
+    self:addHeader('Content-Length', body:len() )
+  end
+
+  if not self.headers['Content-Type'] then
+    self:addHeader('Content-Type', 'text/html')
+  end
+
+  self.client:send(self.headFirstLine .. self:_getHeaders())
+  self.client:send('\r\n')
+  self.headers_sended = true
+  return self
+end
+
+function Response:write(body, stayopen)
+  self:sendHeaders(stayopen, body)
+
+  self.closed = not (stayopen or false)
+  if self.closed then
+    self.client:send(body)
+  else
+    self.client:send(dec2hex(body:len())..'\r\n'..body..'\r\n')
+  end
+  if self.closed then
+    self.client:close()
+  end
+  return self
+end
+
+function Response:writeFile(file, contentType)
   self:statusCode(200)
   local value = file:read('*all')
   self:write(value)

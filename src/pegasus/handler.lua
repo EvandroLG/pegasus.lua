@@ -1,5 +1,6 @@
 local Request = require 'pegasus.request'
 local Response = require 'pegasus.response'
+local mimetypes = require 'mimetypes'
 
 
 local Handler = {}
@@ -17,10 +18,10 @@ function Handler:processRequest(client, plugins)
   local request = Request:new(client)
   local response =  Response:new(client)
   if request:path() and self.location ~= '' then
-    self.filename = '.' .. self.location .. request:path()
-    local file= io.open(self.filename, 'rb')
+    filename = '.' .. self.location .. request:path()
+    local file= io.open(filename, 'rb')
     if file then
-      response:writeFile(file)
+      response:writeFile(file, mimetypes.guess(filename or '') or 'text/html')
     end
   end
 

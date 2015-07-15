@@ -42,8 +42,8 @@ describe('response', function()
     local verifyOutput = function(statusCode, expectedBody)
       local client = {
         send = function(self, content)
-          local isOk = not not string.match(content, expectedBody)
-          assert.is_true(isOk)
+          self.content = self.content or ''
+          self.content = self.content .. content;
         end,
         close = function () end
       }
@@ -51,6 +51,8 @@ describe('response', function()
       local response = Response:new(client)
       response:statusCode(statusCode)
       response:write(expectedBody)
+      local isOk = not not string.match(client.content, expectedBody)
+      assert.is_true(isOk)
     end
 
     local verifyErrorOutput = function(statusCode)
@@ -118,20 +120,24 @@ describe('response', function()
   end)
 
   describe('set default headers', function()
+    local client = {
+      send = function(self, content)
+        self.content = self.content or ''
+        self.content = self.content .. content
+      end,
+      close = function () end
+    }
     it('should define a default value to content-type and content-length', function()
-      local response = Response:new()
-      response.closed = true
-      response:_setDefaultHeaders()
-
+      local response = Response:new(client)
+      response:write('')
       assert.equal('text/html', response.headers['Content-Type'])
       assert.equal(0, response.headers['Content-Length'])
     end)
 
     it('should keep value previously set', function()
-      local response = Response:new()
+      local response = Response:new(client)
       response:addHeader('Content-Type', 'application/javascript')
       response:addHeader('Content-Length', 100)
-      response:_setDefaultHeaders()
 
       assert.equal('application/javascript', response.headers['Content-Type'])
       assert.equal(100, response.headers['Content-Length'])
@@ -142,13 +148,9 @@ describe('response', function()
   describe('write', function()
     local verifyClient = function(expectedBody, body, header)
       local client = {
-        send = function(obj, content)
-          for key, value in pairs(header) do
-            assert.is_true(not not string.match(content, value))
-          end
-
-          local isBodyCorrect = not not string.match(content, expectedBody)
-          assert.is_true(isBodyCorrect)
+        send = function(self, content)
+          self.content = self.content or ''
+          self.content = self.content .. content
         end,
         close = function () end
       }
@@ -156,6 +158,12 @@ describe('response', function()
       local response = Response:new(client)
       response:addHeaders(header)
       response:write(body)
+      for key, value in pairs(header) do
+        assert.is_true(not not string.match(client.content, value))
+      end
+
+      local isBodyCorrect = not not string.match(client.content, expectedBody)
+      assert.is_true(isBodyCorrect)
     end
 
     it('should call send method passing body', function()
