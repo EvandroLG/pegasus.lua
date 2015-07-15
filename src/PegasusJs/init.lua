@@ -2,9 +2,9 @@ local PegasusJs = {}
 
 PegasusJs.__index = PegasusJs
 
-function PegasusJs.new(from_path, fun_table, callback)
+function PegasusJs.new(from_path, fun_table, has_callbacks)
    return setmetatable(
-      { from_path = from_path, funs = fun_table or {}, callback_any=callback },
+      { from_path = from_path, funs = fun_table or {}, has_callbacks=has_callbacks },
       PegasusJs
    )
 end
@@ -18,12 +18,12 @@ local callback_gen_js = require "PegasusJs.callback_gen_js"
 
 function PegasusJs:script()
    local ret = gen_js.depend_js
-   if self.callback then
+   if self.has_callbacks then
       ret = ret .. callback_gen_js.depend_js_callback
    end
    for name, _ in pairs(self.funs) do
       ret = ret .. gen_js.bind_js(self.from_path,  name)
-      if self.callback then
+      if self.has_callbacks then
          ret = ret .. callback_gen_js.bind_js(self.from_path,  name)
       end
    end
