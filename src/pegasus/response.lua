@@ -161,6 +161,7 @@ function Response:sendHeaders(stayopen, body)
     self:addHeader('Content-Length', body:len() )
   end
 
+  self:addHeader('Date', os.date('!%a, %d %b %Y %T GMT', os.time()))
   if not self.headers['Content-Type'] then
     self:addHeader('Content-Type', 'text/html')
   end
@@ -187,6 +188,7 @@ function Response:write(body, stayopen)
 end
 
 function Response:writeFile(file, contentType)
+  self:contentType(contentType)
   self:statusCode(200)
   local value = file:read('*all')
   self:write(value)
