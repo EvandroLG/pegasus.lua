@@ -85,10 +85,9 @@ local DEFAULT_ERROR_MESSAGE = [[
 
 local Response = {}
 
-function Response:new(client)
+function Response:new(client, writeHandler)
   local newObj = {}
   self.__index = self
-  newObj.body = ''
   newObj.headers_sended = false
   newObj.templateFirstLine = 'HTTP/1.1 {{ STATUS_CODE }} {{ STATUS_TEXT }}\r\n'
   newObj.headFirstLine = ''
@@ -97,6 +96,7 @@ function Response:new(client)
   newObj.filename = ''
   self.closed = false
   self.client = client
+  self.writeHandler = writeHandler
 
   return setmetatable(newObj, self)
 end
@@ -165,7 +165,6 @@ function Response:sendHeaders(stayopen, body)
   if not self.headers['Content-Type'] then
     self:addHeader('Content-Type', 'text/html')
   end
-
   self.client:send(self.headFirstLine .. self:_getHeaders())
   self.client:send('\r\n')
   self.headers_sended = true
@@ -173,6 +172,7 @@ function Response:sendHeaders(stayopen, body)
 end
 
 function Response:write(body, stayopen)
+  body = self.writeHandler:processData(body, stayopen, self)
   self:sendHeaders(stayopen, body)
 
   self.closed = not (stayopen or false)

@@ -18,7 +18,7 @@ function Pegasus:new(params)
 end
 
 function Pegasus:start(callback)
-  local handler = Handler:new(callback, self.location)
+  local handler = Handler:new(callback, self.location, self.plugins)
   local server = assert(socket.bind('*', self.port))
   local ip, port = server:getsockname()
   print('Pegasus is up on ' .. ip .. ":".. port)
@@ -26,7 +26,7 @@ function Pegasus:start(callback)
   while 1 do
     local client = server:accept()
     client:settimeout(1, 'b')
-    handler:processRequest(client, self.plugins)
+    handler:processRequest(client)
   end
 end
 
