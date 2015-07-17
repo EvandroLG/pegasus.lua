@@ -1,6 +1,7 @@
 local Request = require 'pegasus.request'
 local Response = require 'pegasus.response'
 local mimetypes = require 'mimetypes'
+local lfs = require 'lfs'
 
 
 local Handler = {}
@@ -16,18 +17,18 @@ function Handler:new(callback, location, plugins)
 end
 
 
-function Handler:pluginsNewRequestResponse(plugins, request, response)
+function Handler:pluginsNewRequestResponse(request, response)
   local stop = false
-  for i, plugin in ipairs(plugins) do
+  for i, plugin in ipairs(self.plugins) do
     if plugin.newRequestResponse then
       plugin:newRequestResponse(request, response)
     end
   end
 end
 
-function Handler:pluginsBeforeProcess(plugins, request, response)
+function Handler:pluginsBeforeProcess(request, response)
   local stop = false
-  for i, plugin in ipairs(plugins) do
+  for i, plugin in ipairs(self.plugins) do
     if plugin.beforeProcess then
       stop = plugin:beforeProcess(request, response)
       if stop then
@@ -37,9 +38,9 @@ function Handler:pluginsBeforeProcess(plugins, request, response)
   end
 end
 
-function Handler:pluginsAfterProcess(plugins, request, response)
+function Handler:pluginsAfterProcess(request, response)
   local stop = false
-  for i, plugin in ipairs(plugins) do
+  for i, plugin in ipairs(self.plugins) do
     if plugin.afterProcess then
       plugin:afterProcess(request, response)
       if stop then
@@ -49,9 +50,9 @@ function Handler:pluginsAfterProcess(plugins, request, response)
   end
 end
 
-function Handler:pluginsProcessFile(plugins, request, response, filename)
+function Handler:pluginsProcessFile(request, response, filename)
   local stop = false
-  for i, plugin in ipairs(plugins) do
+  for i, plugin in ipairs(self.plugins) do
     if plugin.processFile then
       plugin:processFile(request, response, filename)
       if stop then
@@ -78,16 +79,20 @@ function Handler:processRequest(client)
   response.request = request
   local stop = false
 
-  if plugins then
-    stop = self:pluginsNewRequestResponse(plugins, request, response)
+  if self.plugins then
+    stop = self:pluginsNewRequestResponse(request, response)
     if stop then
        return
     end
   end
   if request:path() and self.location ~= '' then
     filename = '.' .. self.location .. request:path()
-    if plugins then
-      stop = self:pluginsProcessFile(plugins, request, response, filename)
+    if not lfs.attributes(filename) then
+      response:statusCode(404)
+      return
+    end
+    if self.plugins then
+      stop = self:pluginsProcessFile(request, response, filename)
       if stop then
         return
       end
