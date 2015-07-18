@@ -8,7 +8,7 @@ local PegasusJs = require 'PegasusJs'
 
 local server = Pegasus:new()
 
-local js = PegasusJs.new("/comms")
+local js = PegasusJs.new{"/comms", has_callbacks=true}
 assert(js.from_path)
 
 local counter = 0
@@ -20,20 +20,26 @@ js:add({
       end,
 })
 
-local script = js:script()
-
 server:start(function (req, rep)
       local html = [[
-<script>]] .. script ..
-[[
+<script type="text/javascript" src="/comms/index.js"></script>
+<script>
 function do_it() {
     var x = Math.random();
     var got = do_random(x);
     for(k in got){ document.getElementById(k).innerText = got[k]; }
     document.getElementById("js_calced").innerText = (x + got["r_server"]);
 }
+function callback_do_it() {
+    var x = Math.random();
+    callback_do_random([x], function(got) {
+      for(k in got){ document.getElementById(k).innerText = got[k]; }
+      document.getElementById("js_calced").innerText = (x + got["r_server"]);
+    })
+}
 </script>
 <button onclick="do_it()">Do it</button>
+<button onclick="callback_do_it()">Callback do it</button>
 <span id="cnt">Count not set</span>
 <p>
 <table>
@@ -47,7 +53,7 @@ function do_it() {
 do_it();
 </script>
 ]]
-     if not js:respond(req, rep) then
-        rep:addHeader('Content-Type', 'text/html'):write(html)
-     end  -- else, `:respond` already did its job.
+      if not js:respond(req, rep) then
+         rep:addHeader('Content-Type', 'text/html'):write(html)
+      end  -- else, `:respond` already did its job.
 end)
