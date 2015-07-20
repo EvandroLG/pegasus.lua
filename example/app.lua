@@ -8,7 +8,7 @@ local Cache = require 'pegasus.cache'
 local server = Pegasus:new({
   port='9090',
   location='/example/root/',
-  plugins = {Compress, Cache}
+  plugins = {Compress:new(), Cache:new()}
 })
 
 server:start(function(req, rep)

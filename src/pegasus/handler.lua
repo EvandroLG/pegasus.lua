@@ -11,9 +11,20 @@ function Handler:new(callback, location, plugins)
   self.__index = self
   handler.callback = callback
   handler.location = location or ''
-  handler.plugins = plugins
+  handler.plugins = plugins or {}
 
-  return setmetatable(handler, self)
+  local result = setmetatable(handler, self)
+  result:pluginsalterRequestResponseMetatable()
+  return result
+end
+
+function Handler:pluginsalterRequestResponseMetatable()
+  local stop = false
+  for i, plugin in ipairs(self.plugins) do
+    if plugin.alterRequestResponseMetaTable then
+      plugin:alterRequestResponseMetaTable(Request, Response)
+    end
+  end
 end
 
 
@@ -54,7 +65,7 @@ function Handler:pluginsProcessFile(request, response, filename)
   local stop = false
   for i, plugin in ipairs(self.plugins) do
     if plugin.processFile then
-      plugin:processFile(request, response, filename)
+      stop = plugin:processFile(request, response, filename)
       if stop then
         return stop
       end
@@ -62,11 +73,11 @@ function Handler:pluginsProcessFile(request, response, filename)
   end
 end
 
-function Handler:processData(data, stayOpen, response)
+function Handler:processBodyData(data, stayOpen, response)
   local local_data = data
   for i, plugin in ipairs(self.plugins) do
-    if plugin.processData then
-      local_data = plugin:processData(local_data, stayOpen,
+    if plugin.processBodyData then
+      local_data = plugin:processBodyData(local_data, stayOpen,
         response.request,  response)
     end
   end
@@ -79,11 +90,9 @@ function Handler:processRequest(client)
   response.request = request
   local stop = false
 
-  if self.plugins then
-    stop = self:pluginsNewRequestResponse(request, response)
-    if stop then
-       return
-    end
+  local stop = self:pluginsNewRequestResponse(request, response)
+  if stop then
+    return
   end
   if request:path() and self.location ~= '' then
     filename = '.' .. self.location .. request:path()
@@ -91,11 +100,9 @@ function Handler:processRequest(client)
       response:statusCode(404)
       return
     end
-    if self.plugins then
-      stop = self:pluginsProcessFile(request, response, filename)
-      if stop then
+    stop = self:pluginsProcessFile(request, response, filename)
+    if stop then
         return
-      end
     end
     local file = io.open(filename, 'rb')
     if file then

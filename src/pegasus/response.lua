@@ -140,7 +140,7 @@ end
 function Response:writeDefaultErrorMessage(statusCode)
   self:statusCode(statusCode)
   content = string.gsub(DEFAULT_ERROR_MESSAGE, '{{ STATUS_CODE }}', statusCode)
-  self:write(string.gsub(content, '{{ STATUS_TEXT }}', STATUS_TEXT[statusCode]))
+  self:writeBody(string.gsub(content, '{{ STATUS_TEXT }}', STATUS_TEXT[statusCode]))
   return self
 end
 
@@ -151,6 +151,11 @@ function Response:close()
 end
 
 
+function Response:sendOnlyHeaders()
+  self:sendHeaders(false, '')
+  self:writeBody('\r\n')
+end
+
 function Response:sendHeaders(stayopen, body)
   if self.headers_sended then
     return self
@@ -158,7 +163,9 @@ function Response:sendHeaders(stayopen, body)
   if stayopen then
     self:addHeader('Transfer-Encoding', 'chunked')
   else
-    self:addHeader('Content-Length', body:len() )
+    if body:len() > 0 then
+      self:addHeader('Content-Length', body:len())
+    end
   end
 
   self:addHeader('Date', os.date('!%a, %d %b %Y %T GMT', os.time()))
@@ -171,8 +178,8 @@ function Response:sendHeaders(stayopen, body)
   return self
 end
 
-function Response:write(body, stayopen)
-  body = self.writeHandler:processData(body, stayopen, self)
+function Response:writeBody(body, stayopen)
+  body = self.writeHandler:processBodyData(body, stayopen, self)
   self:sendHeaders(stayopen, body)
 
   self.closed = not (stayopen or false)
@@ -191,7 +198,7 @@ function Response:writeFile(file, contentType)
   self:contentType(contentType)
   self:statusCode(200)
   local value = file:read('*all')
-  self:write(value)
+  self:writeBody(value)
   return self
 end
 
