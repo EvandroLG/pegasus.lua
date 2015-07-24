@@ -11,6 +11,7 @@ function httpGet(url, data) {
 
     req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     req.setRequestHeader("Content-length", data.length + 2);
+    req.setRequestHeader("Cache-Control", "no-cache");
     
     req.send("d=" + data);
 

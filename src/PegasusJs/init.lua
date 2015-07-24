@@ -55,11 +55,11 @@ function PegasusJs:respond(request, response)
          local ret = fun(unpack(json.decode(request.post.d)))
          assert(type(ret) ~= "function", "Returned not-json-able, " .. request.path)
          local result = json.encode(ret)
-         response:addHeader('Cache-Control: no-cache')  -- Dont cache, want it fresh.
+         response:addHeader('Cache-Control', 'no-cache')  -- Dont cache, want it fresh.
          response:addHeader('Content-Type', 'text/json'):write(result)
          return true
       elseif request.path == self.script_path then
-         response:addHeader('Cache-Control: no-cache') -- Suppose a end-data might be nicer.
+         response:addHeader('Cache-Control', 'no-cache') -- Suppose a end-data might be nicer.
          response:addHeader('Content-Type', 'text/javascript'):write(self:_script())
          return true
       else
