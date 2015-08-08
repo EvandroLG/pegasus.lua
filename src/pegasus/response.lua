@@ -144,12 +144,10 @@ function Response:writeDefaultErrorMessage(statusCode)
   return self
 end
 
-
 function Response:close()
   self.client:send('0\r\n\r\n')
   self.close = true
 end
-
 
 function Response:sendOnlyHeaders()
   self:sendHeaders(false, '')
@@ -160,21 +158,23 @@ function Response:sendHeaders(stayopen, body)
   if self.headers_sended then
     return self
   end
+
   if stayopen then
     self:addHeader('Transfer-Encoding', 'chunked')
-  else
-    if body:len() > 0 then
-      self:addHeader('Content-Length', body:len())
-    end
+  elseif body:len() > 0 then
+    self:addHeader('Content-Length', body:len())
   end
 
   self:addHeader('Date', os.date('!%a, %d %b %Y %T GMT', os.time()))
+
   if not self.headers['Content-Type'] then
     self:addHeader('Content-Type', 'text/html')
   end
+
   self.client:send(self.headFirstLine .. self:_getHeaders())
   self.client:send('\r\n')
   self.headers_sended = true
+
   return self
 end
 

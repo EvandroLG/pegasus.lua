@@ -4,6 +4,10 @@ local mimetypes = require 'mimetypes'
 local lfs = require 'lfs'
 
 
+function ternary(condition, t, f)
+  if condition then return t else return f end
+end
+
 local Handler = {}
 
 function Handler:new(callback, location, plugins)
@@ -26,7 +30,6 @@ function Handler:pluginsalterRequestResponseMetatable()
     end
   end
 end
-
 
 function Handler:pluginsNewRequestResponse(request, response)
   local stop = false
@@ -91,20 +94,29 @@ function Handler:processRequest(client)
   local stop = false
 
   local stop = self:pluginsNewRequestResponse(request, response)
+
   if stop then
     return
   end
+
   if request:path() and self.location ~= '' then
-    filename = '.' .. self.location .. request:path()
+    local path = ternary(request:path() == '/' or request:path() == '',
+                 'index.html', request:path())
+    local filename = '.' .. self.location .. path
+
     if not lfs.attributes(filename) then
       response:statusCode(404)
       return
     end
+
     stop = self:pluginsProcessFile(request, response, filename)
+
     if stop then
-        return
+      return
     end
+
     local file = io.open(filename, 'rb')
+
     if file then
       response:writeFile(file, mimetypes.guess(filename or '') or 'text/html')
     end
