@@ -11,8 +11,9 @@ function Compress:new(options)
 end
 
 function Compress:processData(data, stayOpen, request, response)
-  local accept_encoding = request:headers()['Accept-Encoding'] or '';
+  local accept_encoding = request:headers()['Accept-Encoding'] or ''
   local accept_gzip = accept_encoding:find('gzip') ~= nil
+
   if not stayOpen and accept_gzip then
     response:addHeader('Content-Encoding',  'gzip')
 
@@ -22,10 +23,11 @@ function Compress:processData(data, stayOpen, request, response)
     end
 
     local stream = zlib.deflate(dataWrite,
-     self.options.level or -1 , nil, 15 + 16)
+                   self.options.level or -1 , nil, 15 + 16)
     stream:write(data)
     stream:close()
-    return table.concat(dataTable);
+
+    return table.concat(dataTable)
 
   else
     return data

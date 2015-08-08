@@ -28,8 +28,7 @@ install_dependencies:
 	luarocks install mimetypes
 	luarocks install luasocket
 	luarocks install busted
-	luarocks install luacov
 	luarocks install luafilesystem
 
 install_dependencies_plugins:
-	lua install lzlib
+	luarocks install lzlib
