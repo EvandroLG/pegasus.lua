@@ -15,7 +15,7 @@ end
 
 function dec2hex(dec)
 local b,k,out,i,d=16,"0123456789ABCDEF","",0
-  while dec>0 do
+  while dec > 0 do
     i=i+1
     local m = dec - math.floor(dec/b)*b
     dec, d = math.floor(dec/b), m + 1
@@ -140,7 +140,7 @@ end
 function Response:writeDefaultErrorMessage(statusCode)
   self:statusCode(statusCode)
   content = string.gsub(DEFAULT_ERROR_MESSAGE, '{{ STATUS_CODE }}', statusCode)
-  self:writeBody(string.gsub(content, '{{ STATUS_TEXT }}', STATUS_TEXT[statusCode]))
+  self:write(string.gsub(content, '{{ STATUS_TEXT }}', STATUS_TEXT[statusCode]))
   return self
 end
 
@@ -151,17 +151,17 @@ end
 
 function Response:sendOnlyHeaders()
   self:sendHeaders(false, '')
-  self:writeBody('\r\n')
+  self:write('\r\n')
 end
 
-function Response:sendHeaders(stayopen, body)
+function Response:sendHeaders(stayOpen, body)
   if self.headers_sended then
     return self
   end
 
-  if stayopen then
+  if stayOpen then
     self:addHeader('Transfer-Encoding', 'chunked')
-  elseif body:len() > 0 then
+  elseif type(body) == 'string' then
     self:addHeader('Content-Length', body:len())
   end
 
@@ -178,19 +178,21 @@ function Response:sendHeaders(stayopen, body)
   return self
 end
 
-function Response:writeBody(body, stayopen)
-  body = self.writeHandler:processBodyData(body, stayopen, self)
-  self:sendHeaders(stayopen, body)
+function Response:write(body, stayOpen)
+  body = self.writeHandler:processBodyData(body, stayOpen, self)
+  self:sendHeaders(stayOpen, body)
 
-  self.closed = not (stayopen or false)
+  self.closed = not (stayOpen or false)
   if self.closed then
     self.client:send(body)
   else
     self.client:send(dec2hex(body:len())..'\r\n'..body..'\r\n')
   end
+
   if self.closed then
     self.client:close()
   end
+
   return self
 end
 
@@ -198,7 +200,8 @@ function Response:writeFile(file, contentType)
   self:contentType(contentType)
   self:statusCode(200)
   local value = file:read('*all')
-  self:writeBody(value)
+  self:write(value)
+
   return self
 end
 

@@ -77,22 +77,22 @@ function Handler:pluginsProcessFile(request, response, filename)
 end
 
 function Handler:processBodyData(data, stayOpen, response)
-  local local_data = data
-  for i, plugin in ipairs(self.plugins) do
+  local localData = data
+
+  for i, plugin in ipairs(self.plugins or {}) do
     if plugin.processBodyData then
-      local_data = plugin:processBodyData(local_data, stayOpen,
-        response.request,  response)
+      localData = plugin:processBodyData(localData, stayOpen,
+                   response.request,  response)
     end
   end
-  return local_data
+
+  return localData
 end
 
 function Handler:processRequest(client)
   local request = Request:new(client)
   local response =  Response:new(client, self)
   response.request = request
-  local stop = false
-
   local stop = self:pluginsNewRequestResponse(request, response)
 
   if stop then

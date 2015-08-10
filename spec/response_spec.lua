@@ -1,5 +1,5 @@
 local Response = require 'pegasus.response'
-
+local Handler = require 'pegasus.handler'
 
 describe('response', function()
   describe('instance', function()
@@ -48,7 +48,7 @@ describe('response', function()
         close = function () end
       }
 
-      local response = Response:new(client)
+      local response = Response:new(client, Handler)
       response:statusCode(statusCode)
       response:write(expectedBody)
       local isOk = not not string.match(client.content, expectedBody)
@@ -128,7 +128,7 @@ describe('response', function()
       close = function () end
     }
     it('should define a default value to content-type and content-length', function()
-      local response = Response:new(client)
+      local response = Response:new(client, Handler)
       response:write('')
       assert.equal('text/html', response.headers['Content-Type'])
       assert.equal(0, response.headers['Content-Length'])
@@ -155,7 +155,7 @@ describe('response', function()
         close = function () end
       }
 
-      local response = Response:new(client)
+      local response = Response:new(client, Handler)
       response:addHeaders(header)
       response:write(body)
       for key, value in pairs(header) do
