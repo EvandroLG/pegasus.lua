@@ -127,6 +127,7 @@ describe('response', function()
       end,
       close = function () end
     }
+
     it('should define a default value to content-type and content-length', function()
       local response = Response:new(client, Handler)
       response:write('')

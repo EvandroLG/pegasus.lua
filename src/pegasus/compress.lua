@@ -10,7 +10,7 @@ function Compress:new(options)
   return setmetatable(compress, self)
 end
 
-function Compress:processData(data, stayOpen, request, response)
+function Compress:processBodyData(data, stayOpen, request, response)
   local accept_encoding = request:headers()['Accept-Encoding'] or ''
   local accept_gzip = accept_encoding:find('gzip') ~= nil
 
