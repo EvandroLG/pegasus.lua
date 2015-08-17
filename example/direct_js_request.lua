@@ -1,6 +1,10 @@
 -- setup path to find the project source files of Pegasus
 package.path = "./src/?.lua;./src/?/init.lua;"..package.path
 
+-- Justs XMLHtttpRequest to get more information after loaded, from
+-- client-side javascript.
+-- IMO neater way to do it at https://github.com/o-jasper/PegasusJs
+
 local Pegasus = require 'pegasus'
 
 local server = Pegasus:new()
@@ -14,7 +18,6 @@ local function html_table(tab)
 end
 
 -- _basic_ asking information from the server by javascript.
--- TODO cachers inbetween assume they can keep it, afaict.
 local poke_cnt = 0
 server:start(function (req, rep)
       print(req.path)
