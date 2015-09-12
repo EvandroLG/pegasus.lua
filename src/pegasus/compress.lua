@@ -1,6 +1,5 @@
 local zlib = require "zlib"
 
-
 local Compress = {}
 
 function Compress:new(options)
