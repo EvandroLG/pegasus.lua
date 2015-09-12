@@ -41,14 +41,14 @@ describe('compress', function()
       }
 
       local compress = Compress:new({ level=1 })
-      compress:processBodyData({}, false, request, response)
+      compress:processBodyData('', false, request, response)
 
       assert.equal(key, 'Content-Encoding')
       assert.equal(value, 'gzip')
     end)
 
     it('should return data object when stayOpen is false', function()
-      local data = {}
+      local data = ''
       local compress = Compress:new({ level=1 })
       local output = compress:processBodyData(data, true, mockRequest(), {})
 

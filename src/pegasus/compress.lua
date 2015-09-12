@@ -26,7 +26,7 @@ function Compress:processBodyData(data, stayOpen, request, response)
     local stream = zlib.deflate(dataWrite,
                    self.options.level or -1 , nil, 15 + 16)
 
-    --stream:write(data)
+    stream:write(data)
     stream:close()
 
     return table.concat(dataTable)
