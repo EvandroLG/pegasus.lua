@@ -34,6 +34,7 @@ end)
 - Easy API
 - Support Lua >= 5.1
 - Native support for HTTP Streaming, aka chunked responses. [Check how it works](https://github.com/EvandroLG/pegasus.lua/blob/master/example/app_stream.lua).
+- Native plugin to compress responses using the "gzip" method
 
 ## API
 ### Request
@@ -61,8 +62,21 @@ local pegasus = require 'pegasus'
 local server = pegasus:new({ port='9090' })
 
 server:start(function (req, rep)
-  rep.addHeader('Date', 'Mon, 15 Jun 2015 14:24:53 GMT').write('hello pegasus world!')
+  rep:addHeader('Date', 'Mon, 15 Jun 2015 14:24:53 GMT'):write('hello pegasus world!')
 end)
+```
+
+## Native Plugin
+* pegasus.compress
+```lua
+local Pegasus = require 'pegasus'
+local Compress = require 'pegasus.compress'
+
+local server = Pegasus:new({
+  plugins = { Compress:new() }
+})
+
+server:start()
 ```
 
 ## Contributing
