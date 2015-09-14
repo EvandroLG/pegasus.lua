@@ -29,6 +29,4 @@ install_dependencies:
 	luarocks install luasocket
 	luarocks install busted
 	luarocks install luafilesystem
-
-install_dependencies_plugins:
 	luarocks install lzlib

@@ -28,6 +28,7 @@ install:
   - sudo -E luarocks install luasocket
   - sudo -E luarocks install luacov
   - sudo -E luarocks install luafilesystem
+  - sudo -E luarocks install lzlib
 
 script:
   - sudo -E busted
