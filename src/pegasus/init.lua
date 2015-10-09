@@ -17,17 +17,25 @@ function Pegasus:new(params)
   return setmetatable(server, self)
 end
 
-function Pegasus:start(callback)
-  local handler = Handler:new(callback, self.location, self.plugins)
-  local server = assert(socket.bind('*', self.port))
-  local ip, port = server:getsockname()
-  print('Pegasus is up on ' .. ip .. ":".. port)
-
-  while 1 do
-    local client = server:accept()
-    client:settimeout(1, 'b')
-    handler:processRequest(client)
+function Pegasus:prepare(callback, talk)
+  self.handler = Handler:new(callback, self.location, self.plugins)
+  self.server = assert(socket.bind('*', self.port))
+  local ip, port = self.server:getsockname()
+  if talk == nil or talk then
+     print('Pegasus is up on http://' .. ip .. ":".. port)
   end
+end
+
+function Pegasus:iterate()
+  local client = self.server:accept()
+  client:settimeout(1, 'b')
+  self.handler:processRequest(client)
+end
+
+function Pegasus:start(callback, talk)
+  self:prepare(callback, talk)
+
+  while 1 do self:iterate() end
 end
 
 return Pegasus
