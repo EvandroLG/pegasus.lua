@@ -26,8 +26,10 @@ end
 
 function Pegasus:iterate()
   local client = self.server:accept()
-  client:settimeout(1, 'b')
-  self.handler:processRequest(client)
+  if client then
+     client:settimeout(1, 'b')
+     self.handler:processRequest(client)
+  end
 end
 
 function Pegasus:start(callback, talk)
