@@ -17,12 +17,10 @@ function Pegasus:new(params)
   return setmetatable(server, self)
 end
 
-function Pegasus:prepare(callback, talk)
-  self.handler = Handler:new(callback, self.location, self.plugins)
-  self.server = assert(socket.bind('*', self.port))
-  local ip, port = self.server:getsockname()
-  if talk == nil or talk then
-     print('Pegasus is up on http://' .. ip .. ":".. port)
+function Pegasus:prepare(callback)
+  if not self.server then
+    self.handler = Handler:new(callback, self.location, self.plugins)
+    self.server = assert(socket.bind('*', self.port))
   end
 end
 
@@ -33,9 +31,13 @@ function Pegasus:iterate()
 end
 
 function Pegasus:start(callback, talk)
-  self:prepare(callback, talk)
+  self:prepare(callback)
 
-  while 1 do self:iterate() end
+  if talk == nil or talk then  -- NOTE/TODO: modules can make it https? They redirect?
+    local ip, port = self.server:getsockname()
+    print('Pegasus is up on http://' .. ip .. ":".. port)
+  end
+  while true do self:iterate() end
 end
 
 return Pegasus
