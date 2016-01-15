@@ -3,7 +3,7 @@ local Handler = require 'pegasus.handler'
 
 local Pegasus = {}
 
-Pegasus.__index = self
+Pegasus.__index = Pegasus
 
 function Pegasus:new(params)
   params = params or {}
