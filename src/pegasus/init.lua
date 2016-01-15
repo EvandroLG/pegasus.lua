@@ -1,13 +1,13 @@
 local socket = require 'socket'
 local Handler = require 'pegasus.handler'
 
-
 local Pegasus = {}
+
+Pegasus.__index = self
 
 function Pegasus:new(params)
   params = params or {}
   local server = {}
-  self.__index = self
 
   local port, location
   server.port = params.port or '9090'
