@@ -18,9 +18,9 @@ function Request:new(client)
   return setmetatable(newObj, self)
 end
 
-Request.PATTERN_METHOD = '^(.*)%s'
+Request.PATTERN_METHOD = '^(.+)%s'
 Request.PATTERN_PATH = '(.*)%s'
-Request.PATTERN_PROTOCOL = '(HTTP%/[0-9]%.[0-9])'
+Request.PATTERN_PROTOCOL = '(HTTP%/%d%.%d)'
 Request.PATTERN_REQUEST = (Request.PATTERN_METHOD ..
 Request.PATTERN_PATH ..Request.PATTERN_PROTOCOL)
 
