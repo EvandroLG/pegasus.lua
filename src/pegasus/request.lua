@@ -60,7 +60,7 @@ function Request:parseURLEncoded(value, _table)
   return _table
 end
 
-function Request:params()
+function Request:querystring()
   self:parseFirstLine()
   return self:parseURLEncoded(self._query_string, self._params)
 end

@@ -13,5 +13,5 @@ end
 
 server:start(function (request, response)
   print("Query string:")
-  printTable(request["querystring"])
+  printTable(request:querystring())
 end)
