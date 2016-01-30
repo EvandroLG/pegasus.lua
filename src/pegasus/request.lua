@@ -67,6 +67,7 @@ end
 
 function Request:post()
   if self:method() ~= 'POST' then return nil end
+  self:headers()
   local data = self:receiveBody()
   return self:parseURLEncoded(data, {})
 end
@@ -115,7 +116,7 @@ function Request:receiveBody(size)
   if self._content_done >= self._content_length then return false end
 
   -- fetch in chunks
-  local fetch = math.min(self._content_length-self._content_done, size)
+  local fetch = math.min(self._content_length - self._content_done, size)
 
   local data, err, partial = self.client:receive(fetch)
 
