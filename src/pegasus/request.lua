@@ -110,6 +110,7 @@ function Request:headers()
 end
 
 function Request:receiveBody(size)
+  self:headers()
   size = size or self._content_length
 
   -- do we have content?
@@ -125,9 +126,12 @@ function Request:receiveBody(size)
     data = partial
   end
 
-  self._content_done = self._content_done + #data
+  if type(data) == 'string' then
+    self._content_done = self._content_done + #data
+    return data
+  end
 
-  return data
+  return nil
 end
 
 return Request
