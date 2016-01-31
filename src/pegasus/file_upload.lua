@@ -17,7 +17,7 @@ function FileUpload:new()
     self.__index = self
     obj.contentTypeFilter = {}
     obj.contentTypeDiscover = {}
-    obj.destination = ''
+    obj.destination = {}
     obj.minBodySize = nil
     obj.maxBodySize = nil
 
@@ -41,8 +41,8 @@ function FileUpload:_getDatasFromFiles(body)
 end
 
 function FileUpload:_isContentTypeValid(files)
-  for k, object in pairs(files) do
-    if not _isIn(object['Content-Type'], self.contentTypeFilter) then
+  for k, obj in pairs(files) do
+    if not _isIn(obj['Content-Type'], self.contentTypeFilter) then
       return false
     end
   end
@@ -51,6 +51,11 @@ function FileUpload:_isContentTypeValid(files)
 end
 
 function FileUpload:_saveFiles(files)
+  for k, obj in pairs(files) do
+    local directory = self.destination[obj['Content-Type']]
+    local key, filename = string.match(obj['Content-Disposition'], '(filename=)(.*)')
+    filename = string.gsub(filename, '"', '')
+  end
 end
 
 function FileUpload:processBodyData(data, stayOpen, request, response)
