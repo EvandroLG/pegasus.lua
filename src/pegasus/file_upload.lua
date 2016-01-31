@@ -1,5 +1,13 @@
-local function startsWith(str, start)
+local function _startsWith(str, start)
   return string.sub(str, 1, #start) == start
+end
+
+local function _isIn(value, datas)
+  for k, v in pairs(data) do
+    if v == value then return true end
+  end
+
+  return false
 end
 
 local FileUpload = {}
@@ -16,21 +24,33 @@ function FileUpload:new()
     return setmetatable(obj, self)
 end
 
-function FileUpload:getDatasFromFiles(body)
+function FileUpload:_getDatasFromFiles(body)
   local output = {}
   local data = {}
 
   for line in string.gmatch(body, "[^\r\n]+") do
-    if startsWith(line, '---') then
+    if _startsWith(line, '---') then
       table.insert(output, data)
-      data = {}
     else
       local key, value = string.match(line, '([%w-]+): (%w.*)')
-      data[key] = value
+      output[#output][key] = value
     end
   end
 
   return output
+end
+
+function FileUpload:_isContentTypeValid(files)
+  for k, object in pairs(files) do
+    if not _isIn(object['Content-Type'], self.contentTypeFilter) then
+      return false
+    end
+  end
+
+  return true
+end
+
+function FileUpload:_saveFiles(files)
 end
 
 function FileUpload:processBodyData(data, stayOpen, request, response)
@@ -41,12 +61,12 @@ function FileUpload:processBodyData(data, stayOpen, request, response)
   if not hasUpload then return end
 
   local body = request:receiveBody()
+  if type(body) ~= 'string' then return end
 
-  if type(body) ~= 'string' or not self:isContentTypeValid(body) then
-    return
-  end
+  local files = self:_getDatasFromFiles(body)
+  if not self:_isContentTypeValid(files) then return end
 
-  local files = self:getDatasFromFiles(body)
+  self:_saveFiles(files)
 end
 
 return FileUpload
