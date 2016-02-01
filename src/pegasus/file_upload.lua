@@ -50,11 +50,19 @@ function FileUpload:_isContentTypeValid(files)
   return true
 end
 
+function FileUpload:_createFile(filename)
+    local file = io.open(filename)
+    file:write()
+    file:close()
+end
+
 function FileUpload:_saveFiles(files)
   for k, obj in pairs(files) do
     local directory = self.destination[obj['Content-Type']]
     local key, filename = string.match(obj['Content-Disposition'], '(filename=)(.*)')
     filename = string.gsub(filename, '"', '')
+
+    self:_createFile(filename)
   end
 end
 
