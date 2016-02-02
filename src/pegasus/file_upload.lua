@@ -26,15 +26,28 @@ end
 
 function FileUpload:_getDatasFromFiles(body)
   local output = {}
-  local data = {}
+  local count = 1
 
   for line in string.gmatch(body, "[^\r\n]+") do
-    if _startsWith(line, '---') then
-      table.insert(output, data)
-    else
+    if count == 1 then
+        table.insert(output, {})
+    elseif count == 2 or count == 3 then
       local key, value = string.match(line, '([%w-]+): (%w.*)')
       output[#output][key] = value
+    else if count >= 6 then
+        if string.find(body, '------') then
+            count = 1
+            table.insert(output, {})
+        else
+            if output[#output].content then
+                output[#output].content = output[#output].content .. line
+            else
+                output[#output].content = line
+            end
+        end
     end
+
+    count = count + 1
   end
 
   return output
@@ -50,9 +63,9 @@ function FileUpload:_isContentTypeValid(files)
   return true
 end
 
-function FileUpload:_createFile(filename)
+function FileUpload:_createFile(filename, content)
     local file = io.open(filename)
-    file:write()
+    file:write(content)
     file:close()
 end
 
@@ -60,9 +73,9 @@ function FileUpload:_saveFiles(files)
   for k, obj in pairs(files) do
     local directory = self.destination[obj['Content-Type']]
     local key, filename = string.match(obj['Content-Disposition'], '(filename=)(.*)')
-    filename = string.gsub(filename, '"', '')
+    filename = directory .. string.gsub(filename, '"', '')
 
-    self:_createFile(filename)
+    self:_createFile(filename, obj.content)
   end
 end
 
