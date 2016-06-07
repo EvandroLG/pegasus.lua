@@ -141,6 +141,8 @@ function Request:ip()
             return string.match(result, '[%a%d]+%:?[%a%d]+%:?[%a%d]+%:?[%a%d]+%:?[%a%d]+%:?[%a%d]+%:?[%a%d]+%:?[%a%d]+')
         end
     end
+
+    return nil
 end
 
 return Request

@@ -113,4 +113,28 @@ describe('require', function()
       assert.equal(length(result), 1)
     end)
   end)
+
+  describe('ip', function()
+    local function verify_ip(output, expected)
+      local request = Request:new({
+        getpeername = function(self)
+          return output
+        end
+      })
+
+      assert.equal(request:ip(), expected)
+    end
+
+    it('should returns nil', function()
+      verify_ip(nil, nil)
+    end)
+
+    it('should returns ipv4', function()
+      verify_ip('127.0.0.1   62640   inet', '127.0.0.1')
+    end)
+
+    it('should returns ipv6', function()
+      verify_ip('1050:0000:0000:0000:0005:0600:300c:326b   62640   inet', '1050:0000:0000:0000:0005:0600:300c:326b')
+    end)
+  end)
 end)
