@@ -129,20 +129,4 @@ function Request:receiveBody(size)
   return data
 end
 
-function Request:ip()
-    local result = self.client:getpeername()
-
-    if result then
-        local ipv4 = string.match(result, '%w+%.%w+%.%w+%.%w+')
-
-        if ipv4 then
-            return ipv4
-        else
-            return string.match(result, '[%a%d]+%:?[%a%d]+%:?[%a%d]+%:?[%a%d]+%:?[%a%d]+%:?[%a%d]+%:?[%a%d]+%:?[%a%d]+')
-        end
-    end
-
-    return nil
-end
-
 return Request
