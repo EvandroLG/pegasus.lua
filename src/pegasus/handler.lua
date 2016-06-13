@@ -89,8 +89,8 @@ function Handler:processBodyData(data, stayOpen, response)
   return localData
 end
 
-function Handler:processRequest(client)
-  local request = Request:new(client)
+function Handler:processRequest(port, client)
+  local request = Request:new(port, client)
   local response =  Response:new(client, self)
   response.request = request
   local stop = self:pluginsNewRequestResponse(request, response)

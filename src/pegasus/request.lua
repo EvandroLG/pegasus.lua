@@ -1,9 +1,10 @@
 local Request = {}
 
-function Request:new(client)
+function Request:new(port, client)
   local newObj = {}
   self.__index = self
   newObj.client = client
+  newObj.port = port
   newObj.ip = client:getpeername()
   newObj.firstLine = nil
   newObj._method = nil
@@ -33,7 +34,7 @@ function Request:parseFirstLine()
   local status, partial
   self.firstLine, status, partial = self.client:receive()
 
-  if (self.firstLine == nil and status == 'timeout' and partial == '' or status == 'closed') then
+  if (self.firstLine == nil or status == 'timeout' or partial == '' or status == 'closed') then
     return
   end
 
