@@ -44,6 +44,8 @@ end)
 * `method` The output is the request method as a string ('GET', 'POST', etc)
 * `querystring` It returns a dictionary with all the GET parameters
 * `post` It returns a dictionary with all the POST parameters
+* `ip` It returns the client's ip
+* `port` It returns the port where Pegasus is running
 
 ### Response
 #### Methods
