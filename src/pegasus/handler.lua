@@ -105,8 +105,7 @@ function Handler:processRequest(port, client)
     local filename = '.' .. self.location .. path
 
     if not lfs.attributes(filename) then
-      response:statusCode(404)
-      return
+      response:writeDefaultErrorMessage(404)
     end
 
     stop = self:pluginsProcessFile(request, response, filename)
