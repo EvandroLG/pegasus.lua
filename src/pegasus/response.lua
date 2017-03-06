@@ -139,8 +139,8 @@ end
 
 function Response:writeDefaultErrorMessage(statusCode)
   self:statusCode(statusCode)
-  content = string.gsub(DEFAULT_ERROR_MESSAGE, '{{ STATUS_CODE }}', statusCode)
-  self:write(string.gsub(content, '{{ STATUS_TEXT }}', STATUS_TEXT[statusCode]))
+  local content = string.gsub(DEFAULT_ERROR_MESSAGE, '{{ STATUS_CODE }}', statusCode)
+  self:write(string.gsub(content, '{{ STATUS_TEXT }}', STATUS_TEXT[statusCode]), false)
   return self
 end
 
