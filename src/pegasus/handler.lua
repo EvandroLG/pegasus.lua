@@ -106,7 +106,6 @@ function Handler:processRequest(port, client)
 
     if not lfs.attributes(filename) then
       response:statusCode(404)
-      return
     end
 
     stop = self:pluginsProcessFile(request, response, filename)
@@ -123,10 +122,14 @@ function Handler:processRequest(port, client)
   end
 
   if self.callback then
-    response:statusCode(200)
-    response.headers = {}
-    response:addHeader('Content-Type', 'text/html')
+    -- response:statusCode(200)
+    -- response.headers = {}
+    -- response:addHeader('Content-Type', 'text/html')
     self.callback(request, response)
+  end
+
+  if response.status == 404 then
+    response:writeDefaultErrorMessage(404)
   end
 end
 
