@@ -9,6 +9,8 @@ badge](http://img.shields.io/badge/Hu-Board-7965cc.svg)](https://huboard.com/Eva
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/EvandroLG/pegasus.lua?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## Installation
+
+[![Join the chat at https://gitter.im/EvandroLG/pegasus.lua](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/EvandroLG/pegasus.lua?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 To install Pegasus.lua, run:
 ```sh
 $ luarocks install pegasus
