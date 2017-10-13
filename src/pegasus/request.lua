@@ -111,24 +111,9 @@ function Request:headers()
 end
 
 function Request:receiveBody(size)
-  size = size or self._content_length
-
-  -- do we have content?
-  if self._content_done >= self._content_length then return false end
-
-  -- fetch in chunks
-  local fetch = math.min(self._content_length-self._content_done, size)
-
-  local data, err, partial = self.client:receive(fetch)
-
-  if err =='timeout' then
-    err = nil
-    data = partial
-  end
-
-  self._content_done = self._content_done + #data
-
-  return data
+   self:headers()
+   local data, _, partial = self.client:receive("*a")
+   return data or partial
 end
 
 return Request
