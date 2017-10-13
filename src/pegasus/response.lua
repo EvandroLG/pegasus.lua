@@ -199,7 +199,7 @@ end
 function Response:writeFile(file, contentType)
   self:contentType(contentType)
   self:statusCode(200)
-  local value = file:read('*all')
+  local value = file:read('*a')
   self:write(value)
 
   return self
