@@ -1,0 +1,59 @@
+version: 0.9.2.{build}
+
+os:
+- Windows Server 2012 R2
+
+shallow_clone: true
+
+environment:
+  LR_EXTERNAL: c:\external
+
+  matrix:
+  - LUA: "lua 5.1"
+  - LUA: "lua 5.2"
+  - LUA: "lua 5.3"
+
+platform:
+  - x64
+  # - x86
+  # - mingw
+
+cache:
+  - c:\hererocks -> appveyor.yml
+  - c:\external -> appveyor.yml
+
+install:
+  - set PATH=C:\Python27\Scripts;%LR_EXTERNAL%;%PATH%
+  - if /I "%platform%"=="x86" set HR_TARGET=vs_32
+  - if /I "%platform%"=="x64" set HR_TARGET=vs_64
+  - if /I "%platform%"=="mingw" set HR_TARGET=mingw
+  - if /I "%platform%"=="mingw" set PATH=C:\MinGW\bin;%PATH%
+  - if not exist "%LR_EXTERNAL%" (
+      mkdir "%LR_EXTERNAL%" &&
+      mkdir "%LR_EXTERNAL%\lib" &&
+      mkdir "%LR_EXTERNAL%\include"
+    )
+  - if not exist c:\hererocks (
+      pip install hererocks &&
+      hererocks c:\hererocks --%LUA% --target %HR_TARGET% -rlatest
+    )
+  - call c:\hererocks\bin\activate
+
+before_build:
+  # external deps
+  - luarocks show mimetypes     >nul 2>&1 || luarocks install mimetypes
+  - luarocks show luasocket     >nul 2>&1 || luarocks install luasocket
+  - luarocks show luafilesystem >nul 2>&1 || luarocks install luafilesystem
+  # todo: install zlib
+  # - luarocks show lzlib         >nul 2>&1 || luarocks install lzlib
+
+build_script:
+  - luarocks make rockspecs/pegasus-0.9.2-1.rockspec --deps-mode=none
+
+before_test:
+  # test deps
+  - luarocks show busted           > /dev/null 2>&1 || luarocks install busted
+  - luarocks show luacov-coveralls > /dev/null 2>&1 || luarocks install luacov-coveralls
+
+test_script:
+  - busted --exclude-tags=compress

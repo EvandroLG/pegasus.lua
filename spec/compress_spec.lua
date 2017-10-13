@@ -1,6 +1,5 @@
-local Compress = require 'pegasus.compress'
-
-describe('compress', function()
+describe('compress #compress', function()
+  local Compress = require 'pegasus.compress'
 
   describe('instance', function()
     it('should exists new method', function()
