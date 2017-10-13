@@ -165,7 +165,7 @@ function Response:sendHeaders(stayOpen, body)
     self:addHeader('Content-Length', body:len())
   end
 
-  self:addHeader('Date', os.date('!%a, %d %b %Y %T GMT', os.time()))
+  self:addHeader('Date', os.date('!%a, %d %b %Y %H:%M:%S GMT', os.time()))
 
   if not self.headers['Content-Type'] then
     self:addHeader('Content-Type', 'text/html')
