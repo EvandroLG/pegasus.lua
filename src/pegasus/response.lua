@@ -13,8 +13,8 @@ local function try(what)
   return result
 end
 
-function dec2hex(dec)
-local b,k,out,i,d=16,"0123456789ABCDEF","",0
+local function dec2hex(dec)
+  local b,k,out,i,d=16,"0123456789ABCDEF","",0
   while dec > 0 do
     i=i+1
     local m = dec - math.floor(dec/b)*b
