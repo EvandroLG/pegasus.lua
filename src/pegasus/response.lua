@@ -94,9 +94,9 @@ function Response:new(client, writeHandler)
   newObj.headers = {}
   newObj.status = 200
   newObj.filename = ''
-  self.closed = false
-  self.client = client
-  self.writeHandler = writeHandler
+  newObj.closed = false
+  newObj.client = client
+  newObj.writeHandler = writeHandler
 
   return setmetatable(newObj, self)
 end
