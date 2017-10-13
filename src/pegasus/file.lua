@@ -50,7 +50,7 @@ function File:open(path)
   local file = io.open(filename, 'r')
 
   if file then
-    return file:read('*all')
+    return file:read('*a')
   end
 
   return nil
