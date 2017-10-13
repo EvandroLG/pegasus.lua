@@ -4,7 +4,7 @@ local mimetypes = require 'mimetypes'
 local lfs = require 'lfs'
 
 
-function ternary(condition, t, f)
+local function ternary(condition, t, f)
   if condition then return t else return f end
 end
 

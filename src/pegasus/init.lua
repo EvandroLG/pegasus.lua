@@ -9,7 +9,6 @@ function Pegasus:new(params)
   local server = {}
   self.__index = self
 
-  local port, location
   server.port = params.port or '9090'
   server.location = params.location or ''
   server.plugins = params.plugins or {}
