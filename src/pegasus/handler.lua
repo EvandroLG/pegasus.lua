@@ -118,6 +118,8 @@ function Handler:processRequest(port, client)
 
     if file then
       response:writeFile(file, mimetypes.guess(filename or '') or 'text/html')
+    else
+      response:statusCode(404)
     end
   end
 
