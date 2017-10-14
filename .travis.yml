@@ -34,6 +34,7 @@ install:
 before_script:
   - luarocks show busted           > /dev/null 2>&1 || luarocks install busted
   - luarocks show luacov-coveralls > /dev/null 2>&1 || luarocks install luacov-coveralls
+  - lua spec/start_app.lua &
 
 script:
   - busted

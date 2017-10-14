@@ -3,7 +3,7 @@ local Handler = require 'pegasus.handler'
 
 describe('response', function()
   describe('instance', function()
-    function verifyMethod(method)
+    local function verifyMethod(method)
       local response = Response:new({close=function () end})
       assert.equal(type(response[method]), 'function')
     end

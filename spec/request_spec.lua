@@ -30,7 +30,7 @@ describe('require', function()
   end
 
   describe('instance', function()
-    function verifyMethod(fn)
+    local function verifyMethod(fn)
       local headers = { 'GET /index.html HTTP/1.1' }
       local request = getInstance(headers)
       local method = request[fn]
@@ -113,6 +113,39 @@ describe('require', function()
       assert.equal(type(result), 'table')
       assert.equal(length(result), 1)
     end)
+
+    it('should handle empty path', function()
+      local headers = { 'GET HTTP/1.1' }
+      local request = getInstance(headers)
+
+      assert.are.equal('GET', request:method())
+      assert.are.equal('', request:path())
+      assert.are.equal('', request:path())
+    end)
+
+    it('should handle empty path with spaces', function()
+      local headers = { 'GET   HTTP/1.1' }
+      local request = getInstance(headers)
+
+      assert.are.equal('GET', request:method())
+      assert.are.equal('', request:path())
+    end)
+
+  end)
+
+  describe('invalid requests', function()
+    it('should not crash on invalid first line', function()
+      local request, result
+      assert.not_error(function()
+        local headers = { 'garbage', nil }
+        request = getInstance(headers)
+        result = request:headers()
+      end)
+
+      assert.table(result)
+      assert.is_nil(request:method())
+      assert.is_nil(request:path())
+    end)
   end)
 
   describe('ip', function()
@@ -128,6 +161,7 @@ describe('require', function()
   end)
 
   describe('port', function()
+    it('should return a port', function()
       local request = Request:new(8080, {
         getpeername = function(self)
           return '192.30.252.129'
@@ -135,5 +169,6 @@ describe('require', function()
       })
 
       assert.equal(request.port, 8080)
+    end)
   end)
 end)

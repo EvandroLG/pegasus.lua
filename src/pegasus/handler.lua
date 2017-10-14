@@ -35,7 +35,10 @@ function Handler:pluginsNewRequestResponse(request, response)
   local stop = false
   for i, plugin in ipairs(self.plugins) do
     if plugin.newRequestResponse then
-      plugin:newRequestResponse(request, response)
+      stop = plugin:newRequestResponse(request, response)
+      if stop then
+        return stop
+      end
     end
   end
 end
@@ -91,6 +94,14 @@ end
 
 function Handler:processRequest(port, client)
   local request = Request:new(port, client)
+
+  -- if we get some invalid request just close it
+  -- do not try handle or response
+  if not request:method() then
+    client:close()
+    return
+  end
+
   local response =  Response:new(client, self)
   response.request = request
   local stop = self:pluginsNewRequestResponse(request, response)
