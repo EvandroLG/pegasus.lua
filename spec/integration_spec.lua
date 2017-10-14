@@ -6,7 +6,7 @@ describe('integration', function()
   end
 
   local executeCommand = function(command)
-    local handle = io.popen(command .. ' ' .. url)
+    local handle = io.popen(command .. ' -s ' .. url)
     local result = handle:read('*a')
     handle:close()
 
