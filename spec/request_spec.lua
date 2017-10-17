@@ -2,12 +2,11 @@ local Request = require 'pegasus.request'
 
 describe('require', function()
   function getInstance(headers)
-    local err = {nil, nil, nil, nil, nil, 'error'}
     local position = 1
     local param = {
       receive = function()
         if headers[position] ~= nil then
-          local outcome = headers[position], err[position]
+          local outcome = headers[position]
           position = position + 1
 
           return outcome
@@ -30,7 +29,7 @@ describe('require', function()
   end
 
   describe('instance', function()
-    function verifyMethod(fn)
+    local function verifyMethod(fn)
       local headers = { 'GET /index.html HTTP/1.1' }
       local request = getInstance(headers)
       local method = request[fn]
@@ -63,7 +62,7 @@ describe('require', function()
 
   describe('methods', function()
     it('should returns correct filename when path is called', function()
-      local headers = { 'GET /index.html HTTP/1.1' }
+      local headers = { 'GET /index.html HTTP/1.1', '' }
       local request = getInstance(headers)
       local result = request:path()
 
@@ -71,7 +70,7 @@ describe('require', function()
     end)
 
     function verifyMethod(method)
-      local headers = { method .. ' /index.html HTTP/1.1' }
+      local headers = { method .. ' /index.html HTTP/1.1', '' }
       local request = getInstance(headers)
       local result = request:method()
 
@@ -95,7 +94,7 @@ describe('require', function()
     end)
 
     it('should returns correct object when headers method is called', function()
-      local headers = {'GET /Makefile?a=b&c=d HTTP/1.1', 'a: A', 'b: B', nil, 'C=3', ''}
+      local headers = {'GET /Makefile?a=b&c=d HTTP/1.1', 'a: A', 'b: B', '', 'C=3', ''}
       local request = getInstance(headers)
       local result = request:headers()
 
@@ -106,12 +105,40 @@ describe('require', function()
     end)
 
     it('should find value with = signal', function()
-      local headers = { 'GET /Makefile?a=b= HTTP/1.1', 'a: A=', nil }
+      local headers = { 'GET /Makefile?a=b= HTTP/1.1', 'a: A=', '' }
       local request = getInstance(headers)
       local result = request:headers()
 
-      assert.equal(type(result), 'table')
+      assert.table(result)
       assert.equal(length(result), 1)
+    end)
+
+    it('should handle empty path', function()
+      local headers = { 'GET HTTP/1.1' }
+      local request = getInstance(headers)
+
+      assert.is_nil(request:method())
+    end)
+
+    it('should handle empty path with spaces', function()
+      local headers = { 'GET   HTTP/1.1', '' }
+      local request = getInstance(headers)
+
+      assert.is_nil(request:method())
+    end)
+
+  end)
+
+  describe('invalid requests', function()
+    it('should not crash on invalid first line', function()
+      local request, result
+      assert.not_error(function()
+        local headers = { 'garbage', nil }
+        request = getInstance(headers)
+        result = request:headers()
+      end)
+
+      assert.is_nil(request:method())
     end)
   end)
 
@@ -128,6 +155,7 @@ describe('require', function()
   end)
 
   describe('port', function()
+    it('should return a port', function()
       local request = Request:new(8080, {
         getpeername = function(self)
           return '192.30.252.129'
@@ -135,5 +163,6 @@ describe('require', function()
       })
 
       assert.equal(request.port, 8080)
+    end)
   end)
 end)
