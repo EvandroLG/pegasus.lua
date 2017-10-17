@@ -21,7 +21,7 @@ function Request:new(port, client)
 end
 
 Request.PATTERN_METHOD = '^(.-)%s'
-Request.PATTERN_PATH = '(.-)%s*'
+Request.PATTERN_PATH = '(%S+)%s*'
 Request.PATTERN_PROTOCOL = '(HTTP%/%d%.%d)'
 Request.PATTERN_REQUEST = (Request.PATTERN_METHOD ..
 Request.PATTERN_PATH ..Request.PATTERN_PROTOCOL)
