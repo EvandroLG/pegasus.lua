@@ -1,7 +1,7 @@
 local Response = require 'pegasus.response'
 local Handler = require 'pegasus.handler'
 
-describe('response', function()
+describe('response #response', function()
   describe('instance', function()
     local function verifyMethod(method)
       local response = Response:new({close=function () end})
