@@ -45,7 +45,8 @@ before_build:
   - luarocks show luasocket     >nul 2>&1 || luarocks install luasocket
   - luarocks show luafilesystem >nul 2>&1 || luarocks install luafilesystem
   - luarocks show luarocks-fetch-gitrec > /dev/null 2>&1 || luarocks install luarocks-fetch-gitrec
-  - luarocks show lua-http-parser > /dev/null 2>&1 || luarocks install lua-http-parser mot-0 --server=http://luarocks.org/manifests/moteus
+  - luarocks show lua-http-parser > /dev/null 2>&1 || luarocks install lua-http-parser mot-0 \
+    --server=http://luarocks.org/manifests/moteus
   # todo: install zlib
   # - luarocks show lzlib         >nul 2>&1 || luarocks install lzlib
 

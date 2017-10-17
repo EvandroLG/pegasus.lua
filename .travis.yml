@@ -28,7 +28,8 @@ before_install:
   - hererocks here -r^ --$LUA
   - source here/bin/activate
   - luarocks show luarocks-fetch-gitrec > /dev/null 2>&1 || luarocks install luarocks-fetch-gitrec
-  - luarocks show lua-http-parser > /dev/null 2>&1 || luarocks install lua-http-parser mot-0 --server=http://luarocks.org/manifests/moteus
+  - luarocks show lua-http-parser > /dev/null 2>&1 || luarocks install lua-http-parser mot-0 \
+      --server=http://luarocks.org/manifests/moteus
 
 install:
   - luarocks make rockspecs/pegasus-0.9.3-1.rockspec
