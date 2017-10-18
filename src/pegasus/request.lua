@@ -1,6 +1,6 @@
 local lhp = require "http.parser"
 
-pp = function()end
+local pp = function()end
 
 local function parser_create(self)
   local parser
