@@ -41,17 +41,17 @@ install:
 
 before_build:
   # external deps
-  - luarocks show mimetypes     >nul 2>&1 || luarocks install mimetypes
-  - luarocks show luasocket     >nul 2>&1 || luarocks install luasocket
-  - luarocks show luafilesystem >nul 2>&1 || luarocks install luafilesystem
   - luarocks show luarocks-fetch-gitrec > /dev/null 2>&1 || luarocks install luarocks-fetch-gitrec
   - luarocks show lua-http-parser > /dev/null 2>&1 || luarocks install lua-http-parser mot-0 \
     --server=http://luarocks.org/manifests/moteus
+  # - luarocks show luafilesystem >nul 2>&1 || luarocks install luafilesystem
+  # - luarocks show mimetypes     >nul 2>&1 || luarocks install mimetypes
+  # - luarocks show luasocket     >nul 2>&1 || luarocks install luasocket
   # todo: install zlib
   # - luarocks show lzlib         >nul 2>&1 || luarocks install lzlib
 
 build_script:
-  - luarocks make rockspecs/pegasus-0.9.3-1.rockspec --deps-mode=none
+  - luarocks make rockspecs/pegasus-http.parser-0.rockspec
 
 before_test:
   # test deps

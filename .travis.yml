@@ -32,7 +32,7 @@ before_install:
       --server=http://luarocks.org/manifests/moteus
 
 install:
-  - luarocks make rockspecs/pegasus-0.9.3-1.rockspec
+  - luarocks make rockspecs/pegasus-http.parser-0.rockspec
 
 before_script:
   - luarocks show busted           > /dev/null 2>&1 || luarocks install busted
