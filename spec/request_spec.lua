@@ -1,92 +1,7 @@
 local Request = require 'pegasus.request'
+local Utils   = require 'spec/utils'
 
-local Socket = {} do
-Socket.__index = Socket
-
-function Socket:new(fn)
-  local o = setmetatable({}, self)
-
-  o._writer = fn
-
-  return o
-end
-
-local function return_resume(status, ...)
-  if status then return ... end
-  return nil, ...
-end
-
-local function start_reader(fn, self, pattern)
-  local sender, err = coroutine.create(function ()
-    local writer = function (...)
-      return coroutine.yield(...)
-    end
-    fn(writer, self, pattern)
-  end)
-  if not sender then return nil, err end
-
-  local function reader(...)
-    return return_resume( coroutine.resume(sender, ...) )
-  end
-
-  return reader
-end
-
-function Socket:receive(...)
-  if not self._reader then
-    self._reader = start_reader(self._writer, self, ...)
-  end
-  return self._reader(...)
-end
-
-function Socket:getpeername()
-end
-
-end
-
-local function CLOSED(part)
-  return function()
-    return nil, 'closed', part or ''
-  end
-end
-
-local function TIMEOUT(part)
-  -- LuaSocket returns empty string as partial result
-  return function()
-    return nil, 'timeout', part or ''
-  end
-end
-
-local function BuildSocket(t)
-  local i = 1
-  return Socket:new(function(writer, self, pattern)
-    while t[i] do
-      local data = t[i]
-      if data == TIMEOUT then
-        data = TIMEOUT()
-        pattern = writer(data())
-      elseif data == CLOSED then
-        data = CLOSED()
-        pattern = writer(data())
-      elseif type(data) == 'function' then
-        pattern = writer(data())
-      elseif type(data) == 'table' then
-        if data[3] ~= nil then
-          pattern = writer(data[1],data[2],data[3])
-        elseif data[2] ~= nil then
-          pattern = writer(data[1],data[2])
-        else
-          pattern = writer(data[1])
-        end
-      else
-        pattern = writer(t[i])
-      end
-      i = i + 1
-    end
-
-    while true do writer(nil, 'closed') end
-  end)
-end
+local BuildSocket, CLOSED = Utils.BuildSocket, Utils.CLOSED
 
 local function BuildRequest(t)
   local client = BuildSocket(t)
@@ -94,27 +9,14 @@ local function BuildRequest(t)
 end
 
 describe('request #request', function()
-  function getInstance(headers)
-    local position = 1
-    local param = {
-      receive = function()
-        if headers[position] ~= nil then
-          local outcome = headers[position]
-          position = position + 1
-
-          return outcome
-        end
-
-        return nil
-      end,
-
-      getpeername = function(self) end
-    }
-
-    return Request:new(8080, param)
+  local function getInstance(headers)
+    for i = 1, #headers do
+      headers[i] = headers[i] .. '\r\n'
+    end
+    return BuildRequest(headers)
   end
 
-  function length(dict)
+  local function length(dict)
     local count = 0
     for k in pairs(dict) do count = count + 1 end
 
@@ -222,9 +124,9 @@ describe('request #request', function()
 
     it('should receive body by chunks', function()
       local request = BuildRequest{
-        'GET /index.html HTTP/1.1',
-        'Content-Length: 26',
-        '',
+        'GET /index.html HTTP/1.1\r\n',
+        'Content-Length: 26\r\n',
+        '\r\n',
         'abcdefghijkl', 'mnopqrstuvwxyz'
       }
       assert.equal('GET', request:method())
@@ -244,12 +146,31 @@ describe('request #request', function()
       assert.equal('closed', status)
     end)
 
-    it('should receive full body', function()
+    it('should receive full body - 1', function()
       local request = BuildRequest{
-        'GET /index.html HTTP/1.1',
-        'Content-Length: 26',
-        '',
-        'abcdefghijklmnopqrstuvwxyz'
+        'GET /index.html HTTP/1.1\r\n',
+        'Content-Length: 26\r\n',
+        '\r\n',
+        'abcdefghijklmnopqrstuvwxyz\r\n'
+      }
+      assert.equal('GET', request:method())
+      assert.table(request:headers())
+
+      local body, status = request:receiveBody()
+      assert.equal('abcdefghijklmnopqrstuvwxyz', body, status)
+      assert.is_nil(status)
+
+      body, status = request:receiveBody()
+      assert.is_nil(body)
+      assert.equal('closed', status)
+    end)
+
+    it('should receive full body - 2', function()
+      local request = BuildRequest{ ''
+        .. 'GET /index.html HTTP/1.1\r\n'
+        .. 'Content-Length: 26\r\n'
+        .. '\r\n'
+        .. 'abcdefghijklmnopqrstuvwxyz\r\n'
       }
       assert.equal('GET', request:method())
       assert.table(request:headers())
@@ -265,10 +186,10 @@ describe('request #request', function()
 
     it('should receive full body with bigger size', function()
       local request = BuildRequest{
-        'GET /index.html HTTP/1.1',
-        'Content-Length: 26',
-        '',
-        'abcdefghijklmnopqrstuvwxyz'
+        'GET /index.html HTTP/1.1\r\n',
+        'Content-Length: 26\r\n',
+        '\r\n',
+        'abcdefghijklmnopqrstuvwxyz\r\n'
       }
       assert.equal('GET', request:method())
       assert.table(request:headers())
@@ -284,14 +205,14 @@ describe('request #request', function()
 
     it('should receive chunked body by full chunks', function()
       local request = BuildRequest{
-        'GET /index.html HTTP/1.1',
-        'Transfer-Encoding: chunked',
-        '',
-        'c',
+        'GET /index.html HTTP/1.1\r\n',
+        'Transfer-Encoding: chunked\r\n',
+        '\r\n',
+        'c\r\n',
         'abcdefghijkl\r\n',
-        'e',
+        'e\r\n',
         'mnopqrstuvwxyz\r\n',
-        '0',
+        '0\r\n',
         '\r\n'
       }
       assert.equal('GET', request:method())
@@ -316,14 +237,14 @@ describe('request #request', function()
 
     it('should receive chunked body by partial chunks', function()
       local request = BuildRequest{
-        'GET /index.html HTTP/1.1',
-        'Transfer-Encoding: chunked',
-        '',
-        'c',
+        'GET /index.html HTTP/1.1\r\n',
+        'Transfer-Encoding: chunked\r\n',
+        '\r\n',
+        'c\r\n',
         'abcdef', 'ghijkl\r\n',
-        'e',
+        'e\r\n',
         'mnopqrs', 'tuvwxyz\r\n',
-        '0',
+        '0\r\n',
         '\r\n'
       }
       assert.equal('GET', request:method())
@@ -395,14 +316,14 @@ describe('request #request', function()
 
   describe('timeouts', function()
     it('should handle timeout when parse first line - 1', function()
-      local request = BuildRequest{ TIMEOUT'GET', ' /index.html HTTP/1.1', '' }
+      local request = BuildRequest{ 'GET', ' /index.html HTTP/1.1\r\n', '\r\n' }
       local _, err = assert.is_nil(request:method())
       assert.equal('timeout', err)
       assert.equal('GET', request:method())
     end)
 
     it('should handle timeout when parse first line - 2', function()
-      local request = BuildRequest{TIMEOUT'GET /index.html ', TIMEOUT, 'HTTP/1.1', '' }
+      local request = BuildRequest{'GET /index.html ', '', 'HTTP/1.1\r\n', '\r\n' }
 
       -- first timeout
       local _, err = assert.is_nil(request:method())
@@ -417,14 +338,14 @@ describe('request #request', function()
 
     it('should handle timeout when receive body', function()
       local request = BuildRequest{
-        'GET /index.html HTTP/1.1',
-        'Content-Length: 26',
-        '',
-        TIMEOUT, -- #1
-        TIMEOUT'abcdefg', -- #2
-        TIMEOUT, -- #3
-        TIMEOUT'hijklmnopqrstuvwxyz', -- #4
-        '', -- #5
+        'GET /index.html HTTP/1.1\r\n',
+        'Content-Length: 26\r\n',
+        '\r\n',
+        '',                    -- #1
+        'abcdefg',             -- #2
+        '',                    -- #3
+        'hijklmnopqrstuvwxyz', -- #4
+        '\r\n',                -- #5
       }
       assert.equal('GET', request:method())
       assert.table(request:headers())
@@ -457,12 +378,12 @@ describe('request #request', function()
 
     it('should handle timeout when receive content length for chunk', function()
       local request = BuildRequest{
-        'GET /index.html HTTP/1.1',
-        'Transfer-Encoding: chunked',
-        '',
-        TIMEOUT, TIMEOUT'1', TIMEOUT, TIMEOUT'A', '',
+        'GET /index.html HTTP/1.1\r\n',
+        'Transfer-Encoding: chunked\r\n',
+        '\r\n',
+        '', '1', '', 'A', '\r\n',
         'abcdefghijklmnopqrstuvwxyz\r\n',
-        '0', '\r\n'
+        '0\r\n', '\r\n'
       }
       assert.equal('GET', request:method())
       assert.table(request:headers())
@@ -497,43 +418,53 @@ describe('request #request', function()
 
     it('should handle timeout when receive chunk', function()
       local request = BuildRequest{
-        'GET /index.html HTTP/1.1',
-        'Transfer-Encoding: chunked',
-        '',
-        '1A',
-        TIMEOUT, TIMEOUT'abcdefghijkl', TIMEOUT, TIMEOUT'mnopqrstuvwxyz', TIMEOUT'\r\n',
-        TIMEOUT'0', '',
-        '\r\n'
+        'GET /index.html HTTP/1.1\r\n',
+        'Transfer-Encoding: chunked\r\n',
+        '\r\n',
+        '1A\r\n',
+        '',               -- #1 - timout
+        'abcdefghijkl',   -- #2 - chunk
+        '',               -- #3 - timout
+        'mnopqrstuvwxyz', -- #4 - chunk
+        '\r\n',           -- #5 - timout
+        '0',              -- #6 - timeout
+        '\r\n',           -- #7.1
+        '\r\n'            -- #7.2 - closed
       }
       assert.equal('GET', request:method())
       assert.table(request:headers())
 
+      -- #1
       local body, status = request:receiveBody()
       assert.is_nil(body, status)
       assert.equal('timeout', status)
 
+      -- #2
       body, status = request:receiveBody()
       assert.equal('abcdefghijkl', body)
       assert.is_nil(status)
 
+      -- #3
       body, status = request:receiveBody()
       assert.is_nil(body, status)
       assert.equal('timeout', status)
 
+      -- #4
       body, status = request:receiveBody()
       assert.equal('mnopqrstuvwxyz', body)
       assert.is_nil(status)
 
-      -- end of chunk
+      -- #5 end of chunk
       body, status = request:receiveBody()
       assert.is_nil(body, status)
       assert.equal('timeout', status)
 
-      -- length for last chunk (0)
+      -- #6 length for last chunk (0)
       body, status = request:receiveBody()
       assert.is_nil(body, status)
       assert.equal('timeout', status)
 
+      -- #7
       body, status = request:receiveBody()
       assert.is_nil(body, status)
       assert.equal('closed', status)
@@ -543,7 +474,7 @@ describe('request #request', function()
 
   describe('closed', function()
     it('should handle closed when parse first line - 1', function()
-      local request = BuildRequest{ CLOSED'GET', 'GET /index.html HTTP/1.1', '' }
+      local request = BuildRequest{ CLOSED'GET', 'GET /index.html HTTP/1.1\r\n', '\r\n' }
 
       local _, err = assert.is_nil(request:method())
       assert.equal('closed', err)
@@ -563,11 +494,11 @@ describe('request #request', function()
       -- should not read any more data
       local _, err = assert.is_nil(request:method())
       assert.equal('closed', err)
-      assert.equal('foo', request.client:receive())
+      assert.equal('foo', request.client:receive('*a'))
     end)
 
     it('should handle closed when parse first line - 3', function()
-      local request = BuildRequest{ 'GET /index.html HTTP/1.1', CLOSED'\r\n' }
+      local request = BuildRequest{ 'GET /index.html HTTP/1.1\r\n', CLOSED'\r\n' }
 
       assert.equal('GET', request:method())
       assert.table(request:headers())
@@ -578,7 +509,7 @@ describe('request #request', function()
 
     it('should handle closed when parse first line - 4', function()
       -- we have no end of request but just first header so we do not return headers
-      local request = BuildRequest{ 'GET /index.html HTTP/1.1', CLOSED'a:b\r\n' }
+      local request = BuildRequest{ 'GET /index.html HTTP/1.1\r\n', CLOSED'a:b\r\n' }
 
       assert.equal('GET', request:method())
       assert.is_nil(request:headers())
@@ -589,9 +520,9 @@ describe('request #request', function()
 
     it('should handle closed when parse body', function()
       local request = BuildRequest{
-        'GET /index.html HTTP/1.1',
-        'Content-Length: 26',
-        '',
+        'GET /index.html HTTP/1.1\r\n',
+        'Content-Length: 26\r\n',
+        '\r\n',
         CLOSED'abcdefghijklmnopqrstuvwxyz'
       }
       assert.equal('GET', request:method())
@@ -608,9 +539,9 @@ describe('request #request', function()
 
     it('should handle closed when parse body and get not full message', function()
       local request = BuildRequest{
-        'GET /index.html HTTP/1.1',
-        'Content-Length: 26',
-        '',
+        'GET /index.html HTTP/1.1\r\n',
+        'Content-Length: 26\r\n',
+        '\r\n',
         CLOSED'abcdefghijkl', 'mnopqrstuvwxyz'
       }
       assert.equal('GET', request:method())
@@ -624,14 +555,14 @@ describe('request #request', function()
       assert.is_nil(body, status)
       assert.equal('closed', status)
 
-      assert.equal('mnopqrstuvwxyz', request.client:receive())
+      assert.equal('mnopqrstuvwxyz', request.client:receive('*a'))
     end)
 
     it('should handle closed when receive content length for chunk', function()
       local request = BuildRequest{
-        'GET /index.html HTTP/1.1',
-        'Transfer-Encoding: chunked',
-        '',
+        'GET /index.html HTTP/1.1\r\n',
+        'Transfer-Encoding: chunked\r\n',
+        '\r\n',
         CLOSED'1', 'abcdef',
       }
       assert.equal('GET', request:method())
@@ -645,15 +576,15 @@ describe('request #request', function()
       assert.is_nil(body, status)
       assert.equal('closed', status)
 
-      assert.equal('abcdef', request.client:receive())
+      assert.equal('abcdef', request.client:receive('*a'))
     end)
 
     it('should handle closed when receive content for chunk', function()
       local request = BuildRequest{
-        'GET /index.html HTTP/1.1',
-        'Transfer-Encoding: chunked',
-        '',
-        '1A',
+        'GET /index.html HTTP/1.1\r\n',
+        'Transfer-Encoding: chunked\r\n',
+        '\r\n',
+        '1A\r\n',
         CLOSED'abcdef', 'ghijkl'
       }
       assert.equal('GET', request:method())
@@ -671,7 +602,7 @@ describe('request #request', function()
       assert.is_nil(body, status)
       assert.equal('closed', status)
 
-      assert.equal('ghijkl', request.client:receive())
+      assert.equal('ghijkl', request.client:receive('*a'))
     end)
 
   end)

@@ -330,8 +330,17 @@ function Request:receiveBody(size)
     return nil, self._error
   end
 
-  -- we shuld not be here in any case
-  return nil, err
+  -- We get here when receive timeout or
+  -- if we receive some data but it is not enouth
+  -- to build body.
+  -- E.g. with chunked encoded data <DATA><EOL> we 
+  -- receive just last EOL.
+  -- Treats it as timeout is not fully correct because
+  -- we ask receive only 2 bytes and got it. 
+  -- But prev calls returns with timout.
+  -- So to simplicity we treat it as timeout.
+
+  return nil, err or 'timeout'
 end
 
 function Request:receiveFullBody()
