@@ -1,10 +1,11 @@
 local zlib = require "zlib"
 
 local Compress = {}
+Compress.__index = Compress
 
 function Compress:new(options)
-  local compress= {}
-  self.__index = self
+  local compress = {}
+
   compress.options = options or {}
 
   return setmetatable(compress, self)

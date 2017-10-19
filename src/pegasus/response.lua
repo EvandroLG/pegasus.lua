@@ -84,10 +84,10 @@ local DEFAULT_ERROR_MESSAGE = [[
 ]]
 
 local Response = {}
+Response.__index = Response
 
 function Response:new(client, writeHandler)
   local newObj = {}
-  self.__index = self
   newObj.headers_sended = false
   newObj.templateFirstLine = 'HTTP/1.1 {{ STATUS_CODE }} {{ STATUS_TEXT }}\r\n'
   newObj.headFirstLine = ''
@@ -100,7 +100,6 @@ function Response:new(client, writeHandler)
 
   return setmetatable(newObj, self)
 end
-
 
 function Response:addHeader(key, value)
   self.headers[key] = value
