@@ -40,7 +40,7 @@ function Request:parseFirstLine()
 
   -- Parse firstline http: METHOD PATH PROTOCOL,
   -- GET Makefile HTTP/1.1
-  local method, path, protocol = string.match(self.firstLine,
+  local method, path, protocol = string.match(self.firstLine, -- luacheck: ignore protocol
                                  Request.PATTERN_REQUEST)
 
   if not method then
@@ -64,7 +64,7 @@ end
 
 Request.PATTERN_QUERY_STRING = '([^=]*)=([^&]*)&?'
 
-function Request:parseURLEncoded(value, _table)
+function Request:parseURLEncoded(value, _table) -- luacheck: ignore self
   --value exists and _table is empty
   if value and next(_table) == nil then
     for k, v in  string.gmatch(value, Request.PATTERN_QUERY_STRING) do
@@ -134,8 +134,7 @@ function Request:receiveBody(size)
 
   local data, err, partial = self.client:receive(fetch)
 
-  if err =='timeout' then
-    err = nil
+  if err == 'timeout' then
     data = partial
   end
 
