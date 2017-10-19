@@ -13,7 +13,7 @@ function Pegasus:new(params)
   server.port = params.port or '9090'
   server.location = params.location or ''
   server.plugins = params.plugins or {}
-  server.timout = params.timout or 1
+  server.timeout = params.timeout or 1
 
   return setmetatable(server, self)
 end
@@ -26,7 +26,7 @@ function Pegasus:start(callback)
 
   while 1 do
     local client = server:accept()
-    client:settimeout(self.timout, 'b')
+    client:settimeout(self.timeout, 'b')
     handler:processRequest(self.port, client)
   end
 end
