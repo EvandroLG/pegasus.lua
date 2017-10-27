@@ -89,24 +89,55 @@ function Compress:new(options)
 end
 
 function Compress:processBodyData(data, stayOpen, request, response)
-  local headers = request:headers()
-  local accept_encoding = headers and headers['Accept-Encoding'] or ''
+  local accept_encoding
+
+  if response.headers_sended then
+    accept_encoding = response.headers['Content-Encoding'] or ''
+  else
+    local headers = request:headers()
+    accept_encoding = headers and headers['Accept-Encoding'] or ''
+  end
+
   local accept_gzip = not not accept_encoding:find('gzip', nil, true)
 
-  if not stayOpen and accept_gzip and self.options.level ~= ZlibStream.NO_COMPRESSION then
-    local dataTable = {}
-    local dataWrite = function (zdata)
-       table.insert(dataTable, zdata)
+  if accept_gzip and self.options.level ~= ZlibStream.NO_COMPRESSION then
+    local stream = response.compress_stream
+    local buffer = response.compress_buffer
+
+    if not stream then
+      local writer = function (zdata) buffer[#buffer + 1] = zdata end
+      stream, buffer = ZlibStream:new(writer, self.options.level, nil, 31), {}
     end
 
-    local stream = ZlibStream:new(dataWrite, self.options.level, nil, 31)
+    if stayOpen then
+      if data == nil then
+        stream:close()
+        response.compress_stream = nil
+        response.compress_buffer = nil
+      else
+        stream:write(data)
+        response.compress_stream = stream
+        response.compress_buffer = buffer
+      end
+
+      local compressed = table.concat(buffer)
+      for i = 1, #buffer do buffer[i] = nil end
+      if not response.headers_sended then
+        response:addHeader('Content-Encoding', 'gzip')
+      end
+
+      return compressed
+    end
+
     stream:write(data)
     stream:close()
-
-    local compressed = table.concat(dataTable)
+    local compressed = table.concat(buffer)
 
     if #compressed < #data then
-      response:addHeader('Content-Encoding', 'gzip')
+      if not response.headers_sended then
+        response:addHeader('Content-Encoding', 'gzip')
+      end
+
       return compressed
     end
   end

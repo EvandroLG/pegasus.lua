@@ -73,12 +73,34 @@ describe('compress #compress', function()
       assert.is_nil(value)
     end)
 
-    it('should return data object when stayOpen is false', function()
-      local data = ''
+    it('should support chunked data object when stayOpen is true', function()
+      local data = ('a'):rep(2 * 128)
       local compress = Compress:new({ level=1 })
-      local output = compress:processBodyData(data, true, mockRequest(), {})
+      local response = mockResponse()
+      local request = mockRequest()
 
-      assert.equal(data, output)
+      local output = ''
+      for i = 1, 8 do
+        output = output .. compress:processBodyData(data, true, request, response)
+      end
+      output = output .. compress:processBodyData(nil, true, request, response)
+
+      assert.equal(data:rep(8), gzip(output))
+    end)
+
+    it('should support chunked data object when stayOpen is true with small chunk size', function()
+      local data = ('a'):rep(1024)
+      local compress = Compress:new({ level=1 })
+      local response = mockResponse()
+      local request = mockRequest()
+
+      local output = ''
+      for i = 1, 1024 do
+        output = output .. compress:processBodyData('a', true, request, response)
+      end
+      output = output .. compress:processBodyData(nil, true, request, response)
+
+      assert.equal(data, gzip(output))
     end)
 
     it('should return data object when compress is not efficient', function()
@@ -99,7 +121,6 @@ describe('compress #compress', function()
       assert.equal(data, gzip(output))
       assert.equal('gzip', response.headers['Content-Encoding'])
     end)
-
   end)
 
 end)
