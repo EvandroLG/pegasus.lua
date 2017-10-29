@@ -41,9 +41,7 @@ install:
 
 before_build:
   # external deps
-  - luarocks show luarocks-fetch-gitrec > /dev/null 2>&1 || luarocks install luarocks-fetch-gitrec
-  - luarocks show lua-http-parser > /dev/null 2>&1 || luarocks install lua-http-parser mot-0 \
-    --server=http://luarocks.org/manifests/moteus
+  # - luarocks show luarocks-fetch-gitrec >nul 2>&1 || luarocks install luarocks-fetch-gitrec
   # - luarocks show luafilesystem >nul 2>&1 || luarocks install luafilesystem
   # - luarocks show mimetypes     >nul 2>&1 || luarocks install mimetypes
   # - luarocks show luasocket     >nul 2>&1 || luarocks install luasocket
@@ -55,8 +53,8 @@ build_script:
 
 before_test:
   # test deps
-  - luarocks show busted           > /dev/null 2>&1 || luarocks install busted
-  - luarocks show luacov-coveralls > /dev/null 2>&1 || luarocks install luacov-coveralls
+  - luarocks show busted           >nul 2>&1 || luarocks install busted
+  - luarocks show luacov-coveralls >nul 2>&1 || luarocks install luacov-coveralls
   - ps: $StartApp = Start-Process lua -ArgumentList spec/start_app.lua -PassThru
   - choco install -y curl
 

@@ -18,7 +18,7 @@ dependencies = {
   "mimetypes >= 1.0.0-1",
   "luasocket >= 0.1.0-0",
   "luafilesystem >= 1.6",
-  "lua-http-parser = mot",
+  "lua-http-parser >= 2.7",
   -- "lzlib >= 0.4.1.53-1",
 }
 
