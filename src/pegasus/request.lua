@@ -96,28 +96,34 @@ function Request:new(port, client)
   self.__index = self
 
   newObj.client = client
-  newObj.port = port
-  newObj.ip = client:getpeername()
+  newObj.port   = port
+  newObj.ip     = client:getpeername()
 
-  newObj._parser = parser_create(newObj)
-  newObj._method = nil
-  newObj._path = nil
-  newObj._ver_maj = nil
-  newObj._ver_min = nil
-  newObj._error = nil
-  newObj._params = {}
-  newObj._headers = {}
-  newObj._body = nil -- buffer for parser::on_body callback
-  newObj._data = nil -- buffer for receiveFullBody method
-  newObj._content_done = 0 -- counter how many data readed
+  return setmetatable(newObj, self):reset()
+end
 
-  newObj._complete = {
+function Request:reset()
+  if self._parser then self._parser:reset()
+  else self._parser = parser_create(self) end
+
+  self._method = nil
+  self._path = nil
+  self._ver_maj = nil
+  self._ver_min = nil
+  self._error = nil
+  self._params = {}
+  self._headers = {}
+  self._body = nil -- buffer for parser::on_body callback
+  self._data = nil -- buffer for receiveFullBody method
+  self._content_done = 0 -- counter how many data readed
+
+  self._complete = {
     url = false;
     msg = false;
     hdr = false;
   }
 
-  return setmetatable(newObj, self)
+  return self
 end
 
 -- returns line with EOL characters
@@ -372,7 +378,10 @@ function Request:receiveFullBody()
 end
 
 function Request:keep_alive()
-  return self._parser:should_keep_alive()
+  -- we can reuse same connection if
+  -- 1 - we read entire message
+  -- 2 - clent ask keep-alive (HTTP/1.1 default)
+  return self._complete.msg and (self._error == 'closed') and self._parser:should_keep_alive()
 end
 
 return Request
