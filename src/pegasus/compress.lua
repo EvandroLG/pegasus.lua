@@ -1,6 +1,6 @@
 local zlib = require "zlib"
 
-local function zlib_name(zlib)
+local function zlib_name(zlib) --luacheck: ignore zlib
   if zlib._VERSION and string.find(zlib._VERSION, 'lua-zlib', nil, true) then
     return 'lua-zlib'
   end

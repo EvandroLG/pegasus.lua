@@ -191,7 +191,7 @@ function Response:write(body, stayOpen)
   self:sendHeaders(stayOpen, body)
 
   self.closed = not (stayOpen or false)
-  local ok, err
+  local ok, err --luacheck: ignore ok err
   if self.closed then
     ok, err = self.client:send(body)
   elseif #body > 0 then
