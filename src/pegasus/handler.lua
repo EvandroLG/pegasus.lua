@@ -9,10 +9,10 @@ local function ternary(condition, t, f)
 end
 
 local Handler = {}
+Handler.__index = Handler
 
 function Handler:new(callback, location, plugins)
   local handler = {}
-  self.__index = self
   handler.callback = callback
   handler.location = location or ''
   handler.plugins = plugins or {}

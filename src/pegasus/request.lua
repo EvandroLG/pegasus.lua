@@ -1,8 +1,8 @@
 local Request = {}
+Request.__index = Request
 
 function Request:new(port, client)
   local newObj = {}
-  self.__index = self
   newObj.client = client
   newObj.port = port
   newObj.ip = client:getpeername()
