@@ -1,3 +1,5 @@
+-- luacheck: ignore try catch
+
 -- solution by @cwarden - https://gist.github.com/cwarden/1207556
 local function catch(what)
    return what[1]

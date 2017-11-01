@@ -18,24 +18,25 @@ function Handler:new(callback, location, plugins)
   handler.plugins = plugins or {}
 
   local result = setmetatable(handler, self)
-  result:pluginsalterRequestResponseMetatable()
+  result:pluginsAlterRequestResponseMetatable()
   return result
 end
 
-function Handler:pluginsalterRequestResponseMetatable()
-  local stop = false
-  for i, plugin in ipairs(self.plugins) do
+function Handler:pluginsAlterRequestResponseMetatable()
+  for _, plugin in ipairs(self.plugins) do
     if plugin.alterRequestResponseMetaTable then
-      plugin:alterRequestResponseMetaTable(Request, Response)
+      local stop = plugin:alterRequestResponseMetaTable(Request, Response)
+      if stop then
+        return stop
+      end
     end
   end
 end
 
 function Handler:pluginsNewRequestResponse(request, response)
-  local stop = false
-  for i, plugin in ipairs(self.plugins) do
+  for _, plugin in ipairs(self.plugins) do
     if plugin.newRequestResponse then
-      stop = plugin:newRequestResponse(request, response)
+      local stop = plugin:newRequestResponse(request, response)
       if stop then
         return stop
       end
@@ -44,10 +45,9 @@ function Handler:pluginsNewRequestResponse(request, response)
 end
 
 function Handler:pluginsBeforeProcess(request, response)
-  local stop = false
-  for i, plugin in ipairs(self.plugins) do
+  for _, plugin in ipairs(self.plugins) do
     if plugin.beforeProcess then
-      stop = plugin:beforeProcess(request, response)
+      local stop = plugin:beforeProcess(request, response)
       if stop then
         return stop
       end
@@ -56,10 +56,9 @@ function Handler:pluginsBeforeProcess(request, response)
 end
 
 function Handler:pluginsAfterProcess(request, response)
-  local stop = false
-  for i, plugin in ipairs(self.plugins) do
+  for _, plugin in ipairs(self.plugins) do
     if plugin.afterProcess then
-      plugin:afterProcess(request, response)
+      local stop = plugin:afterProcess(request, response)
       if stop then
         return stop
       end
@@ -68,10 +67,9 @@ function Handler:pluginsAfterProcess(request, response)
 end
 
 function Handler:pluginsProcessFile(request, response, filename)
-  local stop = false
-  for i, plugin in ipairs(self.plugins) do
+  for _, plugin in ipairs(self.plugins) do
     if plugin.processFile then
-      stop = plugin:processFile(request, response, filename)
+      local stop = plugin:processFile(request, response, filename)
       if stop then
         return stop
       end
@@ -82,7 +80,7 @@ end
 function Handler:processBodyData(data, stayOpen, response)
   local localData = data
 
-  for i, plugin in ipairs(self.plugins or {}) do
+  for _, plugin in ipairs(self.plugins or {}) do
     if plugin.processBodyData then
       localData = plugin:processBodyData(localData, stayOpen,
                    response.request,  response)
