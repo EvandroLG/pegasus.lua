@@ -52,9 +52,9 @@ build_script:
 
 before_test:
   # test deps
-  - luarocks show luacheck         > /dev/null 2>&1 || luarocks install luacheck
-  - luarocks show busted           > /dev/null 2>&1 || luarocks install busted
-  - luarocks show luacov-coveralls > /dev/null 2>&1 || luarocks install luacov-coveralls
+  - luarocks show luacheck         >nul 2>&1 || luarocks install luacheck
+  - luarocks show busted           >nul 2>&1 || luarocks install busted
+  - luarocks show luacov-coveralls >nul 2>&1 || luarocks install luacov-coveralls
   - ps: $StartApp = Start-Process lua -ArgumentList spec/start_app.lua -PassThru
   - choco install -y curl
 
