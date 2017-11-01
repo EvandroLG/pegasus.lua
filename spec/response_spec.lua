@@ -2,14 +2,27 @@ local Response = require 'pegasus.response'
 local Handler = require 'pegasus.handler'
 
 describe('response', function()
+  local function buildResponse()
+    local request = {
+      client = {
+        send = function(self, content)
+          self.content = self.content or ''
+          self.content = self.content .. content;
+        end,
+        close = function () end
+      }
+    }
+    return Response:new(Handler, request)
+  end
+
   describe('instance', function()
     local function verifyMethod(method)
-      local response = Response:new({close=function () end})
+      local response = buildResponse()
       assert.equal(type(response[method]), 'function')
     end
 
     it('should exists constructor to response class', function()
-      local response = Response:new({close=function () end})
+      local response = buildResponse()
       assert.equal(type(response), 'table')
     end)
 
@@ -36,19 +49,17 @@ describe('response', function()
     it('should exists writeFile method', function()
       verifyMethod('writeFile')
     end)
+
+    it('should exists keep_alive method', function()
+      verifyMethod('keep_alive')
+    end)
   end)
 
   describe('write', function()
     local verifyOutput = function(statusCode, expectedBody)
-      local client = {
-        send = function(self, content)
-          self.content = self.content or ''
-          self.content = self.content .. content;
-        end,
-        close = function () end
-      }
+      local response = buildResponse()
+      local client = response.client
 
-      local response = Response:new(client, Handler)
       response:statusCode(statusCode)
       response:write(expectedBody)
       local isOk = not not string.match(client.content, expectedBody)
@@ -75,14 +86,14 @@ describe('response', function()
 
   describe('add header', function()
     it('should add correct header passed as a parameter', function()
-      local response = Response:new({})
+      local response = buildResponse()
       response:addHeader('Content-Length', 100)
 
       assert.equal(response.headers['Content-Length'], 100)
     end)
 
     it('should do a merge with headers already passed', function()
-      local response = Response:new({})
+      local response = buildResponse()
       response:addHeader('Content-Length', 100)
       response:addHeader('Content-Type', 'text/html')
       response:addHeaders({
@@ -100,7 +111,7 @@ describe('response', function()
 
   describe('status code', function()
     local verifyStatus = function(statusCode, statusText, expectedMessage)
-      local response = Response:new({})
+      local response = buildResponse()
       response:statusCode(statusCode, statusText)
       local expectedStatus = 'HTTP/1.1 ' .. tostring(statusCode)
       local isStatusCorrect = not not string.match(response.headFirstLine, expectedStatus)
@@ -120,23 +131,15 @@ describe('response', function()
   end)
 
   describe('set default headers', function()
-    local client = {
-      send = function(self, content)
-        self.content = self.content or ''
-        self.content = self.content .. content
-      end,
-      close = function () end
-    }
-
     it('should define a default value to content-type and content-length', function()
-      local response = Response:new(client, Handler)
+      local response = buildResponse()
       response:write('')
       assert.equal('text/html', response.headers['Content-Type'])
       assert.equal(0, response.headers['Content-Length'])
     end)
 
     it('should keep value previously set', function()
-      local response = Response:new(client)
+      local response = buildResponse()
       response:addHeader('Content-Type', 'application/javascript')
       response:addHeader('Content-Length', 100)
 
@@ -144,19 +147,25 @@ describe('response', function()
       assert.equal(100, response.headers['Content-Length'])
     end)
 
+    it('should add connection close by default', function()
+      local response = buildResponse()
+      response:write('')
+      assert.equal('close', response.headers['Connection'])
+    end)
+
+    it('should not add connection close if keep_alive is true', function()
+      local response = buildResponse()
+      response.keep_alive = function() return true end
+      response:write('')
+      assert.is_nil(response.headers['Connection'])
+    end)
   end)
 
   describe('write', function()
     local verifyClient = function(expectedBody, body, header)
-      local client = {
-        send = function(self, content)
-          self.content = self.content or ''
-          self.content = self.content .. content
-        end,
-        close = function () end
-      }
+      local response = buildResponse()
+      local client = response.client
 
-      local response = Response:new(client, Handler)
       response:addHeaders(header)
       response:write(body)
       for key, value in pairs(header) do
@@ -175,7 +184,6 @@ describe('response', function()
       verifyClient("It's a content", "It's a content", { ['Content-Type'] = 'text/javascript' })
     end)
   end)
-
 
   --describe('make head', function()
     --function verifyMakeHead(filename, statusCode, message, expectedMimetype)

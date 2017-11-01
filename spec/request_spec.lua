@@ -58,6 +58,14 @@ describe('require', function()
     it('should exists headers method', function()
       verifyMethod('headers')
     end)
+
+    it('should exists support_keep_alive method', function()
+      verifyMethod('support_keep_alive')
+    end)
+
+    it('should exists reset method', function()
+      verifyMethod('support_keep_alive')
+    end)
   end)
 
   describe('methods', function()
@@ -125,6 +133,34 @@ describe('require', function()
       local request = getInstance(headers)
 
       assert.is_nil(request:method())
+    end)
+
+    it('should handle keep-alive for HTTP/1.0 without Connection header', function()
+      local headers = { 'GET / HTTP/1.0' }
+      local request = getInstance(headers)
+      local result = request:headers()
+      assert.is_false(request:support_keep_alive())
+    end)
+  
+    it('should handle keep-alive for HTTP/1.0 with Connection header', function()
+      local headers = { 'GET / HTTP/1.0', 'Connection: keep-alive' }
+      local request = getInstance(headers)
+      local result = request:headers()
+      assert.is_true(request:support_keep_alive())
+    end)
+
+    it('should handle keep-alive for HTTP/1.1 without Connection header', function()
+      local headers = { 'GET / HTTP/1.1' }
+      local request = getInstance(headers)
+      local result = request:headers()
+      assert.is_true(request:support_keep_alive())
+    end)
+
+    it('should handle keep-alive for HTTP/1.1 with Connection header', function()
+      local headers = { 'GET / HTTP/1.1', 'Connection: close' }
+      local request = getInstance(headers)
+      local result = request:headers()
+      assert.is_false(request:support_keep_alive())
     end)
 
   end)

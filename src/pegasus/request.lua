@@ -6,18 +6,25 @@ function Request:new(port, client)
   newObj.client = client
   newObj.port = port
   newObj.ip = client:getpeername()
-  newObj.firstLine = nil
-  newObj._method = nil
-  newObj._path = nil
-  newObj._params = {}
-  newObj._headers_parsed = false
-  newObj._headers = {}
-  newObj._form = {}
-  newObj._is_valid = false
-  newObj._body = ''
-  newObj._content_done = 0
 
-  return setmetatable(newObj, self)
+  newObj = setmetatable(newObj, self)
+
+  return newObj:reset()
+end
+
+function Request:reset()
+  self.firstLine = nil
+  self._method = nil
+  self._path = nil
+  self._params = {}
+  self._headers_parsed = false
+  self._headers = {}
+  self._form = {}
+  self._is_valid = false
+  self._body = ''
+  self._content_done = 0
+
+  return self
 end
 
 Request.PATTERN_METHOD = '^(.-)%s'
@@ -141,6 +148,25 @@ function Request:receiveBody(size)
   self._content_done = self._content_done + #data
 
   return data
+end
+
+-- Does the request support keep alive connection.
+function Request:support_keep_alive()
+  local headers, firstLine = self:headers(), self.firstLine
+
+  if headers then
+    if string.find(firstLine, 'HTTP/1%.0$') then
+      return not not (headers.Connection
+        and string.find(headers.Connection, '[Kk][Ee][Ee][Pp]%-[Aa][Ll][Ii][Vv][Ee]')
+      )
+    end
+    return not not (-- HTTP/1.1 -- on by default
+      headers.Connection == nil
+      or not string.find(headers.Connection, '[Cc][Ll][Oo][Ss][Ee]')
+    )
+  end
+
+  return false
 end
 
 return Request

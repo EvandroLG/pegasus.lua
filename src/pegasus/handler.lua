@@ -3,7 +3,6 @@ local Response = require 'pegasus.response'
 local mimetypes = require 'mimetypes'
 local lfs = require 'lfs'
 
-
 local function ternary(condition, t, f)
   if condition then return t else return f end
 end
@@ -90,22 +89,36 @@ function Handler:processBodyData(data, stayOpen, response)
   return localData
 end
 
-function Handler:processRequest(port, client)
-  local request = Request:new(port, client)
+function Handler:requestDone(request, response)
+  local stop = self:pluginsAfterProcess(request, response)
 
-  -- if we get some invalid request just close it
-  -- do not try handle or response
-  if not request:method() then
-    client:close()
+  if stop then
+    -- do tail call
+    if stop == request then return self:internalProcessRequest(request) end
     return
   end
 
-  local response =  Response:new(client, self)
-  response.request = request
+  if (not response.headers_sended) or (response.headers.Connection == 'close') then
+    request.client:close()
+  end
+end
+
+-- this function can be called multiple times for single request
+-- if server supports keep alive
+function Handler:internalProcessRequest(request)
+  -- if we get some invalid request just close it
+  -- do not try handle or response
+  if not request:method() then
+    request.client:close()
+    return
+  end
+
+  local response =  Response:new(self, request)
+
   local stop = self:pluginsNewRequestResponse(request, response)
 
   if stop then
-    return
+    return self:requestDone(request, response)
   end
 
   if request:path() and self.location ~= '' then
@@ -120,7 +133,7 @@ function Handler:processRequest(port, client)
     stop = self:pluginsProcessFile(request, response, filename)
 
     if stop then
-      return
+      return self:requestDone(request, response)
     end
 
     local file = io.open(filename, 'rb')
@@ -139,10 +152,22 @@ function Handler:processRequest(port, client)
     self.callback(request, response)
   end
 
-  if response.status == 404 then
-    response:writeDefaultErrorMessage(404)
+  -- if callback did not send any then we have to send some response
+  if not response.headers_sended then
+    if not response.status then
+      response:statusCode(500)
+    end
+    response:writeDefaultErrorMessage(response.status)
   end
+
+  return self:requestDone(request, response)
 end
 
+-- this function called for new connection
+function Handler:processRequest(port, client)
+  local request = Request:new(port, client)
+
+  return self:internalProcessRequest(request)
+end
 
 return Handler
