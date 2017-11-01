@@ -1,5 +1,7 @@
 local lfs = require 'lfs'
 
+-- luacheck: ignore self
+
 local File = {}
 
 function File:isDir(path)

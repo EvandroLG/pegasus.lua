@@ -41,18 +41,18 @@ install:
 
 before_build:
   # external deps
-  # - luarocks show luarocks-fetch-gitrec >nul 2>&1 || luarocks install luarocks-fetch-gitrec
-  # - luarocks show luafilesystem >nul 2>&1 || luarocks install luafilesystem
-  # - luarocks show mimetypes     >nul 2>&1 || luarocks install mimetypes
-  # - luarocks show luasocket     >nul 2>&1 || luarocks install luasocket
+  - luarocks show mimetypes     >nul 2>&1 || luarocks install mimetypes
+  - luarocks show luasocket     >nul 2>&1 || luarocks install luasocket
+  - luarocks show luafilesystem >nul 2>&1 || luarocks install luafilesystem
   # todo: install zlib
   # - luarocks show lzlib         >nul 2>&1 || luarocks install lzlib
 
 build_script:
-  - luarocks make rockspecs/pegasus-http.parser-0.rockspec
+  - luarocks make rockspecs/pegasus-0.9.2-1.rockspec --deps-mode=none
 
 before_test:
   # test deps
+  - luarocks show luacheck         >nul 2>&1 || luarocks install luacheck
   - luarocks show busted           >nul 2>&1 || luarocks install busted
   - luarocks show luacov-coveralls >nul 2>&1 || luarocks install luacov-coveralls
   - ps: $StartApp = Start-Process lua -ArgumentList spec/start_app.lua -PassThru
@@ -60,6 +60,7 @@ before_test:
 
 test_script:
   - busted --exclude-tags=compress
+  - luacheck src
 
 after_test:
   - ps: Stop-Process -Id $StartApp.Id

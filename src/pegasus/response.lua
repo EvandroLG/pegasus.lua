@@ -1,3 +1,5 @@
+-- luacheck: ignore try catch
+
 -- solution by @cwarden - https://gist.github.com/cwarden/1207556
 local function catch(what)
    return what[1]
@@ -84,10 +86,10 @@ local DEFAULT_ERROR_MESSAGE = [[
 ]]
 
 local Response = {}
+Response.__index = Response
 
 function Response:new(client, writeHandler)
   local newObj = {}
-  self.__index = self
   newObj.headers_sended = false
   newObj.templateFirstLine = 'HTTP/1.1 {{ STATUS_CODE }} {{ STATUS_TEXT }}\r\n'
   newObj.headFirstLine = ''
@@ -100,7 +102,6 @@ function Response:new(client, writeHandler)
 
   return setmetatable(newObj, self)
 end
-
 
 function Response:addHeader(key, value)
   self.headers[key] = value
@@ -145,7 +146,14 @@ function Response:writeDefaultErrorMessage(statusCode)
 end
 
 function Response:close()
+  local body = self.writeHandler:processBodyData(nil, true, self)
+
+  if #body > 0 then
+    self.client:send(dec2hex(#body)..'\r\n'..body..'\r\n')
+  end
+
   self.client:send('0\r\n\r\n')
+
   self.close = true
 end
 
@@ -179,14 +187,17 @@ function Response:sendHeaders(stayOpen, body)
 end
 
 function Response:write(body, stayOpen)
-  body = self.writeHandler:processBodyData(body, stayOpen, self)
+  body = self.writeHandler:processBodyData(body or '', stayOpen, self)
   self:sendHeaders(stayOpen, body)
 
   self.closed = not (stayOpen or false)
+  local ok, err
   if self.closed then
-    self.client:send(body)
-  else
-    self.client:send(dec2hex(body:len())..'\r\n'..body..'\r\n')
+    ok, err = self.client:send(body)
+  elseif #body > 0 then
+    -- do not send chunk with zero Length because it may be e.g. because
+    -- comtessor can not build full chunk with current set of data.
+    ok, err = self.client:send(dec2hex(#body)..'\r\n'..body..'\r\n')
   end
 
   if self.closed then

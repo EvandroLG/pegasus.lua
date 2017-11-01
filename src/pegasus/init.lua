@@ -3,11 +3,11 @@ local Handler = require 'pegasus.handler'
 
 
 local Pegasus = {}
+Pegasus.__index = Pegasus
 
 function Pegasus:new(params)
   params = params or {}
   local server = {}
-  self.__index = self
 
   server.host = params.host or '*'
   server.port = params.port or '9090'

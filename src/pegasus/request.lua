@@ -90,10 +90,10 @@ local function complete_by_eof(self, status)
 end
 
 local Request = {}
+Request.__index = Request
 
 function Request:new(port, client)
   local newObj = {}
-  self.__index = self
 
   newObj.client = client
   newObj.port   = port
@@ -220,7 +220,7 @@ end
 
 Request.PATTERN_QUERY_STRING = '([^=]*)=([^&]*)&?'
 
-function Request:parseURLEncoded(value, _table)
+function Request:parseURLEncoded(value, _table) -- luacheck: ignore self
   --value exists and _table is empty
   if value and next(_table) == nil then
     for k, v in  string.gmatch(value, Request.PATTERN_QUERY_STRING) do

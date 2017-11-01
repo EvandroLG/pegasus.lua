@@ -33,12 +33,14 @@ install:
   - luarocks make rockspecs/pegasus-http.parser-0.rockspec
 
 before_script:
+  - luarocks show luacheck         > /dev/null 2>&1 || luarocks install luacheck
   - luarocks show busted           > /dev/null 2>&1 || luarocks install busted
   - luarocks show luacov-coveralls > /dev/null 2>&1 || luarocks install luacov-coveralls
   - lua spec/start_app.lua &
 
 script:
   - busted
+  - luacheck src
 
 before_cache:
   - luarocks remove pegasus
