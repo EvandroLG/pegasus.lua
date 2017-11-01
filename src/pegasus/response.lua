@@ -1,3 +1,5 @@
+-- luacheck: ignore try catch
+
 -- solution by @cwarden - https://gist.github.com/cwarden/1207556
 local function catch(what)
    return what[1]
@@ -84,10 +86,10 @@ local DEFAULT_ERROR_MESSAGE = [[
 ]]
 
 local Response = {}
+Response.__index = Response
 
 function Response:new(client, writeHandler)
   local newObj = {}
-  self.__index = self
   newObj.headers_sended = false
   newObj.templateFirstLine = 'HTTP/1.1 {{ STATUS_CODE }} {{ STATUS_TEXT }}\r\n'
   newObj.headFirstLine = ''

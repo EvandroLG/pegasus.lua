@@ -74,6 +74,7 @@ end
 end
 
 local Compress = {} do
+Compress.__index = Compress
 
 Compress.NO_COMPRESSION      = ZlibStream.NO_COMPRESSION
 Compress.BEST_SPEED          = ZlibStream.BEST_SPEED
@@ -82,7 +83,7 @@ Compress.DEFAULT_COMPRESSION = ZlibStream.DEFAULT_COMPRESSION
 
 function Compress:new(options)
   local compress= {}
-  self.__index = self
+
   compress.options = options or {}
 
   return setmetatable(compress, self)
