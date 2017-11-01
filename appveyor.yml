@@ -52,6 +52,7 @@ build_script:
 
 before_test:
   # test deps
+  - luarocks show luacheck         > /dev/null 2>&1 || luarocks install luacheck
   - luarocks show busted           > /dev/null 2>&1 || luarocks install busted
   - luarocks show luacov-coveralls > /dev/null 2>&1 || luarocks install luacov-coveralls
   - ps: $StartApp = Start-Process lua -ArgumentList spec/start_app.lua -PassThru
@@ -59,6 +60,7 @@ before_test:
 
 test_script:
   - busted --exclude-tags=compress
+  - luacheck src
 
 after_test:
   - ps: Stop-Process -Id $StartApp.Id
