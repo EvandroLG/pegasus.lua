@@ -93,14 +93,12 @@ function Handler:requestDone(request, response)
   local stop = self:pluginsAfterProcess(request, response)
 
   if stop then
-    -- do tail call
+    -- coroutine based keep-alive
     if stop == request then return self:internalProcessRequest(request) end
     return
   end
 
-  if (not response.headers_sended) or (response.headers.Connection == 'close') then
-    request.client:close()
-  end
+  request.client:close()
 end
 
 -- this function can be called multiple times for single request
@@ -113,7 +111,7 @@ function Handler:internalProcessRequest(request)
     return
   end
 
-  local response =  Response:new(self, request)
+  local response = Response:new(self, request)
 
   local stop = self:pluginsNewRequestResponse(request, response)
 
