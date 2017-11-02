@@ -392,6 +392,8 @@ Socket.__index = Socket
 function Socket:new(fn)
   local o = setmetatable({}, self)
 
+  o._buffer = Buffer.new()
+  o._closed = false
   o._writer = fn
 
   return o
@@ -426,12 +428,37 @@ function Socket:receive(...)
 end
 
 function Socket:getpeername()
+  return '127.0.0.1', '12345'
 end
 
---! @todo implement `send` method
+function Socket:getsockname()
+  return '127.0.0.1', '80'
+end
+
+function Socket:settimeout()
+end
+
+function Socket:send(data)
+  if self._closed then return nil, 'closed' end
+  self._buffer:append(data)
+  return #data
+end
+
+function Socket:close()
+  self._reader = function() return nil, 'closed' end
+  self._closed = true
+end
 
 end
 -------------------------------------------------------------------
+
+local counter = function()
+  local call_count = 0
+  return function(n)
+    call_count = call_count + (n or 1)
+    return call_count
+  end
+end
 
 local function CLOSED(part)
   return function()
@@ -486,7 +513,8 @@ local function BuildSocket(t)
 end
 
 return {
-	CLOSED = CLOSED;
-	Socket = Socket;
-	BuildSocket = BuildSocket;
+  CLOSED = CLOSED;
+  Socket = Socket;
+  BuildSocket = BuildSocket;
+  counter = counter
 }
