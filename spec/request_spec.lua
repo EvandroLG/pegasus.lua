@@ -284,29 +284,30 @@ describe('request #request', function()
     end)
 
     it('should handle keep-alive for HTTP/1.0 without Connection header', function()
-      local headers = { 'GET / HTTP/1.0' }
-      local request = getInstance(headers)
-      local result = request:headers()
+      local request = BuildRequest{'GET / HTTP/1.0\r\n\r\n'}
+      local result = assert.table(request:headers())
       assert.is_false(request:support_keep_alive())
     end)
   
     it('should handle keep-alive for HTTP/1.0 with Connection header', function()
-      local headers = { 'GET / HTTP/1.0', 'Connection: keep-alive' }
-      local request = getInstance(headers)
-      local result = request:headers()
+      local request = BuildRequest{'GET / HTTP/1.0\r\n',
+        'Connection: keep-alive\r\n',
+        '\r\n'
+      }
+      local result = assert.table(request:headers())
+
       assert.is_true(request:support_keep_alive())
     end)
 
     it('should handle keep-alive for HTTP/1.1 without Connection header', function()
-      local headers = { 'GET / HTTP/1.1' }
-      local request = getInstance(headers)
-      local result = request:headers()
+      local request = BuildRequest{'GET / HTTP/1.1\r\n\r\n' }
+      local result = assert.table(request:headers())
+
       assert.is_true(request:support_keep_alive())
     end)
 
     it('should handle keep-alive for HTTP/1.1 with Connection header', function()
-      local headers = { 'GET / HTTP/1.1', 'Connection: close' }
-      local request = getInstance(headers)
+      local request = BuildRequest{'GET / HTTP/1.1\r\n', 'Connection: close\r\n', '\r\n' }
       local result = request:headers()
       assert.is_false(request:support_keep_alive())
     end)

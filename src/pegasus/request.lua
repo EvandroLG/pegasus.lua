@@ -379,30 +379,12 @@ function Request:receiveFullBody()
   return body
 end
 
-function Request:keep_alive()
-  -- we can reuse same connection if
-  -- 1 - we read entire message
-  -- 2 - clent ask keep-alive (HTTP/1.1 default)
-  return self._complete.msg and (self._error == 'closed') and self._parser:should_keep_alive()
-end
-
 -- Does the request support keep alive connection.
 function Request:support_keep_alive()
-  local headers, firstLine = self:headers(), self.firstLine
-
-  if headers then
-    if string.find(firstLine, 'HTTP/1%.0$') then
-      return not not (headers.Connection
-        and string.find(headers.Connection, '[Kk][Ee][Ee][Pp]%-[Aa][Ll][Ii][Vv][Ee]')
-      )
-    end
-    return not not (-- HTTP/1.1 -- on by default
-      headers.Connection == nil
-      or not string.find(headers.Connection, '[Cc][Ll][Oo][Ss][Ee]')
-    )
-  end
-
-  return false
+  -- we can reuse same connection if
+  -- 1 - we read entire message
+  -- 2 - client ask keep-alive (HTTP/1.1 default)
+  return self._complete.msg and (self._error == 'closed') and self._parser:should_keep_alive()
 end
 
 return Request
