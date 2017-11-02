@@ -88,7 +88,7 @@ local DEFAULT_ERROR_MESSAGE = [[
 local Response = {}
 Response.__index = Response
 
-function Response:new(client, writeHandler)
+function Response:new(handler, request)
   local newObj = {}
   newObj.headers_sended = false
   newObj.templateFirstLine = 'HTTP/1.1 {{ STATUS_CODE }} {{ STATUS_TEXT }}\r\n'
@@ -97,8 +97,9 @@ function Response:new(client, writeHandler)
   newObj.status = 200
   newObj.filename = ''
   newObj.closed = false
-  newObj.client = client
-  newObj.writeHandler = writeHandler
+  newObj.request = request
+  newObj.client = request.client
+  newObj.handler = handler
 
   return setmetatable(newObj, self)
 end
@@ -146,7 +147,7 @@ function Response:writeDefaultErrorMessage(statusCode)
 end
 
 function Response:close()
-  local body = self.writeHandler:processBodyData(nil, true, self)
+  local body = self.handler:processBodyData(nil, true, self)
 
   if #body > 0 then
     self.client:send(dec2hex(#body)..'\r\n'..body..'\r\n')
@@ -179,6 +180,12 @@ function Response:sendHeaders(stayOpen, body)
     self:addHeader('Content-Type', 'text/html')
   end
 
+  if not self.headers['Connection'] then
+    if not self:keep_alive() then
+      self.headers['Connection'] = 'close';
+    end
+  end
+
   self.client:send(self.headFirstLine .. self:_getHeaders())
   self.client:send('\r\n')
   self.headers_sended = true
@@ -187,7 +194,7 @@ function Response:sendHeaders(stayOpen, body)
 end
 
 function Response:write(body, stayOpen)
-  body = self.writeHandler:processBodyData(body or '', stayOpen, self)
+  body = self.handler:processBodyData(body or '', stayOpen, self)
   self:sendHeaders(stayOpen, body)
 
   self.closed = not (stayOpen or false)
@@ -198,10 +205,6 @@ function Response:write(body, stayOpen)
     -- do not send chunk with zero Length because it may be e.g. because
     -- comtessor can not build full chunk with current set of data.
     ok, err = self.client:send(dec2hex(#body)..'\r\n'..body..'\r\n')
-  end
-
-  if self.closed then
-    self.client:close()
   end
 
   return self
@@ -215,6 +218,10 @@ function Response:writeFile(file, contentType)
   self:write(value)
 
   return self
+end
+
+function Response:keep_alive() --luacheck: ignore self
+  return false
 end
 
 return Response
