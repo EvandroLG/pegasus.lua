@@ -48,7 +48,7 @@ before_build:
   # - luarocks show lzlib         >nul 2>&1 || luarocks install lzlib
 
 build_script:
-  - luarocks make rockspecs/pegasus-0.9.2-1.rockspec --deps-mode=none
+  - luarocks make rockspecs/pegasus-scm-0.rockspec --deps-mode=none
 
 before_test:
   # test deps
