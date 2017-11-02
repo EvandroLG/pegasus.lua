@@ -25,11 +25,12 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
-    ['pegasus.init']     = 'src/pegasus/init.lua',
-    ['pegasus.handler']  = 'src/pegasus/handler.lua',
-    ['pegasus.request']  = 'src/pegasus/request.lua',
-    ['pegasus.response'] = 'src/pegasus/response.lua',
-    ['pegasus.file']     = 'src/pegasus/file.lua',
-    ['pegasus.compress'] = 'src/pegasus/compress.lua'
+    ['pegasus.init']      = 'src/pegasus/init.lua',
+    ['pegasus.handler']   = 'src/pegasus/handler.lua',
+    ['pegasus.request']   = 'src/pegasus/request.lua',
+    ['pegasus.response']  = 'src/pegasus/response.lua',
+    ['pegasus.file']      = 'src/pegasus/file.lua',
+    ['pegasus.compress']  = 'src/pegasus/compress.lua',
+    ['pegasus.keepalive'] = 'src/pegasus/keepalive.lua',
   }
 }
