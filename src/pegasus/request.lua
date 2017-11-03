@@ -283,6 +283,11 @@ function Request:headers()
 end
 
 function Request:receiveBody(size)
+  if not self._complete.hdr then
+    local ok, status = self:headers()
+    if not ok then return nil, status end
+  end
+
   if self._body then
     local data = self._body
     self._body = nil
