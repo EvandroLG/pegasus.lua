@@ -92,6 +92,6 @@ $ make install_dependencies
 ### Running tests
 
 ```sh
-$ make test
+$ make unit_test
 ```
 

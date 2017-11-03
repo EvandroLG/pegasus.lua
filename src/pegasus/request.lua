@@ -134,7 +134,9 @@ function Request:receiveBody(size)
   size = size or self._content_length
 
   -- do we have content?
-  if (self._content_length == nil) or (self._content_done >= self._content_length) then return false end
+  if (self._content_length == nil) or (self._content_done >= self._content_length) then
+    return false
+  end
 
   -- fetch in chunks
   local fetch = math.min(self._content_length-self._content_done, size)
