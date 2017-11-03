@@ -17,7 +17,7 @@ local function clone(t)
   for k,v in pairs(t) do
     t[k] = v
   end
-  return t
+  return o
 end
 
 function CopasKeepAlive:new(opt)
