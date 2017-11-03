@@ -32,4 +32,3 @@ function Pegasus:start(callback)
 end
 
 return Pegasus
-
