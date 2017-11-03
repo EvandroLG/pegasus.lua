@@ -203,7 +203,7 @@ function Response:write(body, stayOpen)
     ok, err = self.client:send(body)
   elseif #body > 0 then
     -- do not send chunk with zero Length because it may be e.g. because
-    -- comtessor can not build full chunk with current set of data.
+    -- compressor can not build full chunk with current set of data.
     ok, err = self.client:send(dec2hex(#body)..'\r\n'..body..'\r\n')
   end
 

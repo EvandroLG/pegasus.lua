@@ -80,7 +80,7 @@ function KeepAlive:new(opt)
 end
 
 function KeepAlive:newRequestResponse(request, response)
-  response.keep_alive = self._response_keep_alive 
+  response.keep_alive = self._response_keep_alive
   request.keepalive_requests = request.keepalive_requests or 0 -- counter of requests
 end
 
