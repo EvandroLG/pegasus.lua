@@ -2,7 +2,7 @@
 
 -- solution by @cwarden - https://gist.github.com/cwarden/1207556
 local function catch(what)
-   return what[1]
+  return what[1]
 end
 
 local function try(what)
@@ -17,12 +17,14 @@ end
 
 local function dec2hex(dec)
   local b,k,out,i,d=16,"0123456789ABCDEF","",0
+
   while dec > 0 do
     i=i+1
     local m = dec - math.floor(dec/b)*b
     dec, d = math.floor(dec/b), m + 1
     out = string.sub(k,d,d)..out
   end
+
   return out
 end
 
@@ -125,6 +127,7 @@ function Response:statusCode(statusCode, statusText)
   self.status = statusCode
   self.headFirstLine = string.gsub(self.templateFirstLine, '{{ STATUS_CODE }}', statusCode)
   self.headFirstLine = string.gsub(self.headFirstLine, '{{ STATUS_TEXT }}', statusText or STATUS_TEXT[statusCode])
+
   return self
 end
 
@@ -142,6 +145,7 @@ function Response:writeDefaultErrorMessage(statusCode)
   self:statusCode(statusCode)
   local content = string.gsub(DEFAULT_ERROR_MESSAGE, '{{ STATUS_CODE }}', statusCode)
   self:write(string.gsub(content, '{{ STATUS_TEXT }}', STATUS_TEXT[statusCode]), false)
+
   return self
 end
 
@@ -191,13 +195,13 @@ function Response:write(body, stayOpen)
   self:sendHeaders(stayOpen, body)
 
   self.closed = not (stayOpen or false)
-  local ok, err
+
   if self.closed then
-    ok, err = self.client:send(body)
+    self.client:send(body)
   elseif #body > 0 then
     -- do not send chunk with zero Length because it may be e.g. because
     -- comtessor can not build full chunk with current set of data.
-    ok, err = self.client:send(dec2hex(#body)..'\r\n'..body..'\r\n')
+    self.client:send(dec2hex(#body)..'\r\n'..body..'\r\n')
   end
 
   if self.closed then

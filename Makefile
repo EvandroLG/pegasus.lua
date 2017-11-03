@@ -8,6 +8,9 @@ run_example:
 unit_test:
 	busted
 
+check:
+	luacheck src/pegasus
+
 start_app:
 	lua $(START_APP) &
 
@@ -25,6 +28,7 @@ _load_test:
 load_test: start_app _load_test kill_server
 
 install_dependencies:
+	luarocks install luacheck
 	luarocks install mimetypes
 	luarocks install luasocket
 	luarocks install busted

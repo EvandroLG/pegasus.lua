@@ -19,6 +19,7 @@ function Handler:new(callback, location, plugins)
 
   local result = setmetatable(handler, self)
   result:pluginsAlterRequestResponseMetatable()
+
   return result
 end
 
