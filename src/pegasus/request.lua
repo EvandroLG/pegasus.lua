@@ -52,8 +52,8 @@ local function parser_create(self)
       self._content_length = content_length + 2 -- each chunk also has EOL
     end;
 
-    on_chunk_complete = function(content_length)
-      pp('parser::on_chunk_complete', chunk)
+    on_chunk_complete = function()
+      pp('parser::on_chunk_complete')
       self._content_length = nil
     end;
   }
@@ -330,7 +330,7 @@ function Request:receiveBody(size)
 
   size = size and size < rest and size or rest
 
-  local ok, err = self:_receiveAndExecute(size)
+  local _, err = self:_receiveAndExecute(size)
 
   -- at first return all data we got. even if we get error in some case
   if self._body then
@@ -346,10 +346,10 @@ function Request:receiveBody(size)
   -- We get here when receive timeout or
   -- if we receive some data but it is not enouth
   -- to build body.
-  -- E.g. with chunked encoded data <DATA><EOL> we 
+  -- E.g. with chunked encoded data <DATA><EOL> we
   -- receive just last EOL.
   -- Treats it as timeout is not fully correct because
-  -- we ask receive only 2 bytes and got it. 
+  -- we ask receive only 2 bytes and got it.
   -- But prev calls returns with timout.
   -- So to simplicity we treat it as timeout.
 
