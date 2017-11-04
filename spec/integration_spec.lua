@@ -13,15 +13,13 @@ describe('integration', function()
   it('should return correct headers', function()
     local result = executeCommand('curl --head')
 
-    assert.match('HTTP/1%.1 200 OK',         result)
-    assert.match('Content%-Type: text/html', result)
-    assert.match('Content%-Length: 16',      result)
+    assert.match(result, 'HTTP/1%.1 200 OK')
+    assert.match(result, 'Content%-Type: text/html')
+    assert.match(result, 'Content%-Length: 16')
   end)
 
   it('should return correct body', function()
-    local result = executeCommand('curl')
-
-    assert.match('Hello, Pegasus', result)
+    assert.match(executeCommand('curl'), 'Hello, Pegasus')
   end)
 end)
 
