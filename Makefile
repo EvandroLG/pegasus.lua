@@ -15,7 +15,7 @@ start_app:
 	lua $(START_APP) &
 
 _integration_test:
-	busted test/integration/integration_spec.lua
+	busted test/integration/
 
 kill_server:
 	ps aux | grep $(START_APP) | awk '{print $2}' | xargs kill &>/dev/null
