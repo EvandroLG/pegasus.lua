@@ -1,12 +1,12 @@
 .SILENT:
 
-START_APP=spec/start_app.lua
+START_APP=test/start_app.lua
 
 run_example:
 	lua example/app.lua
 
 unit_test:
-	busted
+	busted test/unit/
 
 check:
 	luacheck src/pegasus
@@ -15,7 +15,7 @@ start_app:
 	lua $(START_APP) &
 
 _integration_test:
-	busted spec/integration_test.lua
+	busted test/integration/integration_spec.lua
 
 kill_server:
 	ps aux | grep $(START_APP) | awk '{print $2}' | xargs kill &>/dev/null
