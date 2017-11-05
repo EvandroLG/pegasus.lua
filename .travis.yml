@@ -39,7 +39,6 @@ before_script:
 
 script:
   - busted test/unit/
-  - busted test/integration/
   - luacheck src
 
 before_cache:
