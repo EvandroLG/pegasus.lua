@@ -55,11 +55,11 @@ before_test:
   - luarocks show luacheck         > /dev/null 2>&1 || luarocks install luacheck
   - luarocks show busted           > /dev/null 2>&1 || luarocks install busted
   - luarocks show luacov-coveralls > /dev/null 2>&1 || luarocks install luacov-coveralls
-  - ps: $StartApp = Start-Process lua -ArgumentList spec/start_app.lua -PassThru
+  - ps: $StartApp = Start-Process lua -ArgumentList test/start_app.lua -PassThru
   - choco install -y curl
 
 test_script:
-  - busted --exclude-tags=compress
+  - busted test --exclude-tags=compress
   - luacheck src
 
 after_test:
