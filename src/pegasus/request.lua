@@ -1,5 +1,33 @@
 local lhp = require "http.parser"
 
+local function normalize(P)
+  P = string.gsub(P ,'\\',        '/')
+  P = string.gsub(P, '^/*',       '/')
+  P = string.gsub(P, '(/%.%.?)$', '%1/')
+  P = string.gsub(P, '/%./',      '/')
+  P = string.gsub(P, '/+',        '/')
+
+  while true do
+    local first, last = string.find(P, '/[^/]+/%.%./')
+    if not first then break end
+    P = string.sub(P, 1, first) .. string.sub(P, last + 1)
+  end
+
+  while true do
+    local n
+    P, n = string.gsub(P, '^/%.%.?/', '/')
+    if n == 0 then break end
+  end
+
+  while true do
+    local n
+    P, n = string.gsub(P, '/%.%.?$', '/')
+    if n == 0 then break end
+  end
+
+  return P
+end
+
 local pp = function()end
 
 local function parser_create(self)
@@ -16,7 +44,7 @@ local function parser_create(self)
       pp('parser::on_url', u, url)
 
       if url then
-        self._path         = url.path
+        self._path         = normalize(url.path)
         self._query_string = url.query
         self._fragment     = url.fragment
       end

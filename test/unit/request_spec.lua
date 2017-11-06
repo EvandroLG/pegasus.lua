@@ -154,6 +154,42 @@ describe('request #request', function()
       assert.equal('closed', status)
     end)
 
+    describe('path', function()
+      local fixtures = {
+        ['/'              ] = '/';
+        ['./'             ] = '/';
+        ['/.'             ] = '/';
+        ['.'              ] = '/';
+        ['../'            ] = '/';
+        ['/..'            ] = '/';
+        ['a/../b/..'      ] = '/';
+        ['a/../b/../'     ] = '/';
+        ['a/../../b/../'  ] = '/';
+        ['a/../../b/c/../'] = '/b/';
+        ['a/../../b'      ] = '/b';
+        ['a/../../b/'     ] = '/b/';
+        ['./b'            ] = '/b';
+        ['./b/'           ] = '/b/';
+        ['./b/.'          ] = '/b/';
+        ['./.b'           ] = '/.b';
+        ['a/..b'          ] = '/a/..b';
+        ['a/.../b'        ] = '/a/.../b';
+        ['/a..'           ] = '/a..';
+        ['/a../'          ] = '/a../';
+        ['/../../a'       ] = '/a';
+        ['a/../../././//' ] = '/';
+      }
+      for fixture, result in pairs(fixtures) do
+        local name = 'should normalise path - ' .. fixture
+        it(name, function()
+          local headers = { 'GET ' .. fixture .. ' HTTP/1.1\r\n' }
+          local request = BuildRequest(headers)
+
+          assert.equal(result, request:path())
+        end)
+      end
+    end)
+
     it('should receive full body - 1', function()
       local request = BuildRequest{
         'GET /index.html HTTP/1.1\r\n',

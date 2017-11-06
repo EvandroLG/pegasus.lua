@@ -1,18 +1,21 @@
-local function write_file(f, d)
-  local f = assert(io.open(f, 'w+b'))
+local function writeFile(file, d)
+  local f = assert(io.open(file, 'w+b'))
   f:write(d)
   f:close()
 end
 
 local function gzip(data)
-  write_file('test.gz', data)
+  writeFile('test.gz', data)
   local f = io.popen('gzip -d test.gz -c', 'r')
   local result
+
   if f then
     result = f:read('*a')
     f:close()
   end
+
   os.remove('test.gz')
+
   return result
 end
 

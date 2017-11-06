@@ -39,7 +39,7 @@ before_script:
   - lua spec/start_app.lua &
 
 script:
-  - busted
+  - busted test/unit/
   - luacheck src
 
 before_cache:
