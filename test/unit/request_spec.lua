@@ -156,37 +156,51 @@ describe('request #request', function()
 
     describe('path', function()
       local fixtures = {
-        ['/'              ] = '/';
-        ['./'             ] = '/';
-        ['/.'             ] = '/';
-        ['.'              ] = '/';
-        ['../'            ] = '/';
-        ['/..'            ] = '/';
-        ['a/../b/..'      ] = '/';
-        ['a/../b/../'     ] = '/';
-        ['a/../../b/../'  ] = '/';
-        ['a/../../b/c/../'] = '/b/';
-        ['a/../../b'      ] = '/b';
-        ['a/../../b/'     ] = '/b/';
-        ['./b'            ] = '/b';
-        ['./b/'           ] = '/b/';
-        ['./b/.'          ] = '/b/';
-        ['./.b'           ] = '/.b';
-        ['a/..b'          ] = '/a/..b';
-        ['a/.../b'        ] = '/a/.../b';
-        ['/a..'           ] = '/a..';
-        ['/a../'          ] = '/a../';
-        ['/../../a'       ] = '/a';
-        ['a/../../././//' ] = '/';
+        -- uri => uri / valid
+        ['/'              ] = {'/';       true  };
+        ['./'             ] = {'/';       false };
+        ['/.'             ] = {'/';       true  };
+        ['.'              ] = {'/';       false };
+        ['../'            ] = {'/';       false };
+        ['/..'            ] = {'/';       true  };
+        ['a/../b/..'      ] = {'/';       false };
+        ['a/../b/../'     ] = {'/';       false };
+        ['a/../../b/../'  ] = { '/';      false };
+        ['a/../../b/c/../'] = {'/b/';     false };
+        ['a/../../b'      ] = {'/b';      false };
+        ['a/../../b/'     ] = {'/b/';     false };
+        ['./b'            ] = {'/b';      false };
+        ['./b/'           ] = {'/b/';     false };
+        ['./b/.'          ] = {'/b/';     false };
+        ['./.b'           ] = {'/.b';     false };
+        ['a/..b'          ] = {'/a/..b';  false };
+        ['a/.../b'        ] = {'/a/.../b';false };
+        ['/a..'           ] = {'/a..';    true  };
+        ['/a../'          ] = {'/a../';   true  };
+        ['/../../a'       ] = {'/a';      true  };
+        ['a/../../././//' ] = {'/';       false };
       }
       for fixture, result in pairs(fixtures) do
+        local uri, valid = result[1], result[2]
+        local request = BuildRequest{'GET ' .. fixture .. ' HTTP/1.1\r\n\r\n'}
+
         local name = 'should normalise path - ' .. fixture
         it(name, function()
-          local headers = { 'GET ' .. fixture .. ' HTTP/1.1\r\n' }
-          local request = BuildRequest(headers)
-
-          assert.equal(result, request:path())
+          assert.equal(uri, Request._path_normalize(fixture))
         end)
+
+        if valid then
+          name = 'should parse valid uri - ' .. fixture
+          it(name, function()
+            assert.equal(uri, request:path())
+          end)
+        else
+          name = 'should detect invalid uri - ' .. fixture
+          it(name, function()
+            local _, err = assert.is_nil(request:path())
+            assert.match('HPE_INVALID_URL', err)
+          end)
+        end
       end
     end)
 

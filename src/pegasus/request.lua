@@ -420,4 +420,6 @@ function Request:support_keep_alive()
   return self._complete.msg and (self._error == 'closed') and self._parser:should_keep_alive()
 end
 
+Request._path_normalize = normalize
+
 return Request
