@@ -1,5 +1,17 @@
 local Response = require 'pegasus.response'
+local Request = require 'pegasus.request'
 local Handler = require 'pegasus.handler'
+local Utils = require 'test/utils'
+
+local BuildSocket, CLOSED = Utils.BuildSocket, Utils.CLOSED
+
+local function BuildResponse(t)
+  local handler = Handler:new(nil, nil, {})
+  local client = BuildSocket(t)
+  local request = Request:new(80, client)
+  local response = Response:new(handler, request)
+  return response, client
+end
 
 describe('response #response', function()
   local function buildResponse()
@@ -182,6 +194,32 @@ describe('response #response', function()
 
     it('should call send method passing head and body both', function()
       verifyClient("It's a content", "It's a content", { ['Content-Type'] = 'text/javascript' })
+    end)
+  end)
+
+  describe('write chunked', function()
+    it('should write chunk', function()
+      local response, client = BuildResponse()
+
+      response:write('hello', true)
+      local content = client._buffer:read_all()
+      assert.match('\r\n5\r\nhello\r\n$', content)
+      assert.not_match('Content%-Length', content)
+
+      -- write method should not write chunks with zero size
+      local send = client.send
+      client.send = spy.new(send)
+
+      response:write('', true)
+      assert.spy(client.send).was.not_called()
+
+      -- close method should write end of stream
+      response:close()
+
+      -- end of stream to plugin
+      assert.spy(client.send).was.called(1)
+      local content = client._buffer:read_all()
+      assert.equal('0\r\n\r\n', content)
     end)
   end)
 

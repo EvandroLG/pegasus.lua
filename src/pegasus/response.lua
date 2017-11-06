@@ -153,7 +153,7 @@ end
 function Response:close()
   local body = self.handler:processBodyData(nil, true, self)
 
-  if #body > 0 then
+  if body and #body > 0 then
     self.client:send(dec2hex(#body)..'\r\n'..body..'\r\n')
   end
 
