@@ -156,7 +156,8 @@ describe('response', function()
         close = function () end
       }
 
-      local response = Response:new(client, Handler)
+      local handler = Handler:new(nil, nil, {})
+      local response = Response:new(client, handler)
       response:addHeaders(header)
       response:write(body)
       for key, value in pairs(header) do
@@ -173,6 +174,29 @@ describe('response', function()
 
     it('should call send method passing head and body both', function()
       verifyClient("It's a content", "It's a content", { ['Content-Type'] = 'text/javascript' })
+    end)
+
+    it('should write chunked body', function()
+      local client = {
+        send = function(self, content)
+          self.content = self.content or ''
+          self.content = self.content .. content
+        end,
+        close = function () end
+      }
+      local handler = Handler:new(nil, nil, {})
+      local response = Response:new(client, handler)
+
+      response:write('hello', true)
+      assert.not_match('Content%-Length', client.content)
+      assert.match('\r\n5\r\nhello\r\n$', client.content)
+
+      -- should not write end of stream
+      response:write('', true)
+      assert.match('\r\n5\r\nhello\r\n$', client.content)
+
+      response:close()
+      assert.match('\r\n5\r\nhello\r\n0\r\n\r\n$', client.content)
     end)
   end)
 
