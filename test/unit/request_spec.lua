@@ -1,5 +1,5 @@
 local Request = require 'pegasus.request'
-local Utils   = require 'spec/utils'
+local Utils   = require 'test/utils'
 
 local BuildSocket, CLOSED = Utils.BuildSocket, Utils.CLOSED
 

@@ -21,4 +21,12 @@ describe('integration', function()
   it('should return correct body', function()
     assert.match('Hello, Pegasus', executeCommand('curl'))
   end)
+
+  it('should response with connection close', function()
+    local result = executeCommand('curl --head -H "Connection: close"')
+
+    assert.match('HTTP/1%.1 200 OK'         ,result)
+    assert.match('Connection: close'        ,result)
+  end)
+
 end)

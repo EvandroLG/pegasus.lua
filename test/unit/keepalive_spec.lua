@@ -2,7 +2,7 @@ local Request   = require 'pegasus.request'
 local Response  = require 'pegasus.response'
 local Handler   = require 'pegasus.handler'
 local KeepAlive = require 'pegasus.keepalive'
-local Utils     = require 'spec/utils'
+local Utils     = require 'test/utils'
 
 local counter, BuildSocket, CLOSED = Utils.counter, Utils.BuildSocket, Utils.CLOSED
 
