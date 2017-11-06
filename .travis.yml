@@ -36,12 +36,14 @@ before_script:
   - luarocks show luacheck         > /dev/null 2>&1 || luarocks install luacheck
   - luarocks show busted           > /dev/null 2>&1 || luarocks install busted
   - luarocks show luacov-coveralls > /dev/null 2>&1 || luarocks install luacov-coveralls
+  - luarocks show lua-curl         > /dev/null 2>&1 || luarocks install lua-curl
   - lua test/start_app.lua &
 
 script:
-  - busted test
+  - busted test --coverage
   - luacheck src
 
 before_cache:
+  - luacov-coveralls -v
   - luarocks remove pegasus
   - rm -f /home/travis/.cache/pip/log/debug.log

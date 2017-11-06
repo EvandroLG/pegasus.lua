@@ -1,0 +1,18 @@
+return {
+  statsfile   = "luacov.stats.out";
+  reportfile  = "luacov.report.json";
+  runreport   = false;
+  deletestats = false;
+
+  include = {
+    "/pegasus$",
+    "/pegasus/.+$",
+  };
+
+  coveralls = {
+    pathcorrect = {
+      {"^.-/share/lua/5.%d/", "src/"};
+    };
+  };
+
+}
