@@ -127,6 +127,41 @@ describe('require', function()
       assert.is_nil(request:method())
     end)
 
+    describe('path', function()
+      local fixtures = {
+        ['/'              ] = '/';
+        ['./'             ] = '/';
+        ['/.'             ] = '/';
+        ['.'              ] = '/';
+        ['../'            ] = '/';
+        ['/..'            ] = '/';
+        ['a/../b/..'      ] = '/';
+        ['a/../b/../'     ] = '/';
+        ['a/../../b/../'  ] = '/';
+        ['a/../../b/c/../'] = '/b/';
+        ['a/../../b'      ] = '/b';
+        ['a/../../b/'     ] = '/b/';
+        ['./b'            ] = '/b';
+        ['./b/'           ] = '/b/';
+        ['./b/.'          ] = '/b/';
+        ['./.b'           ] = '/.b';
+        ['a/..b'          ] = '/a/..b';
+        ['a/.../b'        ] = '/a/.../b';
+        ['/a..'           ] = '/a..';
+        ['/a../'          ] = '/a../';
+        ['/../../a'       ] = '/a';
+        ['a/../../././//' ] = '/';
+      }
+      for fixture, result in pairs(fixtures) do
+        local name = 'should normalise path - ' .. fixture
+        it(name, function()
+          local headers = { 'GET ' .. fixture .. ' HTTP/1.1' }
+          local request = getInstance(headers)
+
+          assert.equal(result, request:path())
+        end)
+      end
+    end)
   end)
 
   describe('invalid requests', function()
