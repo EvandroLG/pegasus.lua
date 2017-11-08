@@ -153,7 +153,7 @@ end
 function Response:close()
   local body = self.handler:processBodyData(nil, true, self)
 
-  if #body > 0 then
+  if body and #body > 0 then
     self.client:send(dec2hex(#body)..'\r\n'..body..'\r\n')
   end
 
@@ -164,7 +164,6 @@ end
 
 function Response:sendOnlyHeaders()
   self:sendHeaders(false, '')
-  self:write('\r\n')
 end
 
 function Response:sendHeaders(stayOpen, body)
@@ -174,14 +173,16 @@ function Response:sendHeaders(stayOpen, body)
 
   if stayOpen then
     self:addHeader('Transfer-Encoding', 'chunked')
-  elseif type(body) == 'string' then
-    self:addHeader('Content-Length', body:len())
+  elseif type(body) == 'string' and #body > 0 then
+    self:addHeader('Content-Length', #body)
   end
 
   self:addHeader('Date', os.date('!%a, %d %b %Y %H:%M:%S GMT', os.time()))
 
-  if not self.headers['Content-Type'] then
-    self:addHeader('Content-Type', 'text/html')
+  if stayOpen or self.headers['Content-Length'] then
+    if not self.headers['Content-Type'] then
+      self:addHeader('Content-Type', 'text/html')
+    end
   end
 
   if not self.headers['Connection'] then
@@ -226,6 +227,10 @@ end
 
 function Response:keep_alive() --luacheck: ignore self
   return false
+end
+
+function Response:upgrade()
+  return self.handler:pluginsProcessUpgrade(self.request, self)
 end
 
 return Response
