@@ -422,4 +422,13 @@ end
 
 Request._path_normalize = normalize
 
+-- Does the request ask to upgrade to another protocol
+function Request:is_upgrade()
+  local headers = self:headers()
+
+  if not headers then return false end
+
+  return headers['Connection'] == 'Upgrade'
+end
+
 return Request

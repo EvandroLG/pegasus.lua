@@ -77,6 +77,33 @@ function Handler:pluginsProcessFile(request, response, filename)
   end
 end
 
+local pluginsProcessUpgrade do
+-- allows return multiple values from plugin function
+
+local function test_result(plugins, i, request, response, ...)
+  if ... then return ... end
+  return pluginsProcessUpgrade(plugins, i, request, response)
+end
+
+pluginsProcessUpgrade = function(plugins, i, request, response)
+  i = i + 1
+  local plugin = plugins[i]
+  if not plugin then
+    return
+  end
+  local method = plugin.processUpgrade
+  if not method then
+    return pluginsProcessUpgrade(plugins, i, request, response)
+  end
+  return test_result(plugins, i, request, response, method(plugin, request, response))
+end
+
+end
+
+function Handler:pluginsProcessUpgrade(request, response)
+  return pluginsProcessUpgrade(self.plugins, 0, request, response)
+end
+
 function Handler:processBodyData(data, stayOpen, response)
   local localData = data
 
@@ -91,6 +118,9 @@ function Handler:processBodyData(data, stayOpen, response)
 end
 
 function Handler:requestDone(request, response)
+  -- if we did upgrade then socket is no HTTP any more
+  if not request.client then return end
+
   local stop = self:pluginsAfterProcess(request, response)
 
   if stop then
