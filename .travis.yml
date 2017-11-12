@@ -1,6 +1,4 @@
-language: c
-
-sudo: false
+language: erlang
 
 matrix:
   include:
@@ -17,30 +15,32 @@ matrix:
     - env: LUA="luajit 2.1"
       os: linux
 
-cache:
-  directories:
-    - here
-    - $HOME/.cache/pip 
+env:
+  global:
+    - LUAROCKS_BASE=luarocks-2.2.1
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH=$PATH:~/Library/Python/2.7/bin/; fi
-  - pip install --user hererocks
-  - hererocks here -r^ --$LUA
-  - source here/bin/activate
+  - sudo apt-get update
+  - sudo apt-get install $LUA
+  - sudo apt-get install $LUA_DEV
+  - lua$LUA_SFX -v
+  # Install a recent luarocks release
+  - wget http://luarocks.org/releases/$LUAROCKS_BASE.tar.gz
+  - tar zxvpf $LUAROCKS_BASE.tar.gz
+  - cd $LUAROCKS_BASE
+  - ./configure
+    --lua-version=$LUA_VER --lua-suffix=$LUA_SFX --with-lua-include="$LUA_INCDIR"
+  - sudo make
+  - sudo make install
+  - cd $TRAVIS_BUILD_DIR
 
 install:
-  - luarocks make rockspecs/pegasus-0.9.2-1.rockspec
-
-before_script:
-  - luarocks show luacheck         > /dev/null 2>&1 || luarocks install luacheck
-  - luarocks show busted           > /dev/null 2>&1 || luarocks install busted
-  - luarocks show luacov-coveralls > /dev/null 2>&1 || luarocks install luacov-coveralls
-  - lua spec/start_app.lua &
+  - sudo -E luarocks install busted
+  - sudo -E luarocks install mimetypes
+  - sudo -E luarocks install luasocket
+  - sudo -E luarocks install luacov
+  - sudo -E luarocks install luafilesystem
+  - sudo -E luarocks install lzlib
 
 script:
-  - busted test/unit/
-  - luacheck src
-
-before_cache:
-  - luarocks remove pegasus
-  - rm -f /home/travis/.cache/pip/log/debug.log
+  - sudo -E busted
