@@ -32,4 +32,4 @@ install:
   - sudo -E luarocks install lzlib
 
 script:
-  - sudo -E busted
+  - sudo -E busted test/unit/
