@@ -1,23 +1,12 @@
-language: c
-
-matrix:
-  include:
-    - env: LUA="lua 5.1"
-      os: osx
-    - env: LUA="lua 5.1"
-      os: linux
-    - env: LUA="lua 5.2"
-      os: linux
-    - env: LUA="lua 5.3"
-      os: linux
-    - env: LUA="luajit 2.0"
-      os: linux
-    - env: LUA="luajit 2.1"
-      os: linux
+language: erlang
 
 env:
   global:
     - LUAROCKS_BASE=luarocks-2.2.1
+  matrix:
+    - LUA=lua5.1 LUA_DEV=liblua5.1-dev LUA_VER=5.1 LUA_SFX=5.1 LUA_INCDIR=/usr/include/lua5.1
+    - LUA=lua5.2 LUA_DEV=liblua5.2-dev LUA_VER=5.2 LUA_SFX=5.2 LUA_INCDIR=/usr/include/lua5.2
+    - LUA=lua5.3 LUA_DEV=liblua5.3-dev LUA_VER=5.3 LUA_SFX=5.3 LUA_INCDIR=/usr/include/lua5.3
 
 before_install:
   - sudo apt-get update
