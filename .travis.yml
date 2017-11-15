@@ -30,7 +30,8 @@ before_install:
   - luarocks show luarocks-fetch-gitrec > /dev/null 2>&1 || luarocks install luarocks-fetch-gitrec
 
 install:
-  - luarocks make rockspecs/pegasus-http.parser-0.rockspec --only-deps
+  - luarocks install --only-deps rockspecs/pegasus-http.parser-0.rockspec
+  - luarocks show lzlib > /dev/null 2>&1 || luarocks install lzlib
 
 before_script:
   - luarocks show luacheck         > /dev/null 2>&1 || luarocks install luacheck
@@ -44,7 +45,6 @@ script:
   - luacheck src
 
 before_cache:
-  - luacov-coveralls -v
   - rm -f /home/travis/.cache/pip/log/debug.log
 
 after_success:
