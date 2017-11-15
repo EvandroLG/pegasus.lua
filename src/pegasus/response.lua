@@ -1,20 +1,3 @@
--- luacheck: ignore try catch
-
--- solution by @cwarden - https://gist.github.com/cwarden/1207556
-local function catch(what)
-  return what[1]
-end
-
-local function try(what)
-  local status, result = pcall(what[1])
-
-  if not status then
-    what[2](result)
-  end
-
-  return result
-end
-
 local function dec2hex(dec)
   local b,k,out,i,d=16,"0123456789ABCDEF","",0
 
@@ -92,7 +75,7 @@ Response.__index = Response
 
 function Response:new(handler, request)
   local newObj = {}
-  newObj.headers_sended = false
+  newObj.headersSended = false
   newObj.templateFirstLine = 'HTTP/1.1 {{ STATUS_CODE }} {{ STATUS_TEXT }}\r\n'
   newObj.headFirstLine = ''
   newObj.headers = {}
@@ -168,7 +151,7 @@ function Response:sendOnlyHeaders()
 end
 
 function Response:sendHeaders(stayOpen, body)
-  if self.headers_sended then
+  if self.headersSended then
     return self
   end
 
@@ -192,7 +175,7 @@ function Response:sendHeaders(stayOpen, body)
 
   self.client:send(self.headFirstLine .. self:_getHeaders())
   self.client:send('\r\n')
-  self.headers_sended = true
+  self.headersSended = true
 
   return self
 end
@@ -201,7 +184,7 @@ function Response:write(body, stayOpen)
   body = self.handler:processBodyData(body or '', stayOpen, self)
   self:sendHeaders(stayOpen, body)
 
-  self.closed = not (stayOpen or false)
+  self.closed = not(stayOpen or false)
 
   if self.closed then
     self.client:send(body)
@@ -229,4 +212,3 @@ function Response:keep_alive() --luacheck: ignore self
 end
 
 return Response
-
