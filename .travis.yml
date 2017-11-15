@@ -20,7 +20,7 @@ matrix:
 cache:
   directories:
     - here
-    - $HOME/.cache/pip 
+    - $HOME/.cache/pip
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH=$PATH:~/Library/Python/2.7/bin/; fi
@@ -29,22 +29,12 @@ before_install:
   - source here/bin/activate
 
 install:
-  # install deps
-  - luarocks show mimetypes         > /dev/null 2>&1 || luarocks install mimetypes
-  - luarocks show luasocket         > /dev/null 2>&1 || luarocks install luasocket
-  - luarocks show luafilesystem     > /dev/null 2>&1 || luarocks install luafilesystem
-  - luarocks show lzlib             > /dev/null 2>&1 || luarocks install lzlib
-
-before_script:
-  # install test deps
-  - luarocks show luacheck         > /dev/null 2>&1 || luarocks install luacheck
-  - luarocks show busted           > /dev/null 2>&1 || luarocks install busted
-  - luarocks show luacov-coveralls > /dev/null 2>&1 || luarocks install luacov-coveralls
-  - lua test/start_app.lua &
+  - luarocks install busted
+  - luarocks install mimetypes
+  - luarocks install luasocket
+  - luarocks install luacov
+  - luarocks install luafilesystem
+  - luarocks install lzlib
 
 script:
-  - busted test
-  - luacheck src
-
-before_cache:
-  - rm -f /home/travis/.cache/pip/log/debug.log
+  - busted test/unit/
