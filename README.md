@@ -37,15 +37,23 @@ end)
 - Native plugin to compress responses using the "gzip" method
 
 ## API
+
+### Parameters
+* `host:string` Host address where the application will run. By default it uses `localhost`
+* `port:string` The port where the application will run. By default it's `9090`
+* `location:string` Path used by Pegasus to search for the files. By default it's the root
+* `plugins:table` List with plugins
+* `timeout:number` It's a timeout for estabilishing a connection with the server
+
 ### Request
 #### Properties
-* `path` A string with the request path
-* `headers` A table with all the headers data
-* `method` The output is the request method as a string ('GET', 'POST', etc)
-* `querystring` It returns a dictionary with all the GET parameters
-* `post` It returns a dictionary with all the POST parameters
-* `ip` It returns the client's ip
-* `port` It returns the port where Pegasus is running
+* `path:string` A string with the request path
+* `headers:table` A table with all the headers data
+* `method:function` The output is the request method as a string ('GET', 'POST', etc)
+* `querystring:string` It returns a dictionary with all the GET parameters
+* `post:table` It returns a dictionary with all the POST parameters
+* `ip:string` It returns the client's ip
+* `port:number` It returns the port where Pegasus is running
 
 ### Response
 #### Methods

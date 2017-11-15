@@ -20,7 +20,7 @@ matrix:
 cache:
   directories:
     - here
-    - $HOME/.cache/pip 
+    - $HOME/.cache/pip
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH=$PATH:~/Library/Python/2.7/bin/; fi
@@ -30,7 +30,7 @@ before_install:
   - luarocks show luarocks-fetch-gitrec > /dev/null 2>&1 || luarocks install luarocks-fetch-gitrec
 
 install:
-  - luarocks make rockspecs/pegasus-http.parser-0.rockspec
+  - luarocks make rockspecs/pegasus-http.parser-0.rockspec --only-deps
 
 before_script:
   - luarocks show luacheck         > /dev/null 2>&1 || luarocks install luacheck
@@ -45,5 +45,7 @@ script:
 
 before_cache:
   - luacov-coveralls -v
-  - luarocks remove pegasus
   - rm -f /home/travis/.cache/pip/log/debug.log
+
+after_success:
+  - luacov-coveralls -v
