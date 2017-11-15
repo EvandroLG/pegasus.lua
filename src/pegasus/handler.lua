@@ -91,6 +91,15 @@ function Handler:processBodyData(data, stayOpen, response)
 end
 
 function Handler:requestDone(request, response)
+
+  -- if callback did not send any then we have to send some response
+  if not response.headersSended then
+    if not response.status then
+      response:statusCode(500)
+    end
+    response:writeDefaultErrorMessage(response.status)
+  end
+
   local stop = self:pluginsAfterProcess(request, response)
 
   if stop then
@@ -149,14 +158,6 @@ function Handler:internalProcessRequest(request)
     -- response.headers = {}
     -- response:addHeader('Content-Type', 'text/html')
     self.callback(request, response)
-  end
-
-  -- if callback did not send any then we have to send some response
-  if not response.headers_sended then
-    if not response.status then
-      response:statusCode(500)
-    end
-    response:writeDefaultErrorMessage(response.status)
   end
 
   return self:requestDone(request, response)

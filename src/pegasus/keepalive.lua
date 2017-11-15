@@ -88,7 +88,7 @@ function KeepAlive:afterProcess(request, response)
   request.keepalive_requests = request.keepalive_requests + 1
 
   -- if we do not send response or send `Connection: close` then we can not reuse connection
-  if (not response.headers_sended) or (response.headers.Connection == 'close') then
+  if (not response.headersSended) or (response.headers.Connection == 'close') then
     return
   end
 
