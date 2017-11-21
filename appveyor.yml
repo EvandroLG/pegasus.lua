@@ -39,16 +39,13 @@ install:
     )
   - call c:\hererocks\bin\activate
 
-before_build:
+build_script:
   # external deps
   - luarocks show mimetypes     >nul 2>&1 || luarocks install mimetypes
   - luarocks show luasocket     >nul 2>&1 || luarocks install luasocket
   - luarocks show luafilesystem >nul 2>&1 || luarocks install luafilesystem
   # todo: install zlib
   # - luarocks show lzlib         >nul 2>&1 || luarocks install lzlib
-
-build_script:
-  - luarocks make rockspecs/pegasus-scm-0.rockspec --deps-mode=none
 
 before_test:
   # test deps
