@@ -118,6 +118,8 @@ function Handler:processBodyData(data, stayOpen, response)
 end
 
 function Handler:requestDone(request, response)
+  -- if we did upgrade then socket is no HTTP any more
+  if not request.client then return end
 
   -- if callback did not send any then we have to send some response
   if not response.headersSended then
@@ -126,9 +128,6 @@ function Handler:requestDone(request, response)
     end
     response:writeDefaultErrorMessage(response.status)
   end
-
-  -- if we did upgrade then socket is no HTTP any more
-  if not request.client then return end
 
   local stop = self:pluginsAfterProcess(request, response)
 
