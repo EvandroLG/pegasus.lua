@@ -24,7 +24,7 @@ cache:
 
 before_install:
   #- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH=$PATH:~/Library/Python/2.7/bin/; fi
-  - pip install --user hererocks
+  - pip install hererocks
   - hererocks here -r^ --$LUA
   - source here/bin/activate
 
