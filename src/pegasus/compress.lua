@@ -87,7 +87,7 @@ local Compress = {} do
   function Compress:processBodyData(data, stayOpen, request, response)
     local accept_encoding
 
-    if response.headers_sended then
+    if response.headersSended then
       accept_encoding = response.headers['Content-Encoding'] or ''
     else
       local headers = request:headers()
@@ -118,7 +118,7 @@ local Compress = {} do
 
         local compressed = table.concat(buffer)
         for i = 1, #buffer do buffer[i] = nil end
-        if not response.headers_sended then
+        if not response.headersSended then
           response:addHeader('Content-Encoding', 'gzip')
         end
 
@@ -130,7 +130,7 @@ local Compress = {} do
       local compressed = table.concat(buffer)
 
       if #compressed < #data then
-        if not response.headers_sended then
+        if not response.headersSended then
           response:addHeader('Content-Encoding', 'gzip')
         end
 
