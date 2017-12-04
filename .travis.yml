@@ -5,8 +5,6 @@ sudo: false
 matrix:
   include:
     - env: LUA="lua 5.1"
-      os: osx
-    - env: LUA="lua 5.1"
       os: linux
     - env: LUA="lua 5.2"
       os: linux
