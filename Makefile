@@ -18,7 +18,7 @@ _integration_test:
 	busted test/integration/
 
 kill_server:
-	ps aux | grep $(START_APP) | awk '{print $2}' | xargs kill &>/dev/null
+	pkill -f $(START_APP)
 
 integration_test: start_app _integration_test kill_server
 
