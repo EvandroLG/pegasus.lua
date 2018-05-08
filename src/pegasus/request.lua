@@ -1,3 +1,31 @@
+local function normalize(P)
+  P = string.gsub(P ,'\\',        '/')
+  P = string.gsub(P, '^/*',       '/')
+  P = string.gsub(P, '(/%.%.?)$', '%1/')
+  P = string.gsub(P, '/%./',      '/')
+  P = string.gsub(P, '/+',        '/')
+
+  while true do
+    local first, last = string.find(P, '/[^/]+/%.%./')
+    if not first then break end
+    P = string.sub(P, 1, first) .. string.sub(P, last + 1)
+  end
+
+  while true do
+    local n
+    P, n = string.gsub(P, '^/%.%.?/', '/')
+    if n == 0 then break end
+  end
+
+  while true do
+    local n
+    P, n = string.gsub(P, '/%.%.?$', '/')
+    if n == 0 then break end
+  end
+
+  return P
+end
+
 local Request = {}
 Request.__index = Request
 
@@ -51,13 +79,12 @@ function Request:parseFirstLine()
   local filename, querystring
   if #path > 0 then
     filename, querystring = string.match(path, '^([^#?]+)[#|?]?(.*)')
+    filename = normalize(filename)
   else
     filename = ''
   end
 
-  if not filename then return end
-
-  self._path = filename or path
+  self._path = filename
   self._query_string = querystring
   self._method = method
 end
