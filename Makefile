@@ -23,7 +23,7 @@ kill_server:
 integration_test: start_app _integration_test kill_server
 
 _load_test:
-	ab -n 15000 -c 10 http://127.0.0.1:7070/
+	wrk http://127.0.0.1:7070/
 
 load_test: start_app _load_test kill_server
 
