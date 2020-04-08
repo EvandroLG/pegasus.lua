@@ -76,6 +76,7 @@ function Request:parseFirstLine()
     return
   end
 
+  print('Request for: ' .. path)
   local filename, querystring
   if #path > 0 then
     filename, querystring = string.match(path, '^([^#?]+)[#|?]?(.*)')
