@@ -76,7 +76,7 @@ function Request:parseFirstLine()
     return
   end
 
-  print('Request from ' .. self.client.getpeername() .. ' for: ' .. path)
+  print('Request from ' .. self.client:getpeername() .. ' for: ' .. path)
   local filename, querystring
   if #path > 0 then
     filename, querystring = string.match(path, '^([^#?]+)[#|?]?(.*)')
