@@ -68,9 +68,9 @@ function Request:parseFirstLine()
     return
   end
 
-  -- Parse firstline http: METHOD PATH PROTOCOL,
+  -- Parse firstline http: METHOD PATH
   -- GET Makefile HTTP/1.1
-  local method, path, protocol = string.match(self.firstLine, Request.PATTERN_REQUEST)
+  local method, path = string.match(self.firstLine, Request.PATTERN_REQUEST)
 
   if not method then
     --! @todo close client socket immediately
