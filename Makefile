@@ -27,13 +27,7 @@ _load_test:
 
 load_test: start_app _load_test kill_server
 
-build_docker:
-	docker build -t pegasus .
-
-run_docker:
-	docker run -p 9090:9090 -it pegasus
-
-install_dependencies:
+install:
 	luarocks install luacheck
 	luarocks install mimetypes
 	luarocks install luasocket
