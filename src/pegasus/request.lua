@@ -28,31 +28,33 @@ end
 
 local Request = {}
 Request.__index = Request
-
-function Request:new(port, client)
-  local newObj = {}
-  newObj.client = client
-  newObj.port = port
-  newObj.ip = client:getpeername()
-  newObj.firstLine = nil
-  newObj._method = nil
-  newObj._path = nil
-  newObj._params = {}
-  newObj._headers_parsed = false
-  newObj._headers = {}
-  newObj._form = {}
-  newObj._is_valid = false
-  newObj._body = ''
-  newObj._content_done = 0
-
-  return setmetatable(newObj, self)
-end
-
 Request.PATTERN_METHOD = '^(.-)%s'
 Request.PATTERN_PATH = '(%S+)%s*'
 Request.PATTERN_PROTOCOL = '(HTTP%/%d%.%d)'
 Request.PATTERN_REQUEST = (Request.PATTERN_METHOD ..
 Request.PATTERN_PATH ..Request.PATTERN_PROTOCOL)
+Request.PATTERN_QUERY_STRING = '([^=]*)=([^&]*)&?'
+Request.PATTERN_HEADER = '([%w-]+): ([%w %p]+=?)'
+
+function Request:new(port, client)
+  local obj = {}
+  obj.client = client
+  obj.port = port
+  obj.ip = client:getpeername()
+  obj.querystring = {}
+  obj.firstLine = nil
+  obj._method = nil
+  obj._path = nil
+  obj._params = {}
+  obj._headers_parsed = false
+  obj._headers = {}
+  obj._form = {}
+  obj._is_valid = false
+  obj._body = ''
+  obj._content_done = 0
+
+  return setmetatable(obj, self)
+end
 
 function Request:parseFirstLine()
   if (self.firstLine ~= nil) then
@@ -68,8 +70,7 @@ function Request:parseFirstLine()
 
   -- Parse firstline http: METHOD PATH PROTOCOL,
   -- GET Makefile HTTP/1.1
-  local method, path, protocol = string.match(self.firstLine, -- luacheck: ignore protocol
-                                 Request.PATTERN_REQUEST)
+  local method, path, protocol = string.match(self.firstLine, Request.PATTERN_REQUEST)
 
   if not method then
     --! @todo close client socket immediately
@@ -77,20 +78,19 @@ function Request:parseFirstLine()
   end
 
   print('Request for: ' .. path)
-  local filename, querystring
-  if #path > 0 then
+
+  local filename = ''
+  local querystring = ''
+
+  if #path then
     filename, querystring = string.match(path, '^([^#?]+)[#|?]?(.*)')
     filename = normalize(filename)
-  else
-    filename = ''
   end
 
   self._path = filename
-  self._query_string = querystring
   self._method = method
+  self.querystring = self:parseURLEncoded(querystring, {})
 end
-
-Request.PATTERN_QUERY_STRING = '([^=]*)=([^&]*)&?'
 
 function Request:parseURLEncoded(value, _table) -- luacheck: ignore self
   --value exists and _table is empty
@@ -101,11 +101,6 @@ function Request:parseURLEncoded(value, _table) -- luacheck: ignore self
   end
 
   return _table
-end
-
-function Request:params()
-  self:parseFirstLine()
-  return self:parseURLEncoded(self._query_string, self._params)
 end
 
 function Request:post()
@@ -124,7 +119,6 @@ function Request:method()
   return self._method
 end
 
-Request.PATTERN_HEADER = '([%w-]+): ([%w %p]+=?)'
 
 function Request:headers()
   if self._headers_parsed then
