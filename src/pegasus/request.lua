@@ -46,12 +46,12 @@ function Request:new(port, client)
   obj._method = nil
   obj._path = nil
   obj._params = {}
-  obj._headers_parsed = false
+  obj._headerParsed = false
   obj._headers = {}
   obj._form = {}
-  obj._is_valid = false
   obj._body = ''
-  obj._content_done = 0
+  obj._contentDone = 0
+  obj._contentLength = nil
 
   return setmetatable(obj, self)
 end
@@ -89,24 +89,25 @@ function Request:parseFirstLine()
 
   self._path = filename
   self._method = method
-  self.querystring = self:parseURLEncoded(querystring, {})
+  self.querystring = self:parseURLEncoded(querystring)
 end
 
-function Request:parseURLEncoded(value, _table) -- luacheck: ignore self
-  --value exists and _table is empty
-  if value and next(_table) == nil then
+function Request:parseURLEncoded(value)
+  local output = {}
+
+  if value then
     for k, v in  string.gmatch(value, Request.PATTERN_QUERY_STRING) do
-        _table[k] = v
+        output[k] = v
     end
   end
 
-  return _table
+  return output
 end
 
 function Request:post()
   if self:method() ~= 'POST' then return nil end
   local data = self:receiveBody()
-  return self:parseURLEncoded(data, {})
+  return self:parseURLEncoded(data)
 end
 
 function Request:path()
@@ -121,7 +122,7 @@ end
 
 
 function Request:headers()
-  if self._headers_parsed then
+  if self._headerParsed then
     return self._headers
   end
 
@@ -139,22 +140,22 @@ function Request:headers()
     data = self.client:receive()
   end
 
-  self._headers_parsed = true
-  self._content_length = tonumber(self._headers["Content-Length"] or 0)
+  self._headerParsed = true
+  self._contentLength = tonumber(self._headers["Content-Length"] or 0)
 
   return self._headers
 end
 
 function Request:receiveBody(size)
-  size = size or self._content_length
+  size = size or self._contentLength
 
   -- do we have content?
-  if (self._content_length == nil) or (self._content_done >= self._content_length) then
+  if (self._contentLength == nil) or (self._contentDone >= self._contentLength) then
     return false
   end
 
   -- fetch in chunks
-  local fetch = math.min(self._content_length-self._content_done, size)
+  local fetch = math.min(self._contentLength - self._contentDone, size)
 
   local data, err, partial = self.client:receive(fetch)
 
@@ -162,7 +163,7 @@ function Request:receiveBody(size)
     data = partial
   end
 
-  self._content_done = self._content_done + #data
+  self._contentDone = self._contentDone + #data
 
   return data
 end
