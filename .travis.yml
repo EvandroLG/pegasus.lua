@@ -1,6 +1,10 @@
 language: python
 sudo: false
 
+deploy:
+  on:
+    branch: master
+
 env:
   - LUA="lua 5.1"
   - LUA="lua 5.2"
