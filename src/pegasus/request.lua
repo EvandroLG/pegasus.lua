@@ -1,29 +1,29 @@
-local function normalize(P)
-  P = string.gsub(P ,'\\',        '/')
-  P = string.gsub(P, '^/*',       '/')
-  P = string.gsub(P, '(/%.%.?)$', '%1/')
-  P = string.gsub(P, '/%./',      '/')
-  P = string.gsub(P, '/+',        '/')
+local function normalizePath(path)
+  local value = string.gsub(path ,'\\', '/')
+  value = string.gsub(value, '^/*', '/')
+  value = string.gsub(value, '(/%.%.?)$', '%1/')
+  value = string.gsub(value, '/%./', '/')
+  value = string.gsub(value, '/+', '/')
 
   while true do
-    local first, last = string.find(P, '/[^/]+/%.%./')
+    local first, last = string.find(value, '/[^/]+/%.%./')
     if not first then break end
-    P = string.sub(P, 1, first) .. string.sub(P, last + 1)
+    value = string.sub(value, 1, first) .. string.sub(value, last + 1)
   end
 
   while true do
     local n
-    P, n = string.gsub(P, '^/%.%.?/', '/')
+    value, n = string.gsub(value, '^/%.%.?/', '/')
     if n == 0 then break end
   end
 
   while true do
     local n
-    P, n = string.gsub(P, '/%.%.?$', '/')
+    value, n = string.gsub(value, '/%.%.?$', '/')
     if n == 0 then break end
   end
 
-  return P
+  return value
 end
 
 local Request = {}
@@ -84,15 +84,15 @@ function Request:parseFirstLine()
 
   if #path then
     filename, querystring = string.match(path, '^([^#?]+)[#|?]?(.*)')
-    filename = normalize(filename)
+    filename = normalizePath(filename)
   end
 
   self._path = filename
   self._method = method
-  self.querystring = self:parseURLEncoded(querystring)
+  self.querystring = self:parseUrlEncoded(querystring)
 end
 
-function Request:parseURLEncoded(value)
+function Request:parseUrlEncoded(value)
   local output = {}
 
   if value then
@@ -107,7 +107,7 @@ end
 function Request:post()
   if self:method() ~= 'POST' then return nil end
   local data = self:receiveBody()
-  return self:parseURLEncoded(data)
+  return self:parseUrlEncoded(data)
 end
 
 function Request:path()
@@ -156,7 +156,6 @@ function Request:receiveBody(size)
 
   -- fetch in chunks
   local fetch = math.min(self._contentLength - self._contentDone, size)
-
   local data, err, partial = self.client:receive(fetch)
 
   if err == 'timeout' then

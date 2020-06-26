@@ -22,13 +22,6 @@ function getInstance(headers)
   return Request:new(8080, param)
 end
 
-function length(dict)
-  local count = 0
-  for k in pairs(dict) do count = count + 1 end
-
-  return count
-end
-
 function verifyHttpMethod(method)
   local headers = { method .. ' /index.html HTTP/1.1', '' }
   local request = getInstance(headers)
