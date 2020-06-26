@@ -1,7 +1,6 @@
 local socket = require 'socket'
 local Handler = require 'pegasus.handler'
 
-
 local Pegasus = {}
 Pegasus.__index = Pegasus
 
@@ -27,7 +26,7 @@ function Pegasus:start(callback)
   while 1 do
     local client = server:accept()
     client:settimeout(self.timeout, 'b')
-    handler:processRequest(self.port, client)
+    handler:processRequest(self.port, client, server)
   end
 end
 

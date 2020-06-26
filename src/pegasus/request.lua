@@ -36,20 +36,19 @@ Request.PATTERN_PATH ..Request.PATTERN_PROTOCOL)
 Request.PATTERN_QUERY_STRING = '([^=]*)=([^&]*)&?'
 Request.PATTERN_HEADER = '([%w-]+): ([%w %p]+=?)'
 
-function Request:new(port, client)
+function Request:new(port, client, server)
   local obj = {}
   obj.client = client
+  obj.server = server
   obj.port = port
   obj.ip = client:getpeername()
   obj.querystring = {}
-  obj.firstLine = nil
+  obj._firstLine = nil
   obj._method = nil
   obj._path = nil
   obj._params = {}
   obj._headerParsed = false
   obj._headers = {}
-  obj._form = {}
-  obj._body = ''
   obj._contentDone = 0
   obj._contentLength = nil
 
@@ -57,23 +56,25 @@ function Request:new(port, client)
 end
 
 function Request:parseFirstLine()
-  if (self.firstLine ~= nil) then
+  if (self._firstLine ~= nil) then
     return
   end
 
   local status, partial
-  self.firstLine, status, partial = self.client:receive()
+  self._firstLine, status, partial = self.client:receive()
 
-  if (self.firstLine == nil or status == 'timeout' or partial == '' or status == 'closed') then
+  if (self._firstLine == nil or status == 'timeout' or partial == '' or status == 'closed') then
     return
   end
 
   -- Parse firstline http: METHOD PATH
   -- GET Makefile HTTP/1.1
-  local method, path = string.match(self.firstLine, Request.PATTERN_REQUEST)
+  local method, path = string.match(self._firstLine, Request.PATTERN_REQUEST)
 
   if not method then
-    --! @todo close client socket immediately
+    client:close()
+    server:close()
+
     return
   end
 
@@ -119,7 +120,6 @@ function Request:method()
   self:parseFirstLine()
   return self._method
 end
-
 
 function Request:headers()
   if self._headerParsed then

@@ -3,7 +3,6 @@ local Response = require 'pegasus.response'
 local mimetypes = require 'mimetypes'
 local lfs = require 'lfs'
 
-
 local function ternary(condition, t, f)
   if condition then return t else return f end
 end
@@ -91,8 +90,8 @@ function Handler:processBodyData(data, stayOpen, response)
   return localData
 end
 
-function Handler:processRequest(port, client)
-  local request = Request:new(port, client)
+function Handler:processRequest(port, client, server)
+  local request = Request:new(port, client, server)
 
   -- if we get some invalid request just close it
   -- do not try handle or response
