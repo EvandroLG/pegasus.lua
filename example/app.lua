@@ -1,5 +1,4 @@
--- setup path to find the project source files of Pegasus
-package.path = "./src/?.lua;./src/?/init.lua;"..package.path
+package.path = './src/?.lua;./src/?/init.lua;' .. package.path
 
 local Pegasus = require 'pegasus'
 local Compress = require 'pegasus.compress'
@@ -11,4 +10,10 @@ local server = Pegasus:new({
 })
 
 server:start(function(req, rep)
+  local data = req:post()
+
+  if data then
+    print(data['name'])
+    print(data['age'])
+  end
 end)
