@@ -2,7 +2,7 @@ local Request = require 'pegasus.request'
 
 function getInstance(headers)
   local position = 1
-  local param = {
+  local client = {
     receive = function()
       if headers[position] ~= nil then
         local outcome = headers[position]
@@ -14,12 +14,22 @@ function getInstance(headers)
       return nil
     end,
 
-    getpeername = function(self)
+    getpeername = function()
       return '192.30.252.129'
+    end,
+
+    close = function()
+      return nil
     end
   }
 
-  return Request:new(8080, param)
+  local server = {
+    close = function()
+      return nil
+    end
+  }
+
+  return Request:new(8080, client, server)
 end
 
 function verifyHttpMethod(method)

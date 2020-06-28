@@ -72,8 +72,8 @@ function Request:parseFirstLine()
   local method, path = string.match(self._firstLine, Request.PATTERN_REQUEST)
 
   if not method then
-    client:close()
-    server:close()
+    self.client:close()
+    self.server:close()
 
     return
   end
