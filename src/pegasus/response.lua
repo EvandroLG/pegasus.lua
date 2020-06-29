@@ -75,41 +75,40 @@ Response.__index = Response
 
 function Response:new(client, writeHandler)
   local newObj = {}
-  newObj.headersSended = false
-  newObj.templateFirstLine = 'HTTP/1.1 {{ STATUS_CODE }} {{ STATUS_TEXT }}\r\n'
-  newObj.headFirstLine = ''
-  newObj.headers = {}
-  newObj.status = 200
-  newObj.filename = ''
-  newObj.closed = false
-  newObj.client = client
-  newObj.writeHandler = writeHandler
+  newObj._headersSended = false
+  newObj._templateFirstLine = 'HTTP/1.1 {{ STATUS_CODE }} {{ STATUS_TEXT }}\r\n'
+  newObj._headFirstLine = ''
+  newObj._headers = {}
+  newObj._status = 200
+  newObj._isClosed = false
+  newObj._client = client
+  newObj._writeHandler = writeHandler
 
   return setmetatable(newObj, self)
 end
 
 function Response:addHeader(key, value)
-  self.headers[key] = value
+  self._headers[key] = value
   return self
 end
 
 function Response:addHeaders(params)
   for key, value in pairs(params) do
-    self.headers[key] = value
+    self._headers[key] = value
   end
 
   return self
 end
 
 function Response:contentType(value)
-  self.headers['Content-Type'] = value
+  self._headers['Content-Type'] = value
   return self
 end
 
 function Response:statusCode(statusCode, statusText)
-  self.status = statusCode
-  self.headFirstLine = string.gsub(self.templateFirstLine, '{{ STATUS_CODE }}', statusCode)
-  self.headFirstLine = string.gsub(self.headFirstLine, '{{ STATUS_TEXT }}', statusText or STATUS_TEXT[statusCode])
+  self._status = statusCode
+  self._headFirstLine = string.gsub(self._templateFirstLine, '{{ STATUS_CODE }}', statusCode)
+  self._headFirstLine = string.gsub(self._headFirstLine, '{{ STATUS_TEXT }}', statusText or STATUS_TEXT[statusCode])
 
   return self
 end
@@ -117,7 +116,7 @@ end
 function Response:_getHeaders()
   local headers = ''
 
-  for key, value in pairs(self.headers) do
+  for key, value in pairs(self._headers) do
     headers = headers .. key .. ': ' .. value .. '\r\n'
   end
 
@@ -133,13 +132,13 @@ function Response:writeDefaultErrorMessage(statusCode)
 end
 
 function Response:close()
-  local body = self.writeHandler:processBodyData(nil, true, self)
+  local body = self._writeHandler:processBodyData(nil, true, self)
 
   if body and #body > 0 then
-    self.client:send(dec2hex(#body)..'\r\n'..body..'\r\n')
+    self._client:send(dec2hex(#body)..'\r\n'..body..'\r\n')
   end
 
-  self.client:send('0\r\n\r\n')
+  self._client:send('0\r\n\r\n')
 
   self.close = true
 end
@@ -150,7 +149,7 @@ function Response:sendOnlyHeaders()
 end
 
 function Response:sendHeaders(stayOpen, body)
-  if self.headersSended then
+  if self._headersSended then
     return self
   end
 
@@ -162,33 +161,33 @@ function Response:sendHeaders(stayOpen, body)
 
   self:addHeader('Date', os.date('!%a, %d %b %Y %H:%M:%S GMT', os.time()))
 
-  if not self.headers['Content-Type'] then
+  if not self._headers['Content-Type'] then
     self:addHeader('Content-Type', 'text/html')
   end
 
-  self.client:send(self.headFirstLine .. self:_getHeaders())
-  self.client:send('\r\n')
-  self.headersSended = true
+  self._client:send(self._headFirstLine .. self:_getHeaders())
+  self._client:send('\r\n')
+  self._headersSended = true
 
   return self
 end
 
 function Response:write(body, stayOpen)
-  body = self.writeHandler:processBodyData(body or '', stayOpen, self)
+  body = self._writeHandler:processBodyData(body or '', stayOpen, self)
   self:sendHeaders(stayOpen, body)
 
-  self.closed = not(stayOpen or false)
+  self._isClosed = not(stayOpen or false)
 
-  if self.closed then
-    self.client:send(body)
-  elseif #body > 0 then
-    -- do not send chunk with zero Length because it may be e.g. because
-    -- comtessor can not build full chunk with current set of data.
-    self.client:send(dec2hex(#body)..'\r\n'..body..'\r\n')
+  if self._isClosed then
+    self._client:send(body)
+  elseif #body then
+    self._client:send(
+      dec2hex(#body) .. '\r\n' .. body .. '\r\n'
+    )
   end
 
-  if self.closed then
-    self.client:close()
+  if self._isClosed then
+    self._client:close()
   end
 
   return self
