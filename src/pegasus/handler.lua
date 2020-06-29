@@ -133,9 +133,10 @@ function Handler:processRequest(port, client, server)
   end
 
   if self.callback then
-    -- response:statusCode(200)
-    -- response.headers = {}
-    -- response:addHeader('Content-Type', 'text/html')
+    response:statusCode(200)
+    response.headers = {}
+    response:addHeader('Content-Type', 'text/html')
+
     self.callback(request, response)
   end
 
