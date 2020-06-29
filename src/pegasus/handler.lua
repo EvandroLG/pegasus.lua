@@ -3,10 +3,6 @@ local Response = require 'pegasus.response'
 local mimetypes = require 'mimetypes'
 local lfs = require 'lfs'
 
-local function ternary(condition, t, f)
-  if condition then return t else return f end
-end
-
 local Handler = {}
 Handler.__index = Handler
 
@@ -70,6 +66,7 @@ function Handler:pluginsProcessFile(request, response, filename)
   for _, plugin in ipairs(self.plugins) do
     if plugin.processFile then
       local stop = plugin:processFile(request, response, filename)
+
       if stop then
         return stop
       end
@@ -82,8 +79,12 @@ function Handler:processBodyData(data, stayOpen, response)
 
   for _, plugin in ipairs(self.plugins or {}) do
     if plugin.processBodyData then
-      localData = plugin:processBodyData(localData, stayOpen,
-                   response.request,  response)
+      localData = plugin:processBodyData(
+        localData,
+        stayOpen,
+        response.request,
+        response
+      )
     end
   end
 
@@ -96,6 +97,7 @@ function Handler:processRequest(port, client, server)
   -- if we get some invalid request just close it
   -- do not try handle or response
   if not request:method() then
+    server:close()
     client:close()
     return
   end
@@ -109,8 +111,7 @@ function Handler:processRequest(port, client, server)
   end
 
   if request:path() and self.location ~= '' then
-    local path = ternary(request:path() == '/' or request:path() == '',
-                 'index.html', request:path())
+    local path = (request:path() == '/' or request:path() == '') and 'index.html' or request:path()
     local filename = '.' .. self.location .. path
 
     if not lfs.attributes(filename) then

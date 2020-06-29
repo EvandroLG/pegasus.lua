@@ -175,7 +175,6 @@ end
 function Response:write(body, stayOpen)
   body = self._writeHandler:processBodyData(body or '', stayOpen, self)
   self:sendHeaders(stayOpen, body)
-
   self._isClosed = not(stayOpen or false)
 
   if self._isClosed then
