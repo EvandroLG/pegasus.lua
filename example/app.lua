@@ -9,7 +9,7 @@ local server = Pegasus:new({
   plugins = { Compress:new() }
 })
 
-server:start(function(req, rep)
+server:start(function(req)
   local data = req:post()
 
   if data then
