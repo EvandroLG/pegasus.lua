@@ -155,7 +155,8 @@ describe('response', function()
           self.content = self.content or ''
           self.content = self.content .. content
         end,
-        close = function () end
+
+        close = function() return nil end
       }
 
       local handler = Handler:new(nil, nil, {})

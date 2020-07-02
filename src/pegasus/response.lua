@@ -79,10 +79,10 @@ function Response:new(client, writeHandler)
   newObj._templateFirstLine = 'HTTP/1.1 {{ STATUS_CODE }} {{ STATUS_TEXT }}\r\n'
   newObj._headFirstLine = ''
   newObj._headers = {}
-  newObj._status = 200
   newObj._isClosed = false
   newObj._client = client
   newObj._writeHandler = writeHandler
+  newObj.status = 200
 
   return setmetatable(newObj, self)
 end
@@ -106,7 +106,7 @@ function Response:contentType(value)
 end
 
 function Response:statusCode(statusCode, statusText)
-  self._status = statusCode
+  self.status = statusCode
   self._headFirstLine = string.gsub(self._templateFirstLine, '{{ STATUS_CODE }}', statusCode)
   self._headFirstLine = string.gsub(self._headFirstLine, '{{ STATUS_TEXT }}', statusText or STATUS_TEXT[statusCode])
 
@@ -135,7 +135,9 @@ function Response:close()
   local body = self._writeHandler:processBodyData(nil, true, self)
 
   if body and #body > 0 then
-    self._client:send(dec2hex(#body)..'\r\n'..body..'\r\n')
+    self._client:send(
+      dec2hex(#body) .. '\r\n' .. body .. '\r\n'
+    )
   end
 
   self._client:send('0\r\n\r\n')
@@ -175,11 +177,12 @@ end
 function Response:write(body, stayOpen)
   body = self._writeHandler:processBodyData(body or '', stayOpen, self)
   self:sendHeaders(stayOpen, body)
+
   self._isClosed = not(stayOpen or false)
 
   if self._isClosed then
     self._client:send(body)
-  elseif #body then
+  elseif #body > 0 then
     self._client:send(
       dec2hex(#body) .. '\r\n' .. body .. '\r\n'
     )
