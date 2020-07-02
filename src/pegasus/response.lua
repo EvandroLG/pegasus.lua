@@ -182,7 +182,7 @@ function Response:write(body, stayOpen)
     self._client:send(body)
   elseif #body > 0 then
     self._client:send(
-      dec2hex(#body) .. '\r\n' .. body .. '\r\n'
+      toHex(#body) .. '\r\n' .. body .. '\r\n'
     )
   end
 
