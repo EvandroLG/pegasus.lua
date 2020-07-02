@@ -78,7 +78,7 @@ describe('response', function()
       local response = Response:new({})
       response:addHeader('Content-Length', 100)
 
-      assert.equal(response.headers['Content-Length'], 100)
+      assert.equal(response._headers['Content-Length'], 100)
     end)
 
     it('should do a merge with headers already passed', function()
@@ -89,7 +89,7 @@ describe('response', function()
         ['Age'] = 15163,
         ['Connection'] = 'keep-alive'
       })
-      local headers = response.headers
+      local headers = response._headers
 
       assert.equal(headers['Content-Length'], 100)
       assert.equal(headers['Content-Type'], 'text/html')
@@ -103,11 +103,13 @@ describe('response', function()
       local response = Response:new({})
       response:statusCode(statusCode, statusText)
       local expectedStatus = 'HTTP/1.1 ' .. tostring(statusCode)
-      local isStatusCorrect = not not string.match(response.headFirstLine, expectedStatus)
-      local isMessageCorrect = not not string.match(response.headFirstLine, expectedMessage)
 
-      assert.is_true(isStatusCorrect)
-      assert.is_true(isMessageCorrect)
+      assert.is_true(
+        not not string.match(response._headFirstLine, expectedStatus)
+      )
+      assert.is_true(
+        not not string.match(response._headFirstLine, expectedMessage)
+      )
     end
 
     it('should add status code passed as a parameter', function()
@@ -131,8 +133,8 @@ describe('response', function()
     it('should define a default value to content-type and content-length', function()
       local response = Response:new(client, Handler)
       response:write('')
-      assert.equal('text/html', response.headers['Content-Type'])
-      assert.equal(0, response.headers['Content-Length'])
+      assert.equal('text/html', response._headers['Content-Type'])
+      assert.equal(0, response._headers['Content-Length'])
     end)
 
     it('should keep value previously set', function()
@@ -140,8 +142,8 @@ describe('response', function()
       response:addHeader('Content-Type', 'application/javascript')
       response:addHeader('Content-Length', 100)
 
-      assert.equal('application/javascript', response.headers['Content-Type'])
-      assert.equal(100, response.headers['Content-Length'])
+      assert.equal('application/javascript', response._headers['Content-Type'])
+      assert.equal(100, response._headers['Content-Length'])
     end)
 
   end)
@@ -182,8 +184,10 @@ describe('response', function()
           self.content = self.content or ''
           self.content = self.content .. content
         end,
+
         close = function () end
       }
+
       local handler = Handler:new(nil, nil, {})
       local response = Response:new(client, handler)
 
