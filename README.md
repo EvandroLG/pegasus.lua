@@ -51,7 +51,6 @@ end)
 * `headers:table` A table with all the headers data
 * `method:function` The output is the request method as a string ('GET', 'POST', etc)
 * `querystring:string` It returns a dictionary with all the GET parameters
-* `post:table` It returns a dictionary with all the POST parameters
 * `ip:string` It returns the client's ip
 * `port:number` It returns the port where Pegasus is running
 
@@ -65,6 +64,7 @@ end)
   parameter
 * `writeFile(string:file)` It creates the body with the content of the
   file passed as parameter
+* `post():table` It returns a dictionary with all the POST parameters
 
 ```lua
 local pegasus = require 'pegasus'
