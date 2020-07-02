@@ -1,14 +1,13 @@
-local function dec2hex(dec)
-  local b,k,out,i,d=16,"0123456789ABCDEF","",0
+local function toHex(dec)
+  local charset = { '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f' }
+  local tmp = {}
 
-  while dec > 0 do
-    i=i+1
-    local m = dec - math.floor(dec/b)*b
-    dec, d = math.floor(dec/b), m + 1
-    out = string.sub(k,d,d)..out
-  end
+  repeat
+    table.insert(tmp, 1, charset[dec % 16 + 1])
+    dec = math.floor(dec / 16)
+  until dec == 0
 
-  return out
+  return table.concat(tmp)
 end
 
 local STATUS_TEXT = {
@@ -136,12 +135,11 @@ function Response:close()
 
   if body and #body > 0 then
     self._client:send(
-      dec2hex(#body) .. '\r\n' .. body .. '\r\n'
+      toHex(#body) .. '\r\n' .. body .. '\r\n'
     )
   end
 
   self._client:send('0\r\n\r\n')
-
   self.close = true
 end
 
