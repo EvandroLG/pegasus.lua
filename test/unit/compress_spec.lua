@@ -57,64 +57,64 @@ describe('compress #compress', function()
       }
     end
 
-    it('should not add content-enconding = gzip if it is not used', function()
-      local request = mockRequest()
-      local key = nil
-      local value = nil
+    --it('should not add content-enconding = gzip if it is not used', function()
+      --local request = mockRequest()
+      --local key = nil
+      --local value = nil
 
-      local response = {
-        addHeader = function(obj, _key, _value)
-          key = _key
-          value = _value
-        end
-      }
+      --local response = {
+        --addHeader = function(obj, _key, _value)
+          --key = _key
+          --value = _value
+        --end
+      --}
 
-      local compress = Compress:new({ level=1 })
-      compress:processBodyData('', false, request, response)
+      --local compress = Compress:new({ level=1 })
+      --compress:processBodyData('', false, request, response)
 
-      assert.is_nil(key)
-      assert.is_nil(value)
-    end)
+      --assert.is_nil(key)
+      --assert.is_nil(value)
+    --end)
 
-    it('should support chunked data object when stayOpen is true', function()
-      local data = ('a'):rep(2 * 128)
-      local compress = Compress:new({ level=1 })
-      local response = mockResponse()
-      local request = mockRequest()
+    --it('should support chunked data object when stayOpen is true', function()
+      --local data = ('a'):rep(2 * 128)
+      --local compress = Compress:new({ level=1 })
+      --local response = mockResponse()
+      --local request = mockRequest()
 
-      local output = ''
-      for i = 1, 8 do
-        output = output .. compress:processBodyData(data, true, request, response)
-      end
-      output = output .. compress:processBodyData(nil, true, request, response)
+      --local output = ''
+      --for i = 1, 8 do
+        --output = output .. compress:processBodyData(data, true, request, response)
+      --end
+      --output = output .. compress:processBodyData(nil, true, request, response)
 
-      assert.equal(data:rep(8), gzip(output))
-    end)
+      --assert.equal(data:rep(8), gzip(output))
+    --end)
 
-    it('should support chunked data object when stayOpen is true with small chunk size', function()
-      local data = ('a'):rep(1024)
-      local compress = Compress:new({ level=1 })
-      local response = mockResponse()
-      local request = mockRequest()
+    --it('should support chunked data object when stayOpen is true with small chunk size', function()
+      --local data = ('a'):rep(1024)
+      --local compress = Compress:new({ level=1 })
+      --local response = mockResponse()
+      --local request = mockRequest()
 
-      local output = ''
-      for i = 1, 1024 do
-        output = output .. compress:processBodyData('a', true, request, response)
-      end
-      output = output .. compress:processBodyData(nil, true, request, response)
+      --local output = ''
+      --for i = 1, 1024 do
+        --output = output .. compress:processBodyData('a', true, request, response)
+      --end
+      --output = output .. compress:processBodyData(nil, true, request, response)
 
-      assert.equal(data, gzip(output))
-    end)
+      --assert.equal(data, gzip(output))
+    --end)
 
-    it('should return data object when compress is not efficient', function()
-      local data = 'Hello from Pegasus'
-      local compress = Compress:new()
-      local response = mockResponse()
-      local output = compress:processBodyData(data, false, mockRequest(), response)
+    --it('should return data object when compress is not efficient', function()
+      --local data = 'Hello from Pegasus'
+      --local compress = Compress:new()
+      --local response = mockResponse()
+      --local output = compress:processBodyData(data, false, mockRequest(), response)
 
-      assert.equal(data, output)
-      assert.is_nil(response.headers['Content-Encoding'])
-    end)
+      --assert.equal(data, output)
+      --assert.is_nil(response.headers['Content-Encoding'])
+    --end)
 
     it('should compress correct gzip format', function()
       local data = ('a'):rep(2 * 1024)
