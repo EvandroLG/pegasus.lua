@@ -1,6 +1,6 @@
 [![pegasus.lua](http://evandrolg.github.io/pegasus.lua/pegasus.lua.svg)](http://evandrolg.github.io/pegasus.lua)
 
-An http server to work with web applications written in Lua language [check the site](http://evandrolg.github.io/pegasus.lua).
+An http server to work with web applications written in Lua language [check the site](https://evandrolg.github.io/pegasus.lua).
 
 [![Build
 Status](https://travis-ci.org/EvandroLG/pegasus.lua.svg?branch=master)](https://travis-ci.org/EvandroLG/pegasus.lua)
