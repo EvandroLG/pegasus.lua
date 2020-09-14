@@ -24,9 +24,13 @@ function Pegasus:start(callback)
   print('Pegasus is up on ' .. ip .. ":".. port)
 
   while 1 do
-    local client = assert(server:accept())
-    client:settimeout(self.timeout, 'b')
-    handler:processRequest(self.port, client, server)
+    local client, errmsg = server:accept()
+    if not client then
+      io.stderr:write("Failed to accept connection:" .. errmsg .. "\n")
+    else
+      client:settimeout(self.timeout, 'b')
+      handler:processRequest(self.port, client, server)
+    end
   end
 end
 
