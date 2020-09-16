@@ -25,11 +25,12 @@ function Pegasus:start(callback)
 
   while 1 do
     local client, errmsg = server:accept()
-    if not client then
-      io.stderr:write("Failed to accept connection:" .. errmsg .. "\n")
-    else
+
+    if client then
       client:settimeout(self.timeout, 'b')
       handler:processRequest(self.port, client, server)
+    else
+      io.stderr:write('Failed to accept connection:' .. errmsg .. '\n')
     end
   end
 end
