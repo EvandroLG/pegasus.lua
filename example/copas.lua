@@ -10,37 +10,38 @@ package.path = "./src/?.lua;./src/?/init.lua;"..package.path
 -- to make it work.
 local Handler = require 'pegasus.handler'
 local copas = require('copas')
+local socket = require('socket')
 
 local hdlr = Handler:new(function (req, rep)
     --rep.writeHead(200).finish('hello pegasus world!')
-  end, '/root/')
+  end, '/example/root/')
 
 
 -- Create http server
-local server = assert(socket.bind('*', 9090))
-local ip, port = server:getsockname()
-copas.addserver(server, copas.handler(function(skt)
-    hdlr:processRequest(skt)
+local http_server_sock = assert(socket.bind('*', 9090))
+local http_ip, http_port = http_server_sock:getsockname()
+copas.addserver(http_server_sock, copas.handler(function(http_client_sock)
+    hdlr:processRequest(http_port, http_client_sock, http_server_sock)
   end))
-print('Pegasus is up on ' .. ip .. ":".. port)
+print('Pegasus is up on ' .. http_ip .. ":" .. http_port)
 
 
 -- Create https server
-sslparams = {
+local sslparams = {
    mode = "server",
-   protocol = "tlsv1",
-   key = "./serverAkey.pem",
-   certificate = "./serverA.pem",
-   cafile = "./rootA.pem",
-   verify = {"peer"},
-   options = {"all", "no_sslv2"},
+   protocol = "any",
+   key = "./example/serverAkey.pem",
+   certificate = "./example/serverA.pem",
+   cafile = "./example/rootA.pem",
+   verify = {"none"},
+   options = {"all", "no_sslv2", "no_sslv3", "no_tlsv1"},
 }
-local server = assert(socket.bind('*', 443))
-local ip, port = server:getsockname()
-copas.addserver(server, copas.handler(function(skt)
-    hdlr:processRequest(skt)
+local https_server_sock = assert(socket.bind('*', 443))
+local https_ip, https_port = https_server_sock:getsockname()
+copas.addserver(https_server_sock, copas.handler(function(https_client_sock)
+    hdlr:processRequest(https_port, https_client_sock, https_server_sock)
   end, sslparams))
-print('Pegasus (https) is up on ' .. ip .. ":".. port)
+print('Pegasus (https) is up on ' .. https_ip .. ":" .. https_port)
 
 -- Start
 copas.loop()
