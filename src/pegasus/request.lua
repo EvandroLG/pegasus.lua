@@ -73,8 +73,6 @@ function Request:parseFirstLine()
 
   if not method then
     self.client:close()
-    self.server:close()
-
     return
   end
 
