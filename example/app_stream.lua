@@ -7,7 +7,7 @@ local socket = require 'socket'
 local server = Pegasus:new({
   port='9090'
 })
-function sleep(sec)
+local function sleep(sec)
   socket.select(nil, nil, sec)
 end
 
