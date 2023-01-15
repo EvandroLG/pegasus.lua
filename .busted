@@ -1,0 +1,8 @@
+return {
+  default = {
+    --helper = "spec/configure-log.lua",
+    verbose = true,
+    coverage = false,
+    output = "gtest",
+  },
+}

@@ -1,6 +1,6 @@
 .SILENT:
 
-START_APP=test/start_app.lua
+START_APP=spec/start_app.lua
 
 .PHONY: run_example
 run_example:
@@ -11,11 +11,11 @@ test: unit_test integration_test
 
 .PHONY: unit_test
 unit_test:
-	busted test/unit/
+	busted spec/unit/
 
 .PHONY: check
 check:
-	luacheck src/pegasus
+	luacheck .
 
 .PHONY: start_app
 start_app:
@@ -23,7 +23,7 @@ start_app:
 
 .PHONY: _integration_test
 _integration_test:
-	busted test/integration/
+	busted spec/integration/
 
 .PHONY: kill_server
 kill_server:

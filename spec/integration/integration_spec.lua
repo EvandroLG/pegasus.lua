@@ -3,8 +3,8 @@ describe('integration', function()
   local url = 'http://localhost:' .. port
 
   local executeCommand = function(command)
-    local handle = io.popen(command .. ' -s ' .. url)
-    local result = handle:read('*a')
+    local handle = assert(io.popen(command .. ' -s ' .. url))
+    local result = assert(handle:read('*a'))
     handle:close()
 
     return result
@@ -13,12 +13,12 @@ describe('integration', function()
   it('should return correct headers', function()
     local result = executeCommand('curl --head')
 
-    assert.truthy(string.find(result, 'HTTP/1.1 200 OK'))
-    assert.truthy(string.find(result, 'Content%-Type: text/html'))
-    assert.truthy(string.find(result, 'Content%-Length: 16'))
+    assert.match('HTTP/1%.1 200 OK', result)
+    assert.match('Content%-Type: text/html', result)
+    assert.match('Content%-Length: 16', result)
   end)
 
   it('should return correct body', function()
-    assert.truthy(string.find(executeCommand('curl'), 'Hello, Pegasus'))
+    assert.match('Hello, Pegasus', executeCommand('curl'))
   end)
 end)

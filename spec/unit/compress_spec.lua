@@ -63,9 +63,9 @@ describe('compress #compress', function()
       local value = nil
 
       local response = {
-        addHeader = function(obj, _key, _value)
-          key = _key
-          value = _value
+        addHeader = function(obj, k, v)
+          key = k
+          value = v
         end
       }
 
