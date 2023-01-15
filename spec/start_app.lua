@@ -5,7 +5,7 @@ local Pegasus = require 'pegasus'
 
 local server = Pegasus:new({
   port='7070',
-  location='/test/fixtures/'
+  location='/spec/fixtures/'
 })
 
 server:start()

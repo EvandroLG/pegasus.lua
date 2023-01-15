@@ -1,21 +1,21 @@
 .SILENT:
 
-START_APP=test/start_app.lua
+START_APP=spec/start_app.lua
 
 run_example:
 	lua example/app.lua
 
 unit_test:
-	busted test/unit/
+	busted spec/unit/
 
 check:
-	luacheck src/pegasus
+	luacheck .
 
 start_app:
 	lua $(START_APP) &
 
 _integration_test:
-	busted test/integration/
+	busted spec/integration/
 
 kill_server:
 	pkill -f $(START_APP)
