@@ -91,12 +91,21 @@ function Request:parseFirstLine()
   self.querystring = self:parseUrlEncoded(querystring)
 end
 
-function Request:parseUrlEncoded(value)
+function Request:parseUrlEncoded(data)
   local output = {}
 
-  if value then
-    for k, v in  string.gmatch(value, Request.PATTERN_QUERY_STRING) do
-        output[k] = v
+  if data then
+    for key, value in  string.gmatch(data, Request.PATTERN_QUERY_STRING) do
+      if key and value then
+        local v = output[key]
+        if not v then
+          output[key] = value
+        elseif type(v) == "string" then
+          output[key] = { v, value }
+        else -- v is a table
+          v[#v + 1] = value
+        end
+      end
     end
   end
 
@@ -128,20 +137,29 @@ function Request:headers()
 
   local data = self.client:receive()
 
+  local headers = {}
   while (data ~= nil) and (data:len() > 0) do
     local key, value = string.match(data, Request.PATTERN_HEADER)
 
     if key and value then
-      self._headers[key] = value
+      local v = headers[key]
+      if not v then
+        headers[key] = value
+      elseif type(v) == "string" then
+        headers[key] = { v, value }
+      else -- t == "table", v is a table
+        v[#v + 1] = value
+      end
     end
 
     data = self.client:receive()
   end
 
   self._headerParsed = true
-  self._contentLength = tonumber(self._headers["Content-Length"] or 0)
+  self._contentLength = tonumber(headers["Content-Length"] or 0)
+  self._headers = headers
 
-  return self._headers
+  return headers
 end
 
 function Request:receiveBody(size)

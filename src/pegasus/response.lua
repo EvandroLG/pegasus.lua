@@ -113,13 +113,19 @@ function Response:statusCode(statusCode, statusText)
 end
 
 function Response:_getHeaders()
-  local headers = ''
+  local headers = {}
 
-  for key, value in pairs(self._headers) do
-    headers = headers .. key .. ': ' .. value .. '\r\n'
+  for header_name, header_value in pairs(self._headers) do
+    if type(header_value) == "table" and #header_value > 0 then
+      for _, sub_value in ipairs(header_value) do
+        headers[#headers + 1] = header_name .. ': ' .. sub_value .. '\r\n'
+      end
+    else
+      headers[#headers + 1] = header_name .. ': ' .. header_value .. '\r\n'
+    end
   end
 
-  return headers
+  return table.concat(headers)
 end
 
 function Response:writeDefaultErrorMessage(statusCode)
