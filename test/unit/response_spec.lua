@@ -96,6 +96,14 @@ describe('response', function()
       assert.equal(headers['Age'], 15163)
       assert.equal(headers['Connection'], 'keep-alive')
     end)
+
+    it("should allow multi-value/duplicate headers", function()
+      local response = Response:new({})
+      response:addHeader('My-Header', { 'value 1', 'value 2' })
+      local expected = "My-Header: value 1" .. "\r\n"
+                    .. "My-Header: value 2" .. "\r\n"
+      assert.equal(expected, response:_getHeaders())
+    end)
   end)
 
   describe('status code', function()
