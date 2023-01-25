@@ -20,7 +20,7 @@ local function gzip(data)
 end
 
 describe('compress #compress', function()
-  local Compress = require 'pegasus.compress'
+  local Compress = require 'pegasus.plugins.compress'
 
   describe('instance', function()
     it('should exists new method', function()
@@ -40,11 +40,11 @@ describe('compress #compress', function()
   describe('processBodyData', function()
     local function mockRequest()
       return {
-        headers = function() 
+        headers = function()
           return {
             ['Accept-Encoding'] = 'gzip, deflate, sdch'
           }
-        end 
+        end
       }
     end
 

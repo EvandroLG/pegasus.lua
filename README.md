@@ -77,10 +77,10 @@ end)
 ```
 
 ## Native Plugin
-* pegasus.compress
+* pegasus.plugins.compress
 ```lua
 local Pegasus = require 'pegasus'
-local Compress = require 'pegasus.compress'
+local Compress = require 'pegasus.plugins.compress'
 
 local server = Pegasus:new({
   plugins = { Compress:new() }

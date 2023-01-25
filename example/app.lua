@@ -2,7 +2,7 @@
 package.path = './src/?.lua;./src/?/init.lua;' .. package.path
 
 local Pegasus = require 'pegasus'
-local Compress = require 'pegasus.compress'
+local Compress = require 'pegasus.plugins.compress'
 
 local server = Pegasus:new({
   port='9090',
