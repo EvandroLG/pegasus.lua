@@ -34,6 +34,7 @@ build = {
   modules = {
     ['pegasus.init']     = "src/pegasus/init.lua",
     ['pegasus.handler']  = 'src/pegasus/handler.lua',
+    ['pegasus.json']     = 'src/pegasus/json.lua',
     ['pegasus.request']  = 'src/pegasus/request.lua',
     ['pegasus.response'] = 'src/pegasus/response.lua',
     ['pegasus.compress'] = 'src/pegasus/compress.lua',

@@ -40,6 +40,9 @@ jobs:
           make install
           luarocks install luacov-coveralls
           luarocks install busted
+          luarocks install lua-cjson
+          luarocks install dkjson
+          luarocks install rapidjson
           make start_app
 
       - name: test
