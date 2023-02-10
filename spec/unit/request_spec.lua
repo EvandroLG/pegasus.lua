@@ -1,6 +1,6 @@
 local Request = require 'pegasus.request'
 
-function getInstance(headers)
+local function getInstance(headers)
   local position = 1
   local client = {
     receive = function()
@@ -32,7 +32,7 @@ function getInstance(headers)
   return Request:new(8080, client, server)
 end
 
-function verifyHttpMethod(method)
+local function verifyHttpMethod(method)
   local headers = { method .. ' /index.html HTTP/1.1', '' }
   local request = getInstance(headers)
   local result = request:method()
@@ -82,7 +82,7 @@ describe('require', function()
   test('find value with = signal', function()
     local headers = { 'GET /Makefile?a=b= HTTP/1.1', 'a: A=', '' }
     local request = getInstance(headers)
-    local result = request:headers()
+    local _ = request:headers()
 
     assert.are.same(
       request:headers(),
@@ -105,11 +105,11 @@ describe('require', function()
   end)
 
   it('should not crash on invalid first line', function()
-    local request, result
+    local request, _
     assert.not_error(function()
       local headers = { 'garbage', nil }
       request = getInstance(headers)
-      result = request:headers()
+      _ = request:headers()
     end)
 
     assert.is_nil(request:method())
