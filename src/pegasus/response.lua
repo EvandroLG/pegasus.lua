@@ -147,14 +147,14 @@ function Response:close()
 
   self._client:send('0\r\n\r\n')
   self.close = true
-  
+
   return self
 end
 
 function Response:sendOnlyHeaders()
   self:sendHeaders(false, '')
   self:write('\r\n')
-  
+
   return self
 end
 
