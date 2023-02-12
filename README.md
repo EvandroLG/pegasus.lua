@@ -2,7 +2,7 @@
 
 An http server to work with web applications written in Lua language [check the site](https://evandrolg.github.io/pegasus.lua).
 
-[![Unix build](https://img.shields.io/github/actions/workflow/status/EvandroLG/pegasus.lua/unix_build.yml?branch=main&label=Unix%20build&logo=linux)](https://github.com/EvandroLG/pegasus.lua/actions/workflows/unix_build.yml)
+[![Unix build](https://img.shields.io/github/actions/workflow/status/EvandroLG/pegasus.lua/unix_build.yml?branch=master&label=Unix%20build&logo=linux)](https://github.com/EvandroLG/pegasus.lua/actions/workflows/unix_build.yml)
 [![Lint](https://github.com/EvandroLG/pegasus.lua/workflows/Lint/badge.svg)](https://github.com/EvandroLG/pegasus.lua/actions/workflows/lint.yml)
 [![HuBoard
 badge](http://img.shields.io/badge/Hu-Board-7965cc.svg)](https://huboard.com/EvandroLG/pegasus.lua)
