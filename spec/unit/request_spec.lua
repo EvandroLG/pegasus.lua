@@ -79,6 +79,18 @@ describe('require', function()
     )
   end)
 
+  test('header lookup is case-insensitive', function()
+    local request = getInstance(
+      { 'GET / HTTP/1.1', 'hello: A', 'WORLD: B', 'Hello-World: X', '' }
+    )
+
+    local headers = request:headers()
+    assert.equal("A", headers["hello"])
+    assert.equal("A", headers["hELLo"])
+    assert.equal("B", headers["world"])
+    assert.equal("X", headers["hello-world"])
+  end)
+
   test('find value with = signal', function()
     local headers = { 'GET /Makefile?a=b= HTTP/1.1', 'a: A=', '' }
     local request = getInstance(headers)

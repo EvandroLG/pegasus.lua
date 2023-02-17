@@ -104,6 +104,16 @@ describe('response', function()
                     .. "My-Header: value 2" .. "\r\n"
       assert.equal(expected, response:_getHeaders())
     end)
+
+    it("fails if headers were already sent", function()
+      local response = Response:new({
+        send = function() end,
+      })
+      response:sendHeaders()
+      assert.has.error(function()
+        response:addHeader("Hi", "there")
+      end)
+    end)
   end)
 
   describe('status code', function()
@@ -124,9 +134,31 @@ describe('response', function()
       verifyStatus(200, nil, 'OK')
     end)
 
+    it('should add status code if passed as string', function()
+      verifyStatus("200", nil, 'OK')
+    end)
+
     it('should add status and message passed as parameters', function()
       verifyStatus(200, 'Perfect!', 'Perfect!')
     end)
+
+    it('fails for an unknown status code', function()
+      local response = Response:new({})
+      assert.has.error(function()
+        response:statusCode(9999)
+      end, "http status code '9999' is unknown")
+    end)
+
+    it("fails if headers were already sent", function()
+      local response = Response:new({
+        send = function() end,
+      })
+      response:sendHeaders()
+      assert.has.error(function()
+        response:statusCode(200)
+      end)
+    end)
+
   end)
 
   describe('set default headers', function()
