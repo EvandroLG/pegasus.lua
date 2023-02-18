@@ -12,36 +12,79 @@ local Handler = require 'pegasus.handler'
 local copas = require('copas')
 local socket = require('socket')
 
-local hdlr = Handler:new(function (req, rep)
-    --rep.writeHead(200).finish('hello pegasus world!')
-  end, '/example/root/')
+--- Creates a new server within the Copas scheduler.
+-- @tparam table opts options table.
+-- @tparam[opt='*'] string opts.interface the interface to listen on, or '*' for all.
+-- @tparam string          opts.port the port number to listen on.
+-- @tparam[opt] table      opts.sslparams the tls based parameters, see the Copas documentation.
+--                         If not provided, then the connection will be accepted as a plain one.
+-- @tparam[opt] table      opts.plugins the plugins to use
+-- @tparam[opt] function   opts.handler the callback function to handle requests
+-- @tparam[opt] string     opts.location the file-path from where to server files
+-- @return the server-socket on success, or nil+err on failure
+local function newPegasusServer(opts)
+  opts = opts or {}
+  assert(opts.location or opts.callback, "either 'location' or 'callback' must be provided")
+  assert(opts.port, "option 'port' must be provided")
+
+  local server_sock, err = socket.bind(opts.interface or '*', opts.port)
+  if not server_sock then
+    return nil, "failed to create server socket; ".. tostring(err)
+  end
+
+  local server_ip, server_port = server_sock:getsockname()
+  if not server_ip then
+    return nil, "failed to get server socket name; "..tostring(server_port)
+  end
+
+  local hdlr = Handler:new(opts.callback, opts.location, opts.plugins)
+
+  copas.addserver(server_sock, copas.handler(function(client_sock)
+    hdlr:processRequest(server_port, client_sock)
+  end, opts.sslparams))
+
+  io.stderr:write('Pegasus is up on ' .. (opts.sslparams and "https" or "http") .. "://" .. server_ip .. ":" .. server_port .. "/\n")
+  return server_sock
+end
+
 
 
 -- Create http server
-local http_server_sock = assert(socket.bind('*', 9090))
-local http_ip, http_port = http_server_sock:getsockname()
-copas.addserver(http_server_sock, copas.handler(function(http_client_sock)
-    hdlr:processRequest(http_port, http_client_sock, http_server_sock)
-  end))
-print('Pegasus is up on ' .. http_ip .. ":" .. http_port)
+assert(newPegasusServer{
+  interface = "*",
+  port = "9090",
+  sslparams = nil,
+  location = nil,
+  callback = function(req, resp) -- just redirecting to the https one
+    local host = (req:headers()["Host"] or ""):match("^([^:]+)")
+    resp:addHeader("Location", "https://" .. host .. ":9091" .. req:path())
+    resp:statusCode(301)
+    resp:sendOnlyHeaders()
+  end,
+  plugins = {},
+})
 
 
 -- Create https server
-local sslparams = {
-   mode = "server",
-   protocol = "any",
-   key = "./example/serverAkey.pem",
-   certificate = "./example/serverA.pem",
-   cafile = "./example/rootA.pem",
-   verify = {"none"},
-   options = {"all", "no_sslv2", "no_sslv3", "no_tlsv1"},
-}
-local https_server_sock = assert(socket.bind('*', 443))
-local https_ip, https_port = https_server_sock:getsockname()
-copas.addserver(https_server_sock, copas.handler(function(https_client_sock)
-    hdlr:processRequest(https_port, https_client_sock, https_server_sock)
-  end, sslparams))
-print('Pegasus (https) is up on ' .. https_ip .. ":" .. https_port)
+assert(newPegasusServer{
+  interface = "*",
+  port = "9091",
+  sslparams = {  -- the tls specific configuration
+    wrap = {
+      mode = "server",
+      protocol = "any",
+      key = "./example/serverAkey.pem",
+      certificate = "./example/serverA.pem",
+      cafile = "./example/rootA.pem",
+      verify = {"none"},
+      options = {"all", "no_sslv2", "no_sslv3", "no_tlsv1"},
+    },
+    sni = nil,
+  },
+  location = '/example/root/',
+  callback = nil,
+  plugins = {},
+})
 
 -- Start
 copas.loop()
