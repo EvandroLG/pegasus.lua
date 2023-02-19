@@ -36,6 +36,7 @@ build = {
     ['pegasus.handler']  = 'src/pegasus/handler.lua',
     ['pegasus.request']  = 'src/pegasus/request.lua',
     ['pegasus.response'] = 'src/pegasus/response.lua',
-    ['pegasus.compress'] = 'src/pegasus/compress.lua'
+    ['pegasus.compress'] = 'src/pegasus/compress.lua',
+    ['pegasus.plugins.compress'] = 'src/pegasus/plugins/compress.lua',
   }
 }
