@@ -57,9 +57,7 @@ assert(newPegasusServer{
   location = nil,
   callback = function(req, resp) -- just redirecting to the https one
     local host = (req:headers()["Host"] or ""):match("^([^:]+)")
-    resp:addHeader("Location", "https://" .. host .. ":9091" .. req:path())
-    resp:statusCode(301)
-    resp:sendOnlyHeaders()
+    resp:redirect("https://" .. host .. ":9091" .. req:path())
   end,
   plugins = {},
 })

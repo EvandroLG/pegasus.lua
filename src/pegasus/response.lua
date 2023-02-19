@@ -222,4 +222,11 @@ function Response:writeFile(file, contentType)
   return self
 end
 
+function Response:redirect(location, temporary)
+  self:statusCode(temporary and 302 or 301)
+  self:addHeader('Location', location)
+  self.client:sendOnlyHeaders()
+  return self
+end
+
 return Response
