@@ -11,6 +11,7 @@ package.path = "./src/?.lua;./src/?/init.lua;"..package.path
 local Handler = require 'pegasus.handler'
 local copas = require('copas')
 local socket = require('socket')
+local Downloads = require 'pegasus.plugins.downloads'
 
 --- Creates a new server within the Copas scheduler.
 -- @tparam table opts options table.
@@ -81,7 +82,12 @@ assert(newPegasusServer{
   },
   location = '/example/root/',
   callback = nil,
-  plugins = {},
+  plugins = {
+    Downloads:new {
+      prefix = "downloads",
+      stripPrefix = true,
+    },
+  },
 })
 
 -- Start

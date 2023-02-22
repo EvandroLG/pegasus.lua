@@ -38,5 +38,6 @@ build = {
     ['pegasus.response'] = 'src/pegasus/response.lua',
     ['pegasus.compress'] = 'src/pegasus/compress.lua',
     ['pegasus.plugins.compress'] = 'src/pegasus/plugins/compress.lua',
+    ['pegasus.plugins.downloads'] = 'src/pegasus/plugins/downloads.lua'
   }
 }
