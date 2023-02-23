@@ -29,6 +29,18 @@ function Handler:pluginsAlterRequestResponseMetatable()
   end
 end
 
+function Handler:pluginsNewConnection(client)
+  for _, plugin in ipairs(self.plugins) do
+    if plugin.newConnection then
+      client = plugin:newConnection(client)
+      if not client then
+        return false
+      end
+    end
+  end
+  return client
+end
+
 function Handler:pluginsNewRequestResponse(request, response)
   for _, plugin in ipairs(self.plugins) do
     if plugin.newRequestResponse then
@@ -92,8 +104,12 @@ function Handler:processBodyData(data, stayOpen, response)
 end
 
 function Handler:processRequest(port, client, server)
-  local request = Request:new(port, client, server)
+  client = self:pluginsNewConnection(client)
+  if not client then
+    return false
+  end
 
+  local request = Request:new(port, client, server)
   if not request:method() then
     client:close()
     return

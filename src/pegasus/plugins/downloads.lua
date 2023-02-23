@@ -12,6 +12,7 @@ Downloads.__index = Downloads
 -- @tparam options.stripPrefix bool whether to strip the prefix from the file path when looking
 -- for the file in the filesystem. Defaults to `false`, unless `options.prefix` is omitted,
 -- then it defaults to `true`.
+-- @return the new plugin
 function Downloads:new(options)
   options = options or {}
   local plugin = {}

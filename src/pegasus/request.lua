@@ -41,7 +41,7 @@ function Request:new(port, client, server)
   obj.client = client
   obj.server = server
   obj.port = port
-  obj.ip = client:getpeername()
+  obj.ip = (client.getpeername or function() end)(client) -- luasec doesn't support this method
   obj.querystring = {}
   obj._firstLine = nil
   obj._method = nil
