@@ -137,11 +137,20 @@ function Request:headers()
 
   local data = self.client:receive()
 
-  local headers = {}
+  local headers = setmetatable({},{ -- add metatable to do case-insensitive lookup
+    __index = function(self, key)
+      if type(key) == "string" then
+        key = key:lower()
+        return rawget(self, key)
+      end
+    end
+  })
+
   while (data ~= nil) and (data:len() > 0) do
     local key, value = string.match(data, Request.PATTERN_HEADER)
 
     if key and value then
+      key = key:lower()
       local v = headers[key]
       if not v then
         headers[key] = value
@@ -156,7 +165,7 @@ function Request:headers()
   end
 
   self._headerParsed = true
-  self._contentLength = tonumber(headers["Content-Length"] or 0)
+  self._contentLength = tonumber(headers["content-length"] or 0)
   self._headers = headers
 
   return headers

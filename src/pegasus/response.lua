@@ -10,7 +10,7 @@ local function toHex(dec)
   return table.concat(tmp)
 end
 
-local STATUS_TEXT = {
+local STATUS_TEXT = setmetatable({
   [100] = 'Continue',
   [101] = 'Switching Protocols',
   [200] = 'OK',
@@ -51,7 +51,18 @@ local STATUS_TEXT = {
   [503] = 'Service Unavailable',
   [504] = 'Gateway Time-out',
   [505] = 'HTTP Version not supported',
-}
+}, {
+  __index = function(self, statusCode)
+    -- if the lookup failed, try coerce to a number and try again
+    if type(statusCode) == "string" then
+      local result = rawget(self, tonumber(statusCode) or -1)
+      if result then
+        return result
+      end
+    end
+    error("http status code '"..tostring(statusCode).."' is unknown", 2)
+  end,
+})
 
 local DEFAULT_ERROR_MESSAGE = [[
   <!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN'
@@ -87,26 +98,27 @@ function Response:new(client, writeHandler)
 end
 
 function Response:addHeader(key, value)
+  assert(not self._headersSended, "can't add header, they were already sent")
   self._headers[key] = value
   return self
 end
 
 function Response:addHeaders(params)
   for key, value in pairs(params) do
-    self._headers[key] = value
+    self:addHeader(key, value)
   end
 
   return self
 end
 
 function Response:contentType(value)
-  self._headers['Content-Type'] = value
-  return self
+  return self:addHeader('Content-Type', value)
 end
 
 function Response:statusCode(statusCode, statusText)
+  assert(not self._headersSended, "can't set status code, it was already sent")
   self.status = statusCode
-  self._headFirstLine = string.gsub(self._templateFirstLine, '{{ STATUS_CODE }}', statusCode)
+  self._headFirstLine = string.gsub(self._templateFirstLine, '{{ STATUS_CODE }}', tostring(statusCode))
   self._headFirstLine = string.gsub(self._headFirstLine, '{{ STATUS_TEXT }}', statusText or STATUS_TEXT[statusCode])
 
   return self
@@ -140,13 +152,11 @@ function Response:close()
   local body = self._writeHandler:processBodyData(nil, true, self)
 
   if body and #body > 0 then
-    self._client:send(
-      toHex(#body) .. '\r\n' .. body .. '\r\n'
-    )
+    self._client:send(toHex(#body) .. '\r\n' .. body .. '\r\n')
   end
 
   self._client:send('0\r\n\r\n')
-  self.close = true
+  self.close = true  -- TODO: this seems unused??
 
   return self
 end
@@ -175,9 +185,9 @@ function Response:sendHeaders(stayOpen, body)
     self:addHeader('Content-Type', 'text/html')
   end
 
-  self._client:send(self._headFirstLine .. self:_getHeaders())
-  self._client:send('\r\n')
   self._headersSended = true
+  self._client:send(self._headFirstLine .. self:_getHeaders() .. '\r\n')
+  self._chunked = stayOpen
 
   return self
 end
@@ -186,7 +196,7 @@ function Response:write(body, stayOpen)
   body = self._writeHandler:processBodyData(body or '', stayOpen, self)
   self:sendHeaders(stayOpen, body)
 
-  self._isClosed = not(stayOpen or false)
+  self._isClosed = not stayOpen
 
   if self._isClosed then
     self._client:send(body)
@@ -197,7 +207,7 @@ function Response:write(body, stayOpen)
   end
 
   if self._isClosed then
-    self._client:close()
+    self._client:close() -- TODO: remove this, a non-chunked body can also be sent in multiple pieces
   end
 
   return self
