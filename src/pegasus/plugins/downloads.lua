@@ -8,6 +8,7 @@ Downloads.__index = Downloads
 -- that triggers the plugin, but will be removed from the filepath if `stripPrefix` is truthy.
 -- If `stripPrefix` is falsy, then it should be a real folder.
 -- @tparam options table the options table with the following fields;
+-- @tparam[opt="./"] options.location string the path to serve files from. Relative to the working directory.
 -- @tparam[opt="downloads/"] options.prefix string the path prefix that triggers the plugin
 -- @tparam options.stripPrefix bool whether to strip the prefix from the file path when looking
 -- for the file in the filesystem. Defaults to `false`, unless `options.prefix` is omitted,
@@ -17,22 +18,36 @@ function Downloads:new(options)
   options = options or {}
   local plugin = {}
 
-  if not options.prefix then
-    plugin.prefix = "downloads/"
+  local location = options.location or ""
+  if location:sub(1,2) ~= "./" then
+    if location:sub(1,1) == "/" then
+      location = "." .. location
+    else
+      location = "./" .. location
+    end
+  end
+  if location:sub(-1,-1) == "/" then
+    location = location:sub(1, -2)
+  end
+  plugin.location = location  -- this is now a relative path, without trailing slash
+
+  local prefix = options.prefix
+  if prefix then
+    plugin.stripPrefix = not not options.stripPrefix
+  else
+    prefix = "downloads/"
     if options.stripPrefix == nil then
       plugin.stripPrefix = true
     else
       plugin.stripPrefix = not not options.stripPrefix
     end
-  else
-    plugin.prefix = options.prefix
-    plugin.stripPrefix = not not options.stripPrefix
   end
 
-  plugin.prefix = "/" .. plugin.prefix .. "/"
-  while plugin.prefix:find("//") do
-    plugin.prefix = plugin.prefix:gsub("//", "/")
+  prefix = "/" .. prefix .. "/"
+  while prefix:find("//") do
+    prefix = prefix:gsub("//", "/")
   end
+  plugin.prefix = prefix -- this is now the prefix, with pre+post fixed a / (or a single slash)
 
   setmetatable(plugin, Downloads)
 
@@ -50,13 +65,12 @@ function Downloads:newRequestResponse(request, response)
     return stop -- doesn't match our prefix
   end
 
-  local location = response._writeHandler.location or ""
   local filename = path
   if self.stripPrefix then
-    filename = path:sub(#self.prefix + 1, -1)
+    filename = path:sub(#self.prefix, -1)
   end
 
-  stop = not not response:sendFile('.' .. location .. filename)
+  stop = not not response:sendFile(self.location .. filename)
   return stop
 end
 

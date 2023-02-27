@@ -1,7 +1,6 @@
 local Request = require 'pegasus.request'
 local Response = require 'pegasus.response'
-local mimetypes = require 'mimetypes'
-local lfs = require 'lfs'
+local Files = require 'pegasus.plugins.files'
 
 local Handler = {}
 Handler.__index = Handler
@@ -9,8 +8,14 @@ Handler.__index = Handler
 function Handler:new(callback, location, plugins)
   local handler = {}
   handler.callback = callback
-  handler.location = location or ''
   handler.plugins = plugins or {}
+
+  if location then
+    handler.plugins[#handler.plugins+1] = Files:new {
+      location = location,
+      default = "/index.html",
+    }
+  end
 
   local result = setmetatable(handler, self)
   result:pluginsAlterRequestResponseMetatable()
@@ -123,44 +128,16 @@ function Handler:processRequest(port, client, server)
     return
   end
 
-  if request:path() and self.location ~= '' then
-    local path = request:path()
-    if path == '/' or path == '' then
-       path = 'index.html'
-    end
-    local filename = '.' .. self.location .. path
-
-    if not lfs.attributes(filename) then
-      response:statusCode(404)
-    end
-
-    stop = self:pluginsProcessFile(request, response, filename)
-
-    if stop then
-      return
-    end
-
-    local file = io.open(filename, 'rb')
-
-    if file then
-      response:writeFile(file, mimetypes.guess(filename or '') or 'text/html')
-      stop = true
-    else
-      response:statusCode(404)
-    end
-  end
-
-  if self.callback and not stop then
+  if self.callback then
     response:statusCode(200)
     response.headers = {}
     response:addHeader('Content-Type', 'text/html')
 
     self.callback(request, response)
+    return
   end
 
-  if response.status == 404 then
-    response:writeDefaultErrorMessage(404)
-  end
+  response:writeDefaultErrorMessage(404)
 end
 
 
