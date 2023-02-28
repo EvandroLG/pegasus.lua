@@ -114,16 +114,16 @@ function Handler:processRequest(port, client, server)
     return false
   end
 
-  local request = Request:new(port, client, server)
-  if not request:method() then
+  local request = Request:new(port, client, server, self)
+  local response = request.response
+
+  local method = request:method()
+  if not method then
     client:close()
     return
   end
 
-  local response =  Response:new(client, self)
-  response.request = request
   local stop = self:pluginsNewRequestResponse(request, response)
-
   if stop then
     return
   end

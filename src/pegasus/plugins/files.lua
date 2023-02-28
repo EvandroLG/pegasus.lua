@@ -47,7 +47,9 @@ end
 
 function Files:newRequestResponse(request, response)
   local stop = false
-  if request:method() ~= "GET" then
+
+  local method = request:method()
+  if method ~= "GET" and method ~= "HEAD" then
     return stop -- we only handle GET requests
   end
 

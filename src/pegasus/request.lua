@@ -1,3 +1,5 @@
+local Response = require 'pegasus.response'
+
 local function normalizePath(path)
   local value = string.gsub(path ,'\\', '/')
   value = string.gsub(value, '^/*', '/')
@@ -36,7 +38,7 @@ Request.PATTERN_PATH ..Request.PATTERN_PROTOCOL)
 Request.PATTERN_QUERY_STRING = '([^=]*)=([^&]*)&?'
 Request.PATTERN_HEADER = '([%w-]+):[ \t]*([%w \t%p]*)'
 
-function Request:new(port, client, server)
+function Request:new(port, client, server, handler)
   local obj = {}
   obj.client = client
   obj.server = server
@@ -51,6 +53,8 @@ function Request:new(port, client, server)
   obj._headers = {}
   obj._contentDone = 0
   obj._contentLength = nil
+  obj.response = Response:new(client, handler)
+  obj.response.request = obj
 
   return setmetatable(obj, self)
 end
@@ -75,6 +79,7 @@ function Request:parseFirstLine()
     self.client:close()
     return
   end
+  self.response:skipBody(method == "HEAD")
 
   print('Request for: ' .. path)
 
