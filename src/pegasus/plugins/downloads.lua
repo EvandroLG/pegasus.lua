@@ -56,7 +56,7 @@ function Downloads:newRequestResponse(request, response)
     filename = path:sub(#self.prefix + 1, -1)
   end
 
-  stop = not response:sendFile('.' .. location .. filename)
+  stop = not not response:sendFile('.' .. location .. filename)
   return stop
 end
 

@@ -144,12 +144,13 @@ function Handler:processRequest(port, client, server)
 
     if file then
       response:writeFile(file, mimetypes.guess(filename or '') or 'text/html')
+      stop = true
     else
       response:statusCode(404)
     end
   end
 
-  if self.callback then
+  if self.callback and not stop then
     response:statusCode(200)
     response.headers = {}
     response:addHeader('Content-Type', 'text/html')
