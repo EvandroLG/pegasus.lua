@@ -10,11 +10,11 @@ package.path = './src/?.lua;./src/?/init.lua;' .. package.path
 local Pegasus = require 'pegasus'
 local Compress = require 'pegasus.plugins.compress'
 local Downloads = require 'pegasus.plugins.downloads'
+local Files = require 'pegasus.plugins.files'
 -- local TLS = require 'pegasus.plugins.tls'
 
 local server = Pegasus:new({
   port = '9090',
-  location = '/example/root/',
   plugins = {
     -- TLS:new {  -- the tls specific configuration
     --   wrap = {
@@ -30,8 +30,13 @@ local server = Pegasus:new({
     -- },
 
     Downloads:new {
-      prefix = "downloads",
+      location = '/example/root/',
+      prefix = 'downloads',
       stripPrefix = true,
+    },
+
+    Files:new {
+      location = '/example/root/',
     },
 
     Compress:new(),
@@ -47,9 +52,10 @@ server:start(function(req, resp)
   end
 
   local data = req:post()
-
   if data then
-    print(data['name'])
-    print(data['age'])
+    print("Name: ", data.name)
+    print("Age: ", data.age)
   end
+  stop = not not resp:writeFile("./example/root" .. path)
+  return stop
 end)
