@@ -133,8 +133,10 @@ function Handler:processRequest(port, client, server)
     response.headers = {}
     response:addHeader('Content-Type', 'text/html')
 
-    self.callback(request, response)
-    return
+    stop = self.callback(request, response)
+    if stop then
+      return
+    end
   end
 
   response:writeDefaultErrorMessage(404)
