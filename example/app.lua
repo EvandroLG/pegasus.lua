@@ -38,7 +38,14 @@ local server = Pegasus:new({
   }
 })
 
-server:start(function(req)
+server:start(function(req, resp)
+  local stop = false
+
+  local path = req:path()
+  if req:method() ~= "POST" or path ~= "/index.html" then
+    return stop
+  end
+
   local data = req:post()
 
   if data then

@@ -1,6 +1,6 @@
 describe('integration', function()
   local port = '7070'
-  local url = 'http://localhost:' .. port
+  local url = 'http://localhost:' .. port .. "/index.html"
 
   local executeCommand = function(command)
     local handle = assert(io.popen(command .. ' -s ' .. url))

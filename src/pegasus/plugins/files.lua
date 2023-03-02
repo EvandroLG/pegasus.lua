@@ -54,11 +54,12 @@ function Files:newRequestResponse(request, response)
   end
 
   local path = request:path()
-  if path == '/' or path == '' then
-    path = self.default
-    if path == "" then
-      return stop -- no default set, so nothing to serve
+  if path == '/' then
+    if self.default ~= "" then
+      response:redirect(self.default)
+      stop = true
     end
+    return stop -- no default set, so nothing to serve
   end
 
   local filename = self.location .. path
