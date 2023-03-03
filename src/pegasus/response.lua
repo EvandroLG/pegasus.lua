@@ -142,10 +142,10 @@ function Response:_getHeaders()
   return table.concat(headers)
 end
 
-function Response:writeDefaultErrorMessage(statusCode)
+function Response:writeDefaultErrorMessage(statusCode, errMessage)
   self:statusCode(statusCode)
   local content = string.gsub(DEFAULT_ERROR_MESSAGE, '{{ STATUS_CODE }}', statusCode)
-  self:write(string.gsub(content, '{{ STATUS_TEXT }}', STATUS_TEXT[statusCode]), false)
+  self:write(string.gsub(content, '{{ STATUS_TEXT }}', errMessage or STATUS_TEXT[statusCode]), false)
 
   return self
 end
