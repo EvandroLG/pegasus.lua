@@ -11,7 +11,72 @@ local Pegasus = require 'pegasus'
 local Compress = require 'pegasus.plugins.compress'
 local Downloads = require 'pegasus.plugins.downloads'
 local Files = require 'pegasus.plugins.files'
+local Router = require 'pegasus.plugins.router'
+local json = require 'pegasus.json'
 -- local TLS = require 'pegasus.plugins.tls'
+
+
+-- example data for the "router" plugin
+local routes do
+  local testData = {
+    Jane = { firstName = "Jane", lastName = "Doe", age = 25 },
+    John = { firstName = "John", lastName = "Doe", age = 30 },
+  }
+
+  routes = {
+    -- router-level preFunction runs before the method prefunction and callback
+    preFunction = function(req, resp)
+      local stop = false
+      local headers = req:headers()
+      local accept = (headers.accept or "*/*"):lower()
+      if not accept:find("application/json", 1, true) and
+         not accept:find("application/*", 1, true) and
+         not accept:find("*/*", 1, true) then
+
+        resp:writeDefaultErrorMessage(406, "This API only produces 'application/json'")
+        stop = true
+      end
+      return stop
+    end,
+
+    ["/people"] = {
+      GET = function(req, resp)
+        resp:statusCode(200)
+        resp:addHeader("Content-Type", "application/json")
+        resp:write(json.encode(testData))
+      end,
+    },
+
+    ["/people/{name}"] = {
+      -- path-level preFunction runs before the actual method callback
+      preFunction = function(req, resp)
+        local stop = false
+        local name = req.pathParameters.name
+        if not testData[name] then
+          local err = ("'%s' is an unknown person"):format(name)
+          resp:writeDefaultErrorMessage(404, err)
+          stop = true
+        end
+        return stop
+      end,
+
+      -- callback per method
+      GET = function(req, resp)
+        resp:statusCode(200)
+        resp:addHeader("Content-Type", "application/json")
+        resp:write(json.encode(testData[req.pathParameters.name]))
+      end,
+
+      -- postFunction runs after the actual method callback
+      postFunction = function(req, resp)
+        local stop = false
+        print("served " .. req.pathParameters.name .. "'s data")
+        return stop
+      end,
+    }
+  }
+end
+
 
 local server = Pegasus:new({
   port = '9090',
@@ -37,6 +102,11 @@ local server = Pegasus:new({
 
     Files:new {
       location = '/example/root/',
+    },
+
+    Router:new {
+      prefix = "/api/1v0/",
+      routes = routes,
     },
 
     Compress:new(),
