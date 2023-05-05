@@ -34,14 +34,14 @@ Request.PATTERN_PROTOCOL = '(HTTP%/%d%.%d)'
 Request.PATTERN_REQUEST = (Request.PATTERN_METHOD ..
 Request.PATTERN_PATH ..Request.PATTERN_PROTOCOL)
 Request.PATTERN_QUERY_STRING = '([^=]*)=([^&]*)&?'
-Request.PATTERN_HEADER = '([%w-]+): ([%w %p]+=?)'
+Request.PATTERN_HEADER = '([%w-]+):[ \t]*([%w \t%p]*)'
 
 function Request:new(port, client, server)
   local obj = {}
   obj.client = client
   obj.server = server
   obj.port = port
-  obj.ip = client:getpeername()
+  obj.ip = (client.getpeername or function() end)(client) -- luasec doesn't support this method
   obj.querystring = {}
   obj._firstLine = nil
   obj._method = nil
@@ -151,6 +151,7 @@ function Request:headers()
 
     if key and value then
       key = key:lower()
+      value = value:gsub("%s+$", "") -- trim trailing whitespace
       local v = headers[key]
       if not v then
         headers[key] = value

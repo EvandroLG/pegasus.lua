@@ -11,6 +11,7 @@ package.path = "./src/?.lua;./src/?/init.lua;"..package.path
 local Handler = require 'pegasus.handler'
 local copas = require('copas')
 local socket = require('socket')
+local Downloads = require 'pegasus.plugins.downloads'
 
 --- Creates a new server within the Copas scheduler.
 -- @tparam table opts options table.
@@ -57,9 +58,7 @@ assert(newPegasusServer{
   location = nil,
   callback = function(req, resp) -- just redirecting to the https one
     local host = (req:headers()["Host"] or ""):match("^([^:]+)")
-    resp:addHeader("Location", "https://" .. host .. ":9091" .. req:path())
-    resp:statusCode(301)
-    resp:sendOnlyHeaders()
+    resp:redirect("https://" .. host .. ":9091" .. req:path())
   end,
   plugins = {},
 })
@@ -83,7 +82,12 @@ assert(newPegasusServer{
   },
   location = '/example/root/',
   callback = nil,
-  plugins = {},
+  plugins = {
+    Downloads:new {
+      prefix = "downloads",
+      stripPrefix = true,
+    },
+  },
 })
 
 -- Start

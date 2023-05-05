@@ -1,18 +1,19 @@
-local zlib = require "zlib"
-
-local function zlib_name(lib)
-  if lib._VERSION and string.find(lib._VERSION, 'lua-zlib', nil, true) then
-    return 'lua-zlib'
-  end
-
-  if lib._VERSION and string.find(lib._VERSION, 'lzlib', nil, true) then
-    return 'lzlib'
-  end
-end
-
-local z_lib_name = assert(zlib_name(zlib), 'Unsupported zlib Lua binding')
-
 local ZlibStream = {} do
+  local zlib = require "zlib"
+
+  local function zlib_name(lib)
+    if lib._VERSION and string.find(lib._VERSION, 'lua-zlib', nil, true) then
+      return 'lua-zlib'
+    end
+
+    if lib._VERSION and string.find(lib._VERSION, 'lzlib', nil, true) then
+      return 'lzlib'
+    end
+  end
+
+  local z_lib_name = assert(zlib_name(zlib), 'Unsupported zlib Lua binding')
+
+
   ZlibStream.__index = ZlibStream
 
   ZlibStream.NO_COMPRESSION      = zlib.NO_COMPRESSION       or  0
@@ -68,6 +69,8 @@ local ZlibStream = {} do
     end
   end
 end
+
+
 
 local Compress = {} do
   Compress.__index = Compress

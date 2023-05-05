@@ -59,7 +59,7 @@ describe('require', function()
 
   test('headers', function()
     local request = getInstance(
-      { 'GET /Makefile?a=b&c=d&e=1&e=2 HTTP/1.1', 'a: A', 'b: B', 'c: X', 'c: Y', '', 'C=3', '' }
+      { 'GET /Makefile?a=b&c=d&e=1&e=2 HTTP/1.1', 'a:A', 'b: \t  B \t  ', 'c: X', 'c: Y', '', 'C=3', '' }
     )
 
     assert.are.same(

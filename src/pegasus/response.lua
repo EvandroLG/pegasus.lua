@@ -1,3 +1,5 @@
+local mimetypes = require 'mimetypes'
+
 local function toHex(dec)
   local charset = { '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f' }
   local tmp = {}
@@ -65,19 +67,18 @@ local STATUS_TEXT = setmetatable({
 })
 
 local DEFAULT_ERROR_MESSAGE = [[
-  <!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN'
-      'http://www.w3.org/TR/html4/strict.dtd'>
-  <html>
-  <head>
-      <meta http-equiv='Content-Type' content='text/html;charset=utf-8'>
-      <title>Error response</title>
-  </head>
-  <body>
-      <h1>Error response</h1>
-      <p>Error code: {{ STATUS_CODE }}</p>
-      <p>Message: {{ STATUS_TEXT }}</p>
-  </body>
-  </html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Error response</title>
+</head>
+<body>
+  <h1>Error response</h1>
+  <p>Error code: {{ STATUS_CODE }}</p>
+  <p>Message: {{ STATUS_TEXT }}</p>
+</body>
+</html>
 ]]
 
 local Response = {}
@@ -213,13 +214,58 @@ function Response:write(body, stayOpen)
   return self
 end
 
-function Response:writeFile(file, contentType)
-  self:contentType(contentType)
-  self:statusCode(200)
-  local value = file:read('*a')
-  file:close()
-  self:write(value)
+local function readfile(filename)
+  local file, err = io.open(filename, 'rb')
+  if not file then
+    return nil, err
+  end
 
+  local value, err = file:read('*a')
+  file:close()
+  return value, err
+end
+
+-- return nil+err if not ok
+function Response:writeFile(filename, contentType)
+  if type(filename) ~= "string" then
+    -- deprecated backward compatibility; file is a file-descriptor
+    self:contentType(contentType)
+    self:statusCode(200)
+    local value = filename:read('*a')
+    filename:close()
+    self:write(value)
+    return self
+  end
+
+  local contents, err = readfile(filename)
+  if not contents then
+    return nil, err
+  end
+
+  self:statusCode(200)
+  self:contentType(contentType or mimetypes.guess(filename))
+  self:write(contents)
+  return self
+end
+
+-- download by browser, return nil+err if not ok
+function Response:sendFile(path)
+  local filename = path:match("[^/]*$") -- only filename, no path
+  self:addHeader('Content-Disposition', 'attachment; filename="' .. filename .. '"')
+
+  local ok, err = self:writeFile(path, 'application/octet-stream')
+  if not ok then
+    self:addHeader('Content-Disposition', nil)
+    return nil, err
+  end
+
+  return self
+end
+
+function Response:redirect(location, temporary)
+  self:statusCode(temporary and 302 or 301)
+  self:addHeader('Location', location)
+  self:sendOnlyHeaders()
   return self
 end
 

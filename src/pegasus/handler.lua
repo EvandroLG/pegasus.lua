@@ -3,10 +3,6 @@ local Response = require 'pegasus.response'
 local mimetypes = require 'mimetypes'
 local lfs = require 'lfs'
 
-local function ternary(condition, t, f)
-  if condition then return t else return f end
-end
-
 local Handler = {}
 Handler.__index = Handler
 
@@ -31,6 +27,18 @@ function Handler:pluginsAlterRequestResponseMetatable()
       end
     end
   end
+end
+
+function Handler:pluginsNewConnection(client)
+  for _, plugin in ipairs(self.plugins) do
+    if plugin.newConnection then
+      client = plugin:newConnection(client)
+      if not client then
+        return false
+      end
+    end
+  end
+  return client
 end
 
 function Handler:pluginsNewRequestResponse(request, response)
@@ -96,8 +104,12 @@ function Handler:processBodyData(data, stayOpen, response)
 end
 
 function Handler:processRequest(port, client, server)
-  local request = Request:new(port, client, server)
+  client = self:pluginsNewConnection(client)
+  if not client then
+    return false
+  end
 
+  local request = Request:new(port, client, server)
   if not request:method() then
     client:close()
     return
@@ -112,7 +124,10 @@ function Handler:processRequest(port, client, server)
   end
 
   if request:path() and self.location ~= '' then
-    local path = ternary(request:path() == '/' or request:path() == '', 'index.html', request:path())
+    local path = request:path()
+    if path == '/' or path == '' then
+       path = 'index.html'
+    end
     local filename = '.' .. self.location .. path
 
     if not lfs.attributes(filename) then
@@ -129,12 +144,13 @@ function Handler:processRequest(port, client, server)
 
     if file then
       response:writeFile(file, mimetypes.guess(filename or '') or 'text/html')
+      stop = true
     else
       response:statusCode(404)
     end
   end
 
-  if self.callback then
+  if self.callback and not stop then
     response:statusCode(200)
     response.headers = {}
     response:addHeader('Content-Type', 'text/html')
