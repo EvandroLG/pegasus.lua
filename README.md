@@ -128,13 +128,13 @@ local Tls = require 'pegasus.plugins.tls'
 
 local server = Pegasus:new({
   plugins = {
-    TLS:new {  -- the tls specific configuration
+    TLS:new {
       wrap = {
         mode = "server",
         protocol = "any",
-        key = "./example/serverAkey.pem",
-        certificate = "./example/serverA.pem",
-        cafile = "./example/rootA.pem",
+        key = "./serverAkey.pem",
+        certificate = "./serverA.pem",
+        cafile = "./rootA.pem",
         verify = {"none"},
         options = {"all", "no_sslv2", "no_sslv3", "no_tlsv1"},
       },
