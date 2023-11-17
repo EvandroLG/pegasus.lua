@@ -47,6 +47,7 @@ local STATUS_TEXT = setmetatable({
   [415] = 'Unsupported Media Type',
   [416] = 'Requested range not satisfiable',
   [417] = 'Expectation Failed',
+  [429] = 'Too Many Requests',
   [500] = 'Internal Server Error',
   [501] = 'Not Implemented',
   [502] = 'Bad Gateway',
@@ -120,7 +121,7 @@ function Response:statusCode(statusCode, statusText)
   assert(not self._headersSended, "can't set status code, it was already sent")
   self.status = statusCode
   self._headFirstLine = string.gsub(self._templateFirstLine, '{{ STATUS_CODE }}', tostring(statusCode))
-  self._headFirstLine = string.gsub(self._headFirstLine, '{{ STATUS_TEXT }}', statusText or STATUS_TEXT[statusCode])
+  self._headFirstLine = string.gsub(self._headFirstLine, '{{ STATUS_TEXT }}', statusText or STATUS_TEXT[statusCode] or "Unknown Status " .. statusCode)
 
   return self
 end
