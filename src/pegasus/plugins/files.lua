@@ -20,6 +20,7 @@ function Files:new(options)
 
   local location = options.location or ""
   if location:sub(1,2) ~= "./" then
+    -- make sure it's a relative path, forcefully!
     if location:sub(1,1) == "/" then
       location = "." .. location
     else
