@@ -173,22 +173,27 @@ function Request:headers()
 end
 
 function Request:receiveBody(size)
-  size = size or self._contentLength
+  if not self._headerParsed then
+    self:headers()
+  end
+  local contentLength = self._contentLength
+  local contentDone = self._contentDone
+  size = size or contentLength
 
   -- do we have content?
-  if (self._contentLength == nil) or (self._contentDone >= self._contentLength) then
+  if (contentLength == nil) or (contentDone >= contentLength) then
     return false
   end
 
   -- fetch in chunks
-  local fetch = math.min(self._contentLength - self._contentDone, size)
+  local fetch = math.min(contentLength - contentDone, size)
   local data, err, partial = self.client:receive(fetch)
 
   if err == 'timeout' then
     data = partial
   end
 
-  self._contentDone = self._contentDone + #data
+  self._contentDone = contentDone + #data
 
   return data
 end
