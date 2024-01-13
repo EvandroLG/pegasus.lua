@@ -46,7 +46,6 @@ function TLS:newConnection(client)
     print"tls handshake failed"
     return false
   end
-  --print"running TLS"
 
   return client
 end
