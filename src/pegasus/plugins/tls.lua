@@ -43,10 +43,9 @@ function TLS:newConnection(client)
   end
 
   if not client:dohandshake() then
-    print"handshake failed"
+    print"tls handshake failed"
     return false
   end
-  print"running TLS"
 
   return client
 end
