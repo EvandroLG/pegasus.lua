@@ -72,6 +72,7 @@ end)
 * `contentType(string:value)` Adds a value to Content-Type field
 * `write(string:body)` It creates the body with the value passed as
   parameter
+* `writeDefaultErrorMessage(statusCode: string, message:body)` It sets an HTTP status code and writes an error message to the response
 * `writeFile(string:file)` It creates the body with the content of the
   file passed as parameter
 * `post():table` It returns a dictionary with all the POST parameters
