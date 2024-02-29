@@ -33,6 +33,8 @@ server:start(function (request, response)
 end)
 ```
 
+Or try the [included examples](example/README.md).
+
 ## Features
 
 - Compatible with Linux, Mac and Windows systems

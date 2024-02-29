@@ -95,6 +95,7 @@ function Response:new(client, writeHandler)
   newObj._client = client
   newObj._writeHandler = writeHandler
   newObj.status = 200
+  newObj._skipBody = false -- for HEAD requests
 
   return setmetatable(newObj, self)
 end
@@ -126,6 +127,13 @@ function Response:statusCode(statusCode, statusText)
   return self
 end
 
+function Response:skipBody(skip)
+  if skip == nil then
+    skip = true
+  end
+  self._skipBody = not not skip
+end
+
 function Response:_getHeaders()
   local headers = {}
 
@@ -153,11 +161,14 @@ end
 function Response:close()
   local body = self._writeHandler:processBodyData(nil, true, self)
 
-  if body and #body > 0 then
-    self._client:send(toHex(#body) .. '\r\n' .. body .. '\r\n')
+  if not self._skipBody then
+    if body and #body > 0 then
+      self._client:send(toHex(#body) .. '\r\n' .. body .. '\r\n')
+    end
+
+    self._client:send('0\r\n\r\n')
   end
 
-  self._client:send('0\r\n\r\n')
   self.close = true  -- TODO: this seems unused??
 
   return self
@@ -200,12 +211,14 @@ function Response:write(body, stayOpen)
 
   self._isClosed = not stayOpen
 
-  if self._isClosed then
-    self._client:send(body)
-  elseif #body > 0 then
-    self._client:send(
-      toHex(#body) .. '\r\n' .. body .. '\r\n'
-    )
+  if not self._skipBody then
+    if self._isClosed then
+      self._client:send(body)
+    elseif #body > 0 then
+      self._client:send(
+        toHex(#body) .. '\r\n' .. body .. '\r\n'
+      )
+    end
   end
 
   if self._isClosed then
