@@ -1,5 +1,8 @@
 local mimetypes = require 'mimetypes'
 
+-- Convert a decimal number to a hexadecimal string
+-- @param dec {number}
+-- @return {string}
 local function toHex(dec)
   local charset = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' }
   local tmp = {}
@@ -12,6 +15,9 @@ local function toHex(dec)
   return table.concat(tmp)
 end
 
+-- Read a file and return its content
+-- @param filename {string}
+-- @return {string|nil}
 local function readfile(filename)
   local file, err = io.open(filename, 'rb')
   if not file then
@@ -110,7 +116,7 @@ function Response:new(client, writeHandler)
   return setmetatable(newObj, self)
 end
 
--- Add a header to the response
+-- Add a new header to the response
 -- @param key {string}
 -- @param value {string}
 -- @return {table} self
@@ -232,7 +238,7 @@ function Response:sendHeaders(stayOpen, body)
   return self
 end
 
--- Write the response
+-- Create the body with the body passed by parameter
 -- @param body {string}
 -- @param stayOpen {boolean}
 -- @return {table} self
@@ -257,7 +263,10 @@ function Response:write(body, stayOpen)
   return self
 end
 
--- return nil+err if not ok
+-- Create the body with the file passed by parameter, and return nil+err if not ok
+-- @param filename {string|file}
+-- @param contentType {string}
+-- @return {table} self
 function Response:writeFile(filename, contentType)
   if type(filename) ~= "string" then
     -- deprecated backward compatibility; file is a file-descriptor
@@ -280,12 +289,19 @@ function Response:writeFile(filename, contentType)
   return self
 end
 
--- download by browser, return nil+err if not ok
+-- Download by browser, return nil+err if not ok
+-- @param path {string}
+-- @return {table} self
 function Response:sendFile(path)
+  --- Extracts only the filename from the path
   local filename = path:match("[^/]*$") -- only filename, no path
+
+  -- Sets the Content-Disposition header to specify the filename
   self:addHeader('Content-Disposition', 'attachment; filename="' .. filename .. '"')
 
+  -- Attempts to write the file to the response body
   local ok, err = self:writeFile(path, 'application/octet-stream')
+
   if not ok then
     self:addHeader('Content-Disposition', nil)
     return nil, err
