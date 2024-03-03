@@ -1,7 +1,7 @@
 local mimetypes = require 'mimetypes'
 
 local function toHex(dec)
-  local charset = { '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f' }
+  local charset = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' }
   local tmp = {}
 
   repeat
@@ -10,6 +10,17 @@ local function toHex(dec)
   until dec == 0
 
   return table.concat(tmp)
+end
+
+local function readfile(filename)
+  local file, err = io.open(filename, 'rb')
+  if not file then
+    return nil, err
+  end
+
+  local value, err = file:read('*a')
+  file:close()
+  return value, err
 end
 
 local STATUS_TEXT = setmetatable({
@@ -63,7 +74,7 @@ local STATUS_TEXT = setmetatable({
         return result
       end
     end
-    error("http status code '"..tostring(statusCode).."' is unknown", 2)
+    error("http status code '" .. tostring(statusCode) .. "' is unknown", 2)
   end,
 })
 
@@ -99,12 +110,19 @@ function Response:new(client, writeHandler)
   return setmetatable(newObj, self)
 end
 
+-- Add a header to the response
+-- @param key {string}
+-- @param value {string}
+-- @return {table} self
 function Response:addHeader(key, value)
   assert(not self._headersSended, "can't add header, they were already sent")
   self._headers[key] = value
   return self
 end
 
+-- Add multiple headers to the response
+-- @param params {table}
+-- @return {table} self
 function Response:addHeaders(params)
   for key, value in pairs(params) do
     self:addHeader(key, value)
@@ -113,19 +131,29 @@ function Response:addHeaders(params)
   return self
 end
 
+-- Set the content type of the response
+-- @param value {string}
+-- @return {table} self
 function Response:contentType(value)
   return self:addHeader('Content-Type', value)
 end
 
+-- Set the status code of the response
+-- @param statusCode {number}
+-- @param statusText {string}
+-- @return {table} self
 function Response:statusCode(statusCode, statusText)
   assert(not self._headersSended, "can't set status code, it was already sent")
   self.status = statusCode
   self._headFirstLine = string.gsub(self._templateFirstLine, '{{ STATUS_CODE }}', tostring(statusCode))
-  self._headFirstLine = string.gsub(self._headFirstLine, '{{ STATUS_TEXT }}', statusText or STATUS_TEXT[statusCode] or "Unknown Status " .. statusCode)
+  self._headFirstLine = string.gsub(self._headFirstLine, '{{ STATUS_TEXT }}',
+    statusText or STATUS_TEXT[statusCode] or "Unknown Status " .. statusCode)
 
   return self
 end
 
+-- Get the headers of the response
+-- @return {string}
 function Response:_getHeaders()
   local headers = {}
 
@@ -142,6 +170,10 @@ function Response:_getHeaders()
   return table.concat(headers)
 end
 
+-- Write the default error message
+-- @param statusCode {number}
+-- @param errMessage {string}
+-- @return {table} self
 function Response:writeDefaultErrorMessage(statusCode, errMessage)
   self:statusCode(statusCode)
   local content = string.gsub(DEFAULT_ERROR_MESSAGE, '{{ STATUS_CODE }}', statusCode)
@@ -150,6 +182,8 @@ function Response:writeDefaultErrorMessage(statusCode, errMessage)
   return self
 end
 
+-- Close the response
+-- @return {table} self
 function Response:close()
   local body = self._writeHandler:processBodyData(nil, true, self)
 
@@ -158,7 +192,7 @@ function Response:close()
   end
 
   self._client:send('0\r\n\r\n')
-  self.close = true  -- TODO: this seems unused??
+  self.close = true -- TODO: this seems unused??
 
   return self
 end
@@ -170,6 +204,10 @@ function Response:sendOnlyHeaders()
   return self
 end
 
+-- Send response headers
+-- @param stayOpen {boolean}
+-- @param body {string}
+-- @return {table} self
 function Response:sendHeaders(stayOpen, body)
   if self._headersSended then
     return self
@@ -194,6 +232,10 @@ function Response:sendHeaders(stayOpen, body)
   return self
 end
 
+-- Write the response
+-- @param body {string}
+-- @param stayOpen {boolean}
+-- @return {table} self
 function Response:write(body, stayOpen)
   body = self._writeHandler:processBodyData(body or '', stayOpen, self)
   self:sendHeaders(stayOpen, body)
@@ -213,17 +255,6 @@ function Response:write(body, stayOpen)
   end
 
   return self
-end
-
-local function readfile(filename)
-  local file, err = io.open(filename, 'rb')
-  if not file then
-    return nil, err
-  end
-
-  local value, err = file:read('*a')
-  file:close()
-  return value, err
 end
 
 -- return nil+err if not ok
@@ -263,6 +294,10 @@ function Response:sendFile(path)
   return self
 end
 
+-- Redirect to a new location
+-- @param location {string}
+-- @param temporary {boolean}
+-- @return {table} self
 function Response:redirect(location, temporary)
   self:statusCode(temporary and 302 or 301)
   self:addHeader('Location', location)

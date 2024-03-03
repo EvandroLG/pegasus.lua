@@ -1,5 +1,5 @@
 local function normalizePath(path)
-  local value = string.gsub(path ,'\\', '/')
+  local value = string.gsub(path, '\\', '/')
   value = string.gsub(value, '^/*', '/')
   value = string.gsub(value, '(/%.%.?)$', '%1/')
   value = string.gsub(value, '/%./', '/')
@@ -32,10 +32,15 @@ Request.PATTERN_METHOD = '^(.-)%s'
 Request.PATTERN_PATH = '(%S+)%s*'
 Request.PATTERN_PROTOCOL = '(HTTP%/%d%.%d)'
 Request.PATTERN_REQUEST = (Request.PATTERN_METHOD ..
-Request.PATTERN_PATH ..Request.PATTERN_PROTOCOL)
+  Request.PATTERN_PATH .. Request.PATTERN_PROTOCOL)
 Request.PATTERN_QUERY_STRING = '([^=]*)=([^&]*)&?'
 Request.PATTERN_HEADER = '([%w-]+):[ \t]*([%w \t%p]*)'
 
+-- Create a new request
+-- @param port {number}
+-- @param client {table}
+-- @param server {table}
+-- @return {table}
 function Request:new(port, client, server)
   local obj = {}
   obj.client = client
@@ -55,6 +60,8 @@ function Request:new(port, client, server)
   return setmetatable(obj, self)
 end
 
+-- Parse the first request line
+-- @return {nil}
 function Request:parseFirstLine()
   if (self._firstLine ~= nil) then
     return
@@ -91,11 +98,14 @@ function Request:parseFirstLine()
   self.querystring = self:parseUrlEncoded(querystring)
 end
 
+-- Parse an encoded URL
+-- @param data {string}
+-- @return {table}
 function Request:parseUrlEncoded(data)
   local output = {}
 
   if data then
-    for key, value in  string.gmatch(data, Request.PATTERN_QUERY_STRING) do
+    for key, value in string.gmatch(data, Request.PATTERN_QUERY_STRING) do
       if key and value then
         local v = output[key]
         if not v then
@@ -112,22 +122,30 @@ function Request:parseUrlEncoded(data)
   return output
 end
 
+-- Make a POST request
+-- @return {table}
 function Request:post()
   if self:method() ~= 'POST' then return nil end
   local data = self:receiveBody()
   return self:parseUrlEncoded(data)
 end
 
+-- Get the request path
+-- @return {string}
 function Request:path()
   self:parseFirstLine()
   return self._path
 end
 
+-- Get the request method
+-- @return {string}
 function Request:method()
   self:parseFirstLine()
   return self._method
 end
 
+-- Get the request headers
+-- @return {table}
 function Request:headers()
   if self._headerParsed then
     return self._headers
@@ -137,7 +155,7 @@ function Request:headers()
 
   local data = self.client:receive()
 
-  local headers = setmetatable({},{ -- add metatable to do case-insensitive lookup
+  local headers = setmetatable({}, { -- add metatable to do case-insensitive lookup
     __index = function(self, key)
       if type(key) == "string" then
         key = key:lower()
@@ -172,6 +190,9 @@ function Request:headers()
   return headers
 end
 
+-- Receives the body of the request in chunks
+-- @param size {number}
+-- @return {string|nil}
 function Request:receiveBody(size)
   if not self._headerParsed then
     self:headers()
@@ -182,7 +203,7 @@ function Request:receiveBody(size)
 
   -- do we have content?
   if (contentLength == nil) or (contentDone >= contentLength) then
-    return false
+    return nil
   end
 
   -- fetch in chunks

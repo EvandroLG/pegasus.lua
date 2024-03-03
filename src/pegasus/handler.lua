@@ -6,6 +6,11 @@ local lfs = require 'lfs'
 local Handler = {}
 Handler.__index = Handler
 
+-- Create a new handler
+-- @param callback {function}
+-- @param location {string}
+-- @param plugins {table}
+-- @return {table}
 function Handler:new(callback, location, plugins)
   local handler = {}
   handler.callback = callback
@@ -18,6 +23,9 @@ function Handler:new(callback, location, plugins)
   return result
 end
 
+-- Add a plugin to the handler
+-- @param plugin {table}
+-- @return {nil}
 function Handler:pluginsAlterRequestResponseMetatable()
   for _, plugin in ipairs(self.plugins) do
     if plugin.alterRequestResponseMetaTable then
@@ -29,18 +37,25 @@ function Handler:pluginsAlterRequestResponseMetatable()
   end
 end
 
+-- Process a new connection
+-- @param client {table}
+-- @return {table|nil}
 function Handler:pluginsNewConnection(client)
   for _, plugin in ipairs(self.plugins) do
     if plugin.newConnection then
       client = plugin:newConnection(client)
       if not client then
-        return false
+        return nil
       end
     end
   end
   return client
 end
 
+-- Process a new request and response
+-- @param request {table}
+-- @param response {table}
+-- @return {nil}
 function Handler:pluginsNewRequestResponse(request, response)
   for _, plugin in ipairs(self.plugins) do
     if plugin.newRequestResponse then
@@ -52,6 +67,10 @@ function Handler:pluginsNewRequestResponse(request, response)
   end
 end
 
+-- Process before processing
+-- @param request {table}
+-- @param response {table}
+-- @return {nil}
 function Handler:pluginsBeforeProcess(request, response)
   for _, plugin in ipairs(self.plugins) do
     if plugin.beforeProcess then
@@ -63,6 +82,10 @@ function Handler:pluginsBeforeProcess(request, response)
   end
 end
 
+-- Process after processing
+-- @param request {table}
+-- @param response {table}
+-- @return {nil}
 function Handler:pluginsAfterProcess(request, response)
   for _, plugin in ipairs(self.plugins) do
     if plugin.afterProcess then
@@ -74,6 +97,11 @@ function Handler:pluginsAfterProcess(request, response)
   end
 end
 
+-- Process a file
+-- @param request {table}
+-- @param response {table}
+-- @param filename {string}
+-- @return {nil}
 function Handler:pluginsProcessFile(request, response, filename)
   for _, plugin in ipairs(self.plugins) do
     if plugin.processFile then
@@ -86,6 +114,11 @@ function Handler:pluginsProcessFile(request, response, filename)
   end
 end
 
+-- Process body data
+-- @param data {string}
+-- @param stayOpen {boolean}
+-- @param response {table}
+-- @return {string}
 function Handler:processBodyData(data, stayOpen, response)
   local localData = data
 
@@ -103,6 +136,11 @@ function Handler:processBodyData(data, stayOpen, response)
   return localData
 end
 
+-- Process a request
+-- @param port {string}
+-- @param client {table}
+-- @param server {table}
+-- @return {nil}
 function Handler:processRequest(port, client, server)
   client = self:pluginsNewConnection(client)
   if not client then
@@ -115,7 +153,7 @@ function Handler:processRequest(port, client, server)
     return
   end
 
-  local response =  Response:new(client, self)
+  local response = Response:new(client, self)
   response.request = request
   local stop = self:pluginsNewRequestResponse(request, response)
 
@@ -126,7 +164,7 @@ function Handler:processRequest(port, client, server)
   if request:path() and self.location ~= '' then
     local path = request:path()
     if path == '/' or path == '' then
-       path = 'index.html'
+      path = 'index.html'
     end
     local filename = '.' .. self.location .. path
 
@@ -162,6 +200,5 @@ function Handler:processRequest(port, client, server)
     response:writeDefaultErrorMessage(404)
   end
 end
-
 
 return Handler

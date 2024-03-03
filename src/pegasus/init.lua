@@ -4,6 +4,13 @@ local Handler = require 'pegasus.handler'
 local Pegasus = {}
 Pegasus.__index = Pegasus
 
+-- Create a new Pegasus server
+-- @param params.host {string}
+-- @param params.port {string}
+-- @param params.location {string}
+-- @param params.plugins {table}
+-- @param params.timeout {number}
+-- @return {table}
 function Pegasus:new(params)
   params = params or {}
   local server = {}
@@ -17,11 +24,14 @@ function Pegasus:new(params)
   return setmetatable(server, self)
 end
 
+-- Start Pegasus server
+-- @param callback {function}
+-- @return {nil}
 function Pegasus:start(callback)
   local handler = Handler:new(callback, self.location, self.plugins)
   local server = assert(socket.bind(self.host, self.port))
   local ip, port = server:getsockname()
-  print('Pegasus is up on ' .. ip .. ":".. port)
+  print('Pegasus is up on ' .. ip .. ":" .. port)
 
   while 1 do
     local client, errmsg = server:accept()
