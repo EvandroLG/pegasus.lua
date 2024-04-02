@@ -123,6 +123,25 @@ local server = Pegasus:new({
 server:start()
 ```
 
+
+* pegasus.plugins.files
+
+```lua
+local Pegasus = require 'pegasus'
+local Files = require 'pegasus.plugins.files'
+
+local server = Pegasus:new({
+  plugins = {
+    Files:new {
+      location = "./",
+      default = "index.html",
+    },
+  }
+})
+
+server:start()
+```
+
 * pegasus.plugins.tls
 
 ```lua
