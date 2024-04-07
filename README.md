@@ -33,6 +33,8 @@ server:start(function (request, response)
 end)
 ```
 
+Or try the [included examples](example/README.md).
+
 ## Features
 
 - Compatible with Linux, Mac and Windows systems
@@ -114,6 +116,25 @@ local server = Pegasus:new({
     Downloads:new {
       prefix = "downloads",
       stripPrefix = true,
+    },
+  }
+})
+
+server:start()
+```
+
+
+* pegasus.plugins.files
+
+```lua
+local Pegasus = require 'pegasus'
+local Files = require 'pegasus.plugins.files'
+
+local server = Pegasus:new({
+  plugins = {
+    Files:new {
+      location = "./",
+      default = "index.html",
     },
   }
 })

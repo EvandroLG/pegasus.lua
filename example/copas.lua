@@ -20,7 +20,7 @@ local Downloads = require 'pegasus.plugins.downloads'
 -- @tparam[opt] table      opts.sslparams the tls based parameters, see the Copas documentation.
 --                         If not provided, then the connection will be accepted as a plain one.
 -- @tparam[opt] table      opts.plugins the plugins to use
--- @tparam[opt] function   opts.handler the callback function to handle requests
+-- @tparam[opt] function   opts.callback the callback function to handle requests
 -- @tparam[opt] string     opts.location the file-path from where to server files
 -- @return the server-socket on success, or nil+err on failure
 local function newPegasusServer(opts)
