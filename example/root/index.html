@@ -17,5 +17,15 @@
             Age: <input type="text" name="age">
             <input type="submit" value="send">
         </form>
+        <p>Try the following API calls for the Router plugin:
+            <ul>
+            <li><a href="/api/1v0/people"><code>/api/1v0/people</code></a></li>
+            <li><a href="/api/1v0/people/John"><code>/api/1v0/people/John</code></a></li>
+            <li><a href="/api/1v0/people/Mary"><code>/api/1v0/people/Mary</code></a> (fails with 404, change to "Jane" to make it work)</li>
+            <li><code>curl -v -X POST http://localhost:9090/api/1v0/people/John</code> (a POST request, failing with 405)</li>
+            <li><code>curl -v -X GET -H "Accept: application/xml" http://localhost:9090/api/1v0/people/John</code> (failing with 406)</li>
+            </ul>
+            To see the router features in effect
+        </p>
     </body>
-  </html>
+</html>
