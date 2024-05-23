@@ -139,7 +139,9 @@ function Handler:processRequest(port, client, server)
     end
   end
 
-  response:writeDefaultErrorMessage(404)
+  if not response.closed then
+    pcall(response.writeDefaultErrorMessage, response, 404)
+  end
 end
 
 
