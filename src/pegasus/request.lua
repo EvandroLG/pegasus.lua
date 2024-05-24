@@ -65,7 +65,7 @@ function Request:parseFirstLine()
   end
 
   local status, partial
-  self._firstLine, status, partial = self.client:receive()
+  self._firstLine, status, partial = self.client:receive("*l")
 
   if (self._firstLine == nil or status == 'timeout' or partial == '' or status == 'closed') then
     return
@@ -140,7 +140,7 @@ function Request:headers()
 
   self:parseFirstLine()
 
-  local data = self.client:receive()
+  local data = self.client:receive("*l")
 
   local headers = setmetatable({},{ -- add metatable to do case-insensitive lookup
     __index = function(self, key)
@@ -167,7 +167,7 @@ function Request:headers()
       end
     end
 
-    data = self.client:receive()
+    data = self.client:receive("*l")
   end
 
   self._headerParsed = true
