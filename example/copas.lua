@@ -8,6 +8,8 @@ package.path = "./src/?.lua;./src/?/init.lua;"..package.path
 -- to be installed, and you need to generate the test certificates from
 -- its examples. Copy the 'A' certificates into this example directory
 -- to make it work.
+-- Additionally you need lua-cjson to be installed.
+
 local Handler = require 'pegasus.handler'
 local copas = require('copas')
 local socket = require('socket')
@@ -15,7 +17,7 @@ local Downloads = require 'pegasus.plugins.downloads'
 local Files = require 'pegasus.plugins.files'
 local Router = require 'pegasus.plugins.router'
 local Compress = require 'pegasus.plugins.compress'
-local json = require 'pegasus.json'
+local json = require 'cjson.safe'
 
 
 --- Creates a new server within the Copas scheduler.
