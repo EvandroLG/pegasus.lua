@@ -12,13 +12,12 @@ local function sleep(sec)
 end
 
 server:start(function(req, res)
-   res:write('a', true)
-   sleep(3)
-   res:write('b', true)
-   sleep(3)
-   res:write('c', true)
-   res:close()
+  res:write('a', true)
+  sleep(3)
+  res:write('b', true)
+  sleep(3)
+  res:write('c', true)
 
-   -- true means the callback run without error, else false or nil
-  return true
+  -- return a truthy value to indicate the request was handled, no further handling needed
+  return res:close()
 end)

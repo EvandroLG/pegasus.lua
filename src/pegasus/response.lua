@@ -159,17 +159,19 @@ function Response:writeDefaultErrorMessage(statusCode, errMessage)
 end
 
 function Response:close()
-  local body = self._writeHandler:processBodyData(nil, true, self)
+  if not self.closed then
+    local body = self._writeHandler:processBodyData(nil, true, self)
 
-  if not self._skipBody then
-    if body and #body > 0 then
-      self._client:send(toHex(#body) .. '\r\n' .. body .. '\r\n')
+    if not self._skipBody then
+      if body and #body > 0 then
+        self._client:send(toHex(#body) .. '\r\n' .. body .. '\r\n')
+      end
+
+      self._client:send('0\r\n\r\n')
     end
 
-    self._client:send('0\r\n\r\n')
+    self.closed = true
   end
-
-  self.close = true  -- TODO: this seems unused??
 
   return self
 end

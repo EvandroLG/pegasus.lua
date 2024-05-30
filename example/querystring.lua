@@ -17,6 +17,6 @@ server:start(function (req, res)
   printTable(req['querystring'])
   res:addHeader('Content-Type', 'text/html'):write('hello pegasus world!')
 
-  -- true means the callback run without error, else false or nil
-  return true
+  -- return a truthy value to indicate the request was handled, no further handling needed
+  return res:close()
 end)
