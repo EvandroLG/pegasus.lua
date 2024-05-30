@@ -18,4 +18,7 @@ server:start(function(req, res)
    sleep(3)
    res:write('c', true)
    res:close()
+
+   -- true means the callback run without error, else false or nil
+  return true
 end)
