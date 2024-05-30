@@ -6,13 +6,14 @@ package.path = './src/?.lua;./src/?/init.lua;' .. package.path
 -- its examples. Copy the 'A' certificates into this example directory
 -- to make it work.
 -- Then uncomment the TLS plugin section below.
+-- Additionally you need lua-cjson to be installed.
 
 local Pegasus = require 'pegasus'
 local Compress = require 'pegasus.plugins.compress'
 local Downloads = require 'pegasus.plugins.downloads'
 local Files = require 'pegasus.plugins.files'
 local Router = require 'pegasus.plugins.router'
-local json = require 'pegasus.json'
+local json = require 'cjson.safe'
 -- local TLS = require 'pegasus.plugins.tls'
 
 
