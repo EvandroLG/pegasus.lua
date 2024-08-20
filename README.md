@@ -87,6 +87,7 @@ local server = pegasus:new({ port='9090' })
 
 server:start(function (req, rep)
   rep:addHeader('Date', 'Mon, 15 Jun 2015 14:24:53 GMT'):write('hello pegasus world!')
+  return rep:close()
 end)
 ```
 
