@@ -81,8 +81,6 @@ function Request:parseFirstLine()
   end
   self.response:skipBody(method == "HEAD")
 
-  print('Request for: ' .. method .. " " .. path)
-
   local filename = ''
   local querystring = ''
 
