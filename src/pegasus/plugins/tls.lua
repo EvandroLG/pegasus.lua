@@ -32,7 +32,7 @@ function TLS:new(sslparams)
   }, TLS)
 end
 
-function TLS:newConnection(client)
+function TLS:newConnection(client, handler)
   local params = self.sslparams
 
   -- wrap the client socket and replace it
@@ -42,8 +42,9 @@ function TLS:newConnection(client)
     assert(client:sni(params.sni.names, params.sni.strict))
   end
 
-  if not client:dohandshake() then
-    print"tls handshake failed"
+  local ok, err = client:dohandshake()
+  if not ok then
+    handler.log:error("tls handshake failed: %s", err)
     return false
   end
 
