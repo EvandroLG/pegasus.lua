@@ -1,6 +1,9 @@
 local socket = require 'socket'
 local Handler = require 'pegasus.handler'
 
+-- require lualogging if available, "pegasus.log" will automatically pick it up
+pcall(require, 'logging')
+
 local Pegasus = {}
 Pegasus.__index = Pegasus
 
