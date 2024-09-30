@@ -42,6 +42,7 @@ function Request:new(port, client, server, handler)
   local obj = {}
   obj.client = client
   obj.server = server
+  obj.log = handler.log
   obj.port = port
   obj.ip = (client.getpeername or function() end)(client) -- luasec doesn't support this method
   obj.querystring = {}
@@ -80,6 +81,8 @@ function Request:parseFirstLine()
     return
   end
   self.response:skipBody(method == "HEAD")
+
+  self.log:info('Request for: %s %s', method, path)
 
   local filename = ''
   local querystring = ''

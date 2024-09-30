@@ -1,15 +1,16 @@
 local Response = require 'pegasus.response'
 local Handler = require 'pegasus.handler'
+Handler.log = require 'pegasus.log'
 
 describe('response', function()
   describe('instance', function()
     local function verifyMethod(method)
-      local response = Response:new({close=function () end})
+      local response = Response:new({close=function () end}, Handler)
       assert.equal(type(response[method]), 'function')
     end
 
     it('should exists constructor to response class', function()
-      local response = Response:new({close=function () end})
+      local response = Response:new({close=function () end}, Handler)
       assert.equal(type(response), 'table')
     end)
 
@@ -75,14 +76,14 @@ describe('response', function()
 
   describe('add header', function()
     it('should add correct header passed as a parameter', function()
-      local response = Response:new({})
+      local response = Response:new({}, Handler)
       response:addHeader('Content-Length', 100)
 
       assert.equal(response._headers['Content-Length'], 100)
     end)
 
     it('should do a merge with headers already passed', function()
-      local response = Response:new({})
+      local response = Response:new({}, Handler)
       response:addHeader('Content-Length', 100)
       response:addHeader('Content-Type', 'text/html')
       response:addHeaders({
@@ -98,7 +99,7 @@ describe('response', function()
     end)
 
     it("should allow multi-value/duplicate headers", function()
-      local response = Response:new({})
+      local response = Response:new({}, Handler)
       response:addHeader('My-Header', { 'value 1', 'value 2' })
       local expected = "My-Header: value 1" .. "\r\n"
                     .. "My-Header: value 2" .. "\r\n"
@@ -108,7 +109,7 @@ describe('response', function()
     it("fails if headers were already sent", function()
       local response = Response:new({
         send = function() end,
-      })
+      }, Handler)
       response:sendHeaders()
       assert.has.error(function()
         response:addHeader("Hi", "there")
@@ -118,7 +119,7 @@ describe('response', function()
 
   describe('status code', function()
     local verifyStatus = function(statusCode, statusText, expectedMessage)
-      local response = Response:new({})
+      local response = Response:new({}, Handler)
       response:statusCode(statusCode, statusText)
       local expectedStatus = 'HTTP/1.1 ' .. tostring(statusCode)
 
@@ -143,7 +144,7 @@ describe('response', function()
     end)
 
     it('fails for an unknown status code', function()
-      local response = Response:new({})
+      local response = Response:new({}, Handler)
       assert.has.error(function()
         response:statusCode(9999)
       end, "http status code '9999' is unknown")
@@ -152,7 +153,7 @@ describe('response', function()
     it("fails if headers were already sent", function()
       local response = Response:new({
         send = function() end,
-      })
+      }, Handler)
       response:sendHeaders()
       assert.has.error(function()
         response:statusCode(200)
@@ -178,7 +179,7 @@ describe('response', function()
     end)
 
     it('should keep value previously set', function()
-      local response = Response:new(client)
+      local response = Response:new(client, Handler)
       response:addHeader('Content-Type', 'application/javascript')
       response:addHeader('Content-Length', 100)
 

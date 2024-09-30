@@ -5,8 +5,9 @@ local Files = require 'pegasus.plugins.files'
 local Handler = {}
 Handler.__index = Handler
 
-function Handler:new(callback, location, plugins)
+function Handler:new(callback, location, plugins, logger)
   local handler = {}
+  handler.log = logger or require('pegasus.log')
   handler.callback = callback
   handler.plugins = plugins or {}
 
@@ -15,6 +16,9 @@ function Handler:new(callback, location, plugins)
       location = location,
       default = "/index.html",
     }
+    handler.log:debug('Handler created, location: %s', location)
+  else
+    handler.log:debug('Handler created, without location')
   end
 
   local result = setmetatable(handler, self)
@@ -37,7 +41,7 @@ end
 function Handler:pluginsNewConnection(client)
   for _, plugin in ipairs(self.plugins) do
     if plugin.newConnection then
-      client = plugin:newConnection(client)
+      client = plugin:newConnection(client, self)
       if not client then
         return false
       end

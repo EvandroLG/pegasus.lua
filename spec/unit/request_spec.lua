@@ -29,7 +29,11 @@ local function getInstance(headers)
     end
   }
 
-  return Request:new(8080, client, server)
+  local handler = {
+    log = require "pegasus.log"
+  }
+
+  return Request:new(8080, client, server, handler)
 end
 
 local function verifyHttpMethod(method)

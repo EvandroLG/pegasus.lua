@@ -87,6 +87,7 @@ Response.__index = Response
 
 function Response:new(client, writeHandler)
   local newObj = {}
+  newObj.log = writeHandler.log
   newObj._headersSended = false
   newObj._templateFirstLine = 'HTTP/1.1 {{ STATUS_CODE }} {{ STATUS_TEXT }}\r\n'
   newObj._headFirstLine = ''

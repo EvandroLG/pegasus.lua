@@ -10,6 +10,9 @@ package.path = "./src/?.lua;./src/?/init.lua;"..package.path
 -- to make it work.
 -- Additionally you need lua-cjson to be installed.
 
+-- require lualogging if available, "pegasus.log" will automatically pick it up
+pcall(require, 'logging')
+
 local Handler = require 'pegasus.handler'
 local copas = require('copas')
 local socket = require('socket')
@@ -28,7 +31,8 @@ local json = require 'cjson.safe'
 --                         If not provided, then the connection will be accepted as a plain one.
 -- @tparam[opt] table      opts.plugins the plugins to use
 -- @tparam[opt] function   opts.callback the callback function to handle requests
--- @tparam[opt] string     opts.location the file-path from where to server files
+-- @tparam[opt] string     opts.location the file-path from where to serve files
+-- @tparam[opt] logger     opts.log the LuaLogging logger to use (defaults to LuaLogging default logger)
 -- @return the server-socket on success, or nil+err on failure
 local function newPegasusServer(opts)
   opts = opts or {}
@@ -48,13 +52,13 @@ local function newPegasusServer(opts)
     end
   end
 
-  local hdlr = Handler:new(opts.callback, opts.location, opts.plugins)
+  local hdlr = Handler:new(opts.callback, opts.location, opts.plugins, opts.log)
 
   copas.addserver(server_sock, copas.handler(function(client_sock)
     hdlr:processRequest(server_port, client_sock)
   end, opts.sslparams))
 
-  io.stderr:write('Pegasus is up on ' .. (opts.sslparams and "https" or "http") .. "://" .. server_ip .. ":" .. server_port .. "/\n")
+  hdlr.log:info('Pegasus is up on %s://%s:%s', opts.sslparams and "https" or "http", server_ip, server_port)
   return server_sock
 end
 
@@ -97,6 +101,7 @@ local routes do
         local name = req.pathParameters.name
         if not testData[name] then
           local err = ("'%s' is an unknown person"):format(name)
+          req.log:error(err)
           resp:writeDefaultErrorMessage(404, err)
           stop = true
         end
@@ -113,7 +118,7 @@ local routes do
       -- postFunction runs after the actual method callback
       postFunction = function(req, resp)
         local stop = false
-        print("served " .. req.pathParameters.name .. "'s data")
+        req.log:debug("served %s's data", req.pathParameters.name)
         return stop
       end,
     }

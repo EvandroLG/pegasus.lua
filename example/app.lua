@@ -55,6 +55,7 @@ local routes do
         local name = req.pathParameters.name
         if not testData[name] then
           local err = ("'%s' is an unknown person"):format(name)
+          req.log:error(err)
           resp:writeDefaultErrorMessage(404, err)
           stop = true
         end
@@ -71,7 +72,7 @@ local routes do
       -- postFunction runs after the actual method callback
       postFunction = function(req, resp)
         local stop = false
-        print("served " .. req.pathParameters.name .. "'s data")
+        req.log:debug("served %s's data", req.pathParameters.name)
         return stop
       end,
     }
