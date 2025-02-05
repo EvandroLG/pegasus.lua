@@ -11,7 +11,7 @@ function Handler:new(callback, location, plugins, logger)
   handler.callback = callback
   handler.plugins = plugins or {}
 
-  if location then
+  if location ~= '' then
     handler.plugins[#handler.plugins+1] = Files:new {
       location = location,
       default = "/index.html",
