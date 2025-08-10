@@ -1,3 +1,20 @@
+--- Module `pegasus.response`
+--
+-- HTTP response writer used by your application callback.
+-- Instances are created internally by Pegasus and passed to
+-- `server:start(function(request, response) ... end)`.
+--
+-- Quick example:
+-- ```lua
+-- server:start(function(req, res)
+--   res:statusCode(200)
+--      :contentType('application/json')
+--      :write('{"ok":true}')
+-- end)
+-- ```
+--
+-- @module pegasus.response
+
 local mimetypes = require 'mimetypes'
 
 local function toHex(dec)
@@ -82,9 +99,38 @@ local DEFAULT_ERROR_MESSAGE = [[
 </html>
 ]]
 
+--- The HTTP response object.
+--
+-- Usage pattern: chainable calls for fluent responses.
+--
+-- Methods of interest:
+-- - `statusCode(code[, text])`
+-- - `contentType(value)` / `addHeader(name, value)` / `addHeaders(table)`
+-- - `write(body[, stayOpen])` (streams when `stayOpen == true`)
+-- - `close()` (finish chunked stream)
+-- - `writeFile(path[, contentType])` (200 OK)
+-- - `sendFile(path)` (attachment)
+-- - `redirect(location[, temporary])`
+--
+-- Notes:
+-- - When streaming (`stayOpen == true`), Transfer-Encoding: chunked is used.
+-- - For HEAD requests, bodies are automatically skipped.
+--
+-- @type Response
+---@class Response
+---@field status integer
+---@field request table
 local Response = {}
 Response.__index = Response
 
+--- Internal: construct a new Response.
+--
+-- @tparam table client accepted client socket
+-- @tparam table writeHandler internal handler (provides `log` and body processing)
+-- @treturn Response response
+---@param client table
+---@param writeHandler table
+---@return Response
 function Response:new(client, writeHandler)
   local newObj = {}
   newObj.log = writeHandler.log
@@ -101,12 +147,25 @@ function Response:new(client, writeHandler)
   return setmetatable(newObj, self)
 end
 
+--- Add a response header.
+-- Errors if headers were already sent.
+-- @tparam string key
+-- @tparam string|number|table value
+-- @treturn Response self
+---@param key string
+---@param value any
+---@return Response
 function Response:addHeader(key, value)
   assert(not self._headersSended, "can't add header, they were already sent")
   self._headers[key] = value
   return self
 end
 
+--- Add multiple headers.
+-- @tparam table params
+-- @treturn Response self
+---@param params table
+---@return Response
 function Response:addHeaders(params)
   for key, value in pairs(params) do
     self:addHeader(key, value)
@@ -115,10 +174,23 @@ function Response:addHeaders(params)
   return self
 end
 
+--- Set the `Content-Type` header.
+-- @tparam string value
+-- @treturn Response self
+---@param value string
+---@return Response
 function Response:contentType(value)
   return self:addHeader('Content-Type', value)
 end
 
+--- Set the HTTP status line.
+-- Must be called before headers are sent.
+-- @tparam number statusCode
+-- @tparam[opt] string statusText (defaults to standard text for the code)
+-- @treturn Response self
+---@param statusCode integer
+---@param statusText string|nil
+---@return Response
 function Response:statusCode(statusCode, statusText)
   assert(not self._headersSended, "can't set status code, it was already sent")
   self.status = statusCode
@@ -128,6 +200,9 @@ function Response:statusCode(statusCode, statusText)
   return self
 end
 
+--- Skip writing the response body (used for HEAD requests).
+-- @tparam[opt] boolean skip defaults to true
+---@param skip boolean|nil
 function Response:skipBody(skip)
   if skip == nil then
     skip = true
@@ -135,6 +210,8 @@ function Response:skipBody(skip)
   self._skipBody = not not skip
 end
 
+--- Internal: serialize headers.
+---@return string
 function Response:_getHeaders()
   local headers = {}
 
@@ -151,6 +228,13 @@ function Response:_getHeaders()
   return table.concat(headers)
 end
 
+--- Write a default HTML error body for a given status.
+-- @tparam number statusCode
+-- @tparam[opt] string errMessage
+-- @treturn Response self
+---@param statusCode integer
+---@param errMessage string|nil
+---@return Response
 function Response:writeDefaultErrorMessage(statusCode, errMessage)
   self:statusCode(statusCode)
   local content = string.gsub(DEFAULT_ERROR_MESSAGE, '{{ STATUS_CODE }}', statusCode)
@@ -159,6 +243,10 @@ function Response:writeDefaultErrorMessage(statusCode, errMessage)
   return self
 end
 
+--- Finish a chunked response and mark as closed.
+-- Idempotent; safe to call multiple times.
+-- @treturn Response self
+---@return Response
 function Response:close()
   if not self.closed then
     local body = self._writeHandler:processBodyData(nil, true, self)
@@ -177,6 +265,10 @@ function Response:close()
   return self
 end
 
+--- Send only the headers, without a body.
+-- Useful for redirects and HEAD responses.
+-- @treturn Response self
+---@return Response
 function Response:sendOnlyHeaders()
   self:sendHeaders(false, '')
   self:write('\r\n')
@@ -184,6 +276,15 @@ function Response:sendOnlyHeaders()
   return self
 end
 
+--- Send headers if not already sent.
+-- Adds `Transfer-Encoding: chunked` when `stayOpen == true`; otherwise sets `Content-Length` when body is a string.
+-- Also sets a default `Date` and `Content-Type` header if not present.
+-- @tparam boolean stayOpen whether to keep the connection open for chunked streaming
+-- @tparam[opt] string body current body chunk (used to set Content-Length)
+-- @treturn Response self
+---@param stayOpen boolean
+---@param body string|nil
+---@return Response
 function Response:sendHeaders(stayOpen, body)
   if self._headersSended then
     return self
@@ -208,6 +309,16 @@ function Response:sendHeaders(stayOpen, body)
   return self
 end
 
+--- Write response body.
+-- When `stayOpen == true`, the body is sent as a chunk and the connection remains open.
+-- When `stayOpen ~= true`, headers are sent with `Content-Length` and the socket is closed afterwards.
+-- `nil` body is treated as empty string.
+-- @tparam[opt] string body
+-- @tparam[opt] boolean stayOpen
+-- @treturn Response self
+---@param body string|nil
+---@param stayOpen boolean|nil
+---@return Response
 function Response:write(body, stayOpen)
   body = self._writeHandler:processBodyData(body or '', stayOpen, self)
   self:sendHeaders(stayOpen, body)
@@ -242,7 +353,15 @@ local function readfile(filename)
   return value, err
 end
 
--- return nil+err if not ok
+--- Write a file to the response with a 200 status.
+-- Returns nil+err if file cannot be read.
+-- @tparam string|file* filename path or legacy file descriptor (deprecated)
+-- @tparam[opt] string contentType override content type
+-- @treturn[1] Response self
+-- @treturn[2] nil,error on failure
+---@param filename any
+---@param contentType string|nil
+---@return Response|nil,any
 function Response:writeFile(filename, contentType)
   if type(filename) ~= "string" then
     -- deprecated backward compatibility; file is a file-descriptor
@@ -265,7 +384,13 @@ function Response:writeFile(filename, contentType)
   return self
 end
 
--- download by browser, return nil+err if not ok
+--- Send a file as an attachment (download).
+-- Returns nil+err if the file cannot be read.
+-- @tparam string path filesystem path
+-- @treturn[1] Response self
+-- @treturn[2] nil,error on failure
+---@param path string
+---@return Response|nil,any
 function Response:sendFile(path)
   local filename = path:match("[^/]*$") -- only filename, no path
   self:addHeader('Content-Disposition', 'attachment; filename="' .. filename .. '"')
@@ -279,6 +404,13 @@ function Response:sendFile(path)
   return self
 end
 
+--- Redirect to a different URL.
+-- @tparam string location destination URL
+-- @tparam[opt] boolean temporary when true uses 302, otherwise 301
+-- @treturn Response self
+---@param location string
+---@param temporary boolean|nil
+---@return Response
 function Response:redirect(location, temporary)
   self:statusCode(temporary and 302 or 301)
   self:addHeader('Location', location)

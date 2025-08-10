@@ -1,4 +1,12 @@
---- A plugin that enables TLS (https).
+--- Module `pegasus.plugins.tls`
+--
+-- A plugin that enables TLS (https) for connections using LuaSec.
+-- Should be the first plugin, since it wraps the client socket and performs
+-- the TLS handshake before any other plugin or handler accesses the socket.
+--
+-- @module pegasus.plugins.tls
+--
+-- A plugin that enables TLS (https).
 -- This plugin should not be used with Copas. Since Copas has native TLS support
 -- and can handle simultaneous `http` and `https` connections. See the Copas example
 -- to learn how to set that up.
@@ -23,6 +31,8 @@ TLS.__index = TLS
 --   }
 -- }
 -- local tls_plugin = require("pegasus.plugins.tls"):new(sslparams)
+---@param sslparams table|nil
+---@return TLS
 function TLS:new(sslparams)
   sslparams = sslparams or {}
   assert(sslparams.wrap, "'sslparam.wrap' is a required option")
@@ -32,6 +42,14 @@ function TLS:new(sslparams)
   }, TLS)
 end
 
+--- Wrap an accepted client socket and perform the TLS handshake.
+-- Optionally sets SNI if provided in `sslparams`.
+-- @tparam table client accepted client socket
+-- @tparam table handler the Pegasus handler (for logging)
+-- @treturn table|false wrapped client or false on failure
+---@param client table
+---@param handler table
+---@return table|false
 function TLS:newConnection(client, handler)
   local params = self.sslparams
 

@@ -1,4 +1,11 @@
---- A plugin that routes requests based on path and method.
+--- Module `pegasus.plugins.router`
+--
+-- A plugin that routes requests based on path and method, with support for
+-- path parameters and pre/post hooks at both router and path levels.
+--
+-- @module pegasus.plugins.router
+--
+-- A plugin that routes requests based on path and method.
 -- Supports path parameters.
 --
 -- The `routes` table to configure the router is a hash-table where the keys are the path, and
@@ -110,6 +117,17 @@
 --   routes = routes,
 -- }
 
+--- Router plugin instance.
+--
+-- Options passed to `Router:new{ ... }`:
+-- - `prefix` (string, optional): base path for all routes
+-- - `routes` (table, required): route definitions (see module docs)
+--
+-- Methods invoked by the handler:
+-- - `newRequestResponse(request, response)`
+--
+-- @type Router
+---@class Router
 local Router = {}
 Router.__index = Router
 
@@ -188,6 +206,8 @@ end
 -- @tparam[opt] options.prefix string the base path for all underlying routes.
 -- @tparam options.routes table route definitions to be handled by this router plugin instance.
 -- @return the new plugin
+---@param options table|nil
+---@return Router
 function Router:new(options)
   options = options or {}
   local plugin = {}
@@ -206,6 +226,15 @@ end
 
 
 
+--- Route the request to the matching path/method callback.
+-- Populates `request.pathParameters` and `request.routerPath` upon match.
+-- Executes callbacks in order: router pre, path pre, method, path post, router post.
+-- @tparam table request
+-- @tparam table response
+-- @treturn boolean stop whether request handling should stop
+---@param request table
+---@param response table
+---@return boolean
 function Router:newRequestResponse(request, response)
   local stop = false
 

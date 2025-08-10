@@ -1,4 +1,16 @@
---- A plugin that allows to download files via a browser.
+--- Module `pegasus.plugins.downloads`
+--
+-- A plugin that exposes a virtual directory for file downloads. Matches
+-- a configurable `prefix` and serves files from a configured `location`
+-- using `Content-Disposition: attachment`.
+--
+-- @module pegasus.plugins.downloads
+-- @usage
+-- local Downloads = require('pegasus.plugins.downloads')
+-- local plugin = Downloads:new{ location = './public', prefix = 'downloads' }
+-- -- Add plugin to Pegasus
+--
+-- The plugin only responds to `GET` and `HEAD`.
 local Downloads = {}
 Downloads.__index = Downloads
 
@@ -14,6 +26,13 @@ Downloads.__index = Downloads
 -- for the file in the filesystem. Defaults to `false`, unless `options.prefix` is omitted,
 -- then it defaults to `true`.
 -- @return the new plugin
+--- @tparam table options options table
+--- @tparam[opt="./"] string options.location base directory (relative to cwd)
+--- @tparam[opt="downloads/"] string options.prefix path prefix triggering the plugin
+--- @tparam[opt] boolean options.stripPrefix whether to strip the prefix from the filesystem path
+--- @treturn table plugin instance
+---@param options table|nil
+---@return Downloads
 function Downloads:new(options)
   options = options or {}
   local plugin = {}
@@ -54,6 +73,13 @@ function Downloads:new(options)
   return plugin
 end
 
+--- Handle a new request/response pair; serve a download when the path matches.
+-- @tparam table request
+-- @tparam table response
+-- @treturn boolean stop whether request handling should stop
+---@param request table
+---@param response table
+---@return boolean
 function Downloads:newRequestResponse(request, response)
   local stop = false
 

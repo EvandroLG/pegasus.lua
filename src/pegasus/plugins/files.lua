@@ -1,4 +1,9 @@
---- A plugin that serves static content from a folder.
+--- Module `pegasus.plugins.files`
+--
+-- A plugin that serves static content from a folder and optionally redirects
+-- `/` to a configured default file.
+--
+-- @module pegasus.plugins.files
 
 local mimetypes = require 'mimetypes'
 
@@ -14,6 +19,8 @@ Files.__index = Files
 -- @tparam[opt="index.html"] options.default string filename to serve for top-level without path. Use an empty
 -- string to have none.
 -- @return the new plugin
+---@param options table|nil
+---@return Files
 function Files:new(options)
   options = options or {}
   local plugin = {}
@@ -46,6 +53,16 @@ end
 
 
 
+--- Handle a new request/response pair; serve static files.
+-- - Redirects `/` to `options.default` when set
+-- - Serves `GET`/`HEAD` only
+--
+-- @tparam table request
+-- @tparam table response
+-- @treturn boolean stop whether request handling should stop
+---@param request table
+---@param response table
+---@return boolean
 function Files:newRequestResponse(request, response)
   local stop = false
 
