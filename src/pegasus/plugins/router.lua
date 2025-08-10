@@ -5,7 +5,6 @@
 --
 -- @module pegasus.plugins.router
 --
--- A plugin that routes requests based on path and method.
 -- Supports path parameters.
 --
 -- The `routes` table to configure the router is a hash-table where the keys are the path, and
