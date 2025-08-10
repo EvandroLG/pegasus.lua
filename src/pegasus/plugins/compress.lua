@@ -1,3 +1,19 @@
+--- Module `pegasus.plugins.compress`
+--
+-- Response body compressor that applies gzip when the client accepts it
+-- and compression is beneficial. Works with both `lua-zlib` and `lzlib`.
+--
+-- Behavior:
+-- - Detects `Accept-Encoding: gzip` on the request (or `Content-Encoding` already set)
+-- - Sets `Content-Encoding: gzip` when compressing
+-- - Supports streaming with chunked encoding; maintains an internal zlib stream
+-- - Leaves content unchanged when compression does not reduce size
+--
+-- Options for `Compress:new{ ... }`:
+-- - `level`: zlib compression level (defaults to zlib default; use `NO_COMPRESSION` to disable)
+--
+-- @module pegasus.plugins.compress
+
 local ZlibStream = {} do
   local zlib = require "zlib"
 
@@ -80,6 +96,12 @@ local Compress = {} do
   Compress.BEST_COMPRESSION    = ZlibStream.BEST_COMPRESSION
   Compress.DEFAULT_COMPRESSION = ZlibStream.DEFAULT_COMPRESSION
 
+  --- Create a new `Compress` plugin instance.
+  -- @tparam[opt] table options
+  -- @tparam[opt] number options.level zlib compression level
+  -- @treturn table plugin instance
+  ---@param options table|nil
+  ---@return Compress
   function Compress:new(options)
     local compress = {}
     compress.options = options or {}
@@ -87,6 +109,25 @@ local Compress = {} do
     return setmetatable(compress, self)
   end
 
+  --- Compress response body data when appropriate.
+  --
+  -- Invoked for every body chunk. When `stayOpen` is true, keeps an internal
+  -- zlib stream and returns the compressed chunk. On the final call with
+  -- `data == nil`, closes the stream and returns any trailer bytes.
+  --
+  -- If compression does not reduce size (for non-streaming case), the
+  -- original `data` is returned and no `Content-Encoding` header is set.
+  --
+  -- @tparam string|nil data body chunk, or `nil` to finish streaming
+  -- @tparam boolean stayOpen whether the response is streaming (chunked)
+  -- @tparam table request request object
+  -- @tparam table response response object
+  -- @treturn string data possibly compressed
+  ---@param data string|nil
+  ---@param stayOpen boolean
+  ---@param request table
+  ---@param response table
+  ---@return string
   function Compress:processBodyData(data, stayOpen, request, response)
     local accept_encoding
 
