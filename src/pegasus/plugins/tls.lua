@@ -6,7 +6,6 @@
 --
 -- @module pegasus.plugins.tls
 --
--- A plugin that enables TLS (https).
 -- This plugin should not be used with Copas. Since Copas has native TLS support
 -- and can handle simultaneous `http` and `https` connections. See the Copas example
 -- to learn how to set that up.
