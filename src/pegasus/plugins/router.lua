@@ -116,6 +116,30 @@
 --   routes = routes,
 -- }
 
+
+
+local xpcall = xpcall
+
+-- Test if xpcall supports extra arguments (Lua 5.2+, LuaJIT), fix if not (Lua 5.1)
+do
+  local _, result = xpcall(function(arg) return arg == "test" end, function() end, "test")
+
+  if not result then
+    -- Lua 5.1: wrap xpcall to support extra arguments
+    local original_xpcall = xpcall
+    xpcall = function(f, err, ...)
+      local args = {...}
+      local n = select('#', ...)
+      return original_xpcall(
+        function() return f(unpack(args, 1, n)) end,
+        err
+      )
+    end
+  end
+end
+
+
+
 --- Router plugin instance.
 --
 -- Options passed to `Router:new{ ... }`:
@@ -127,6 +151,7 @@
 --
 -- @type Router
 ---@class Router
+
 local Router = {}
 Router.__index = Router
 
@@ -200,10 +225,29 @@ local function parseRoutes(self, routes, prefix)
   return rts
 end
 
+
+
+-- the errorhandler signature is: message_to_log = function(request, response, errobj)
+local function error_handler(request, response, errobj)
+  -- an error occurred, return a 500 if still possible
+  if not response.closed then
+    pcall(response.writeDefaultErrorMessage, response, 500)
+  end
+
+  -- return a stacktrace for logging
+  local err = debug.traceback(tostring(errobj), 3)
+  return err -- no tailcall since LuaJIT will eat a stack-level
+end
+
+
+
 --- Creates a new Router plugin instance.
 -- @tparam options table the options table with the following fields;
 -- @tparam[opt] options.prefix string the base path for all underlying routes.
 -- @tparam options.routes table route definitions to be handled by this router plugin instance.
+-- @tparam[opt] options.errorHandler function an optional error handler function with signature
+-- `message_to_log = function(request, response, errobj)`. The default handler will send a 500 error
+-- response, and return a stack trace for logging.
 -- @return the new plugin
 ---@param options table|nil
 ---@return Router
@@ -218,23 +262,14 @@ function Router:new(options)
   plugin.prefix = prefix:sub(1, -2) -- drop trailing slash
 
   plugin.routes = parseRoutes(plugin, options.routes)
-
+  plugin.errorHandler = options.errorHandler or error_handler
   setmetatable(plugin, Router)
   return plugin
 end
 
 
 
---- Route the request to the matching path/method callback.
--- Populates `request.pathParameters` and `request.routerPath` upon match.
--- Executes callbacks in order: router pre, path pre, method, path post, router post.
--- @tparam table request
--- @tparam table response
--- @treturn boolean stop whether request handling should stop
----@param request table
----@param response table
----@return boolean
-function Router:newRequestResponse(request, response)
+local function newRequestResponse(self, request, response)
   local stop = false
 
   local path = request:path()
@@ -271,5 +306,37 @@ function Router:newRequestResponse(request, response)
 
   return stop
 end
+
+
+
+--- Route the request to the matching path/method callback.
+-- Populates `request.pathParameters` and `request.routerPath` upon match.
+-- Executes callbacks in order: router pre, path pre, method, path post, router post.
+-- @tparam table request
+-- @tparam table response
+-- @treturn boolean stop whether request handling should stop
+---@param request table
+---@param response table
+---@return boolean
+function Router:newRequestResponse(request, response)
+
+  local errh = function(...) -- error function that injects request/response objects
+    local errobj = self.errorHandler(request, response, ...)
+    return errobj -- no tailcall since LuaJIT will eat a stack-level
+  end
+
+  local ok, stop = xpcall(newRequestResponse, errh, self, request, response)
+  if not ok then
+    if stop ~= nil then
+      -- 'stop' is now the error object returned from the error handler, log an error message
+      request.log:error('Request for: %s %s, failed: %s', request:method(), request:path(), tostring(stop))
+    end
+    stop = true
+  end
+
+  return stop
+end
+
+
 
 return Router
