@@ -18,22 +18,24 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     strategy:
       fail-fast: false
       matrix:
-        luaVersion: ["5.1", "5.2", "5.3", "5.4", "luajit-openresty"]
+        luaVersion: ["5.1", "5.2", "5.3", "5.4", "5.5", "luajit-openresty"]
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - uses: leafo/gh-actions-lua@v8
+      - uses: luarocks/gh-actions-lua@master
         with:
           luaVersion: ${{ matrix.luaVersion }}
 
-      - uses: leafo/gh-actions-luarocks@v4
+      - uses: luarocks/gh-actions-luarocks@master
+        with:
+          luaRocksVersion: "3.13.0"
 
       - name: dependencies
         run: |
