@@ -1,19 +1,28 @@
---- Module `pegasus.response`
+--- Response object available in callback handlers.
 --
 -- HTTP response writer used by your application callback.
 -- Instances are created internally by Pegasus and passed to
--- `server:start(function(request, response) ... end)`.
+-- the callback provided to `pegasus:start` and plugin handlers.
+--
+-- Notes:
+--
+-- - When streaming (`stayOpen == true`), Transfer-Encoding: chunked is used.
+-- - For HEAD requests, bodies are automatically skipped.
+--
+-- Fields on the object:
+--
+-- * `response.log`: the logger object, to enable logging from handlers and plugins
+-- * `response.request`: the related `pegasus.request` object
+-- * `response.status`: the HTTP status code (defaults to 200), use `response:statusCode` to set the status
 --
 -- Quick example:
--- ```lua
--- server:start(function(req, res)
---   res:statusCode(200)
---      :contentType('application/json')
---      :write('{"ok":true}')
--- end)
--- ```
 --
--- @module pegasus.response
+--     server:start(function(req, res)
+--       res:statusCode(200)
+--          :contentType('application/json')
+--          :write('{"ok":true}')
+--     end)
+-- @classmod pegasus.response
 
 local mimetypes = require 'mimetypes'
 
@@ -99,38 +108,14 @@ local DEFAULT_ERROR_MESSAGE = [[
 </html>
 ]]
 
---- The HTTP response object.
---
--- Usage pattern: chainable calls for fluent responses.
---
--- Methods of interest:
--- - `statusCode(code[, text])`
--- - `contentType(value)` / `addHeader(name, value)` / `addHeaders(table)`
--- - `write(body[, stayOpen])` (streams when `stayOpen == true`)
--- - `close()` (finish chunked stream)
--- - `writeFile(path[, contentType])` (200 OK)
--- - `sendFile(path)` (attachment)
--- - `redirect(location[, temporary])`
---
--- Notes:
--- - When streaming (`stayOpen == true`), Transfer-Encoding: chunked is used.
--- - For HEAD requests, bodies are automatically skipped.
---
--- @type Response
----@class Response
----@field status integer
----@field request table
+
 local Response = {}
 Response.__index = Response
 
---- Internal: construct a new Response.
---
+-- Internal: construct a new Response.
 -- @tparam table client accepted client socket
 -- @tparam table writeHandler internal handler (provides `log` and body processing)
 -- @treturn Response response
----@param client table
----@param writeHandler table
----@return Response
 function Response:new(client, writeHandler)
   local newObj = {}
   newObj.log = writeHandler.log
@@ -148,13 +133,10 @@ function Response:new(client, writeHandler)
 end
 
 --- Add a response header.
--- Errors if headers were already sent.
+-- Errors if headers were already sent downstream.
 -- @tparam string key
--- @tparam string|number|table value
--- @treturn Response self
----@param key string
----@param value any
----@return Response
+-- @tparam string|number|array value (multiple headers by the same name can be set by passing an array of values)
+-- @return The `pegasus.response` object to allow chaining calls.
 function Response:addHeader(key, value)
   assert(not self._headersSended, "can't add header, they were already sent")
   self._headers[key] = value
@@ -162,10 +144,8 @@ function Response:addHeader(key, value)
 end
 
 --- Add multiple headers.
--- @tparam table params
--- @treturn Response self
----@param params table
----@return Response
+-- @tparam table params table of key-value pairs to add as headers (see `addHeader` for value types)
+-- @return The `pegasus.response` object to allow chaining calls.
 function Response:addHeaders(params)
   for key, value in pairs(params) do
     self:addHeader(key, value)
@@ -176,21 +156,16 @@ end
 
 --- Set the `Content-Type` header.
 -- @tparam string value
--- @treturn Response self
----@param value string
----@return Response
+-- @return The `pegasus.response` object to allow chaining calls.
 function Response:contentType(value)
   return self:addHeader('Content-Type', value)
 end
 
 --- Set the HTTP status line.
--- Must be called before headers are sent.
+-- Must be called before headers are sent downstream.
 -- @tparam number statusCode
 -- @tparam[opt] string statusText (defaults to standard text for the code)
--- @treturn Response self
----@param statusCode integer
----@param statusText string|nil
----@return Response
+-- @return The `pegasus.response` object to allow chaining calls.
 function Response:statusCode(statusCode, statusText)
   assert(not self._headersSended, "can't set status code, it was already sent")
   self.status = statusCode
@@ -200,18 +175,20 @@ function Response:statusCode(statusCode, statusText)
   return self
 end
 
---- Skip writing the response body (used for HEAD requests).
--- @tparam[opt] boolean skip defaults to true
----@param skip boolean|nil
+--- Instruct response to skip writing the response body.
+-- This is automatically called by the `pegasus.request` object for HEAD requests. There should be no need
+-- to call this manually.
+-- @tparam[opt=true] boolean skip
+-- @return The `pegasus.response` object to allow chaining calls.
 function Response:skipBody(skip)
   if skip == nil then
     skip = true
   end
   self._skipBody = not not skip
+  return self
 end
 
---- Internal: serialize headers.
----@return string
+-- Internal: serialize headers.
 function Response:_getHeaders()
   local headers = {}
 
@@ -231,10 +208,7 @@ end
 --- Write a default HTML error body for a given status.
 -- @tparam number statusCode
 -- @tparam[opt] string errMessage
--- @treturn Response self
----@param statusCode integer
----@param errMessage string|nil
----@return Response
+-- @return The `pegasus.response` object to allow chaining calls.
 function Response:writeDefaultErrorMessage(statusCode, errMessage)
   self:statusCode(statusCode)
   local content = string.gsub(DEFAULT_ERROR_MESSAGE, '{{ STATUS_CODE }}', statusCode)
@@ -245,8 +219,7 @@ end
 
 --- Finish a chunked response and mark as closed.
 -- Idempotent; safe to call multiple times.
--- @treturn Response self
----@return Response
+-- @return The `pegasus.response` object to allow chaining calls.
 function Response:close()
   if not self.closed then
     local body = self._writeHandler:processBodyData(nil, true, self)
@@ -267,8 +240,7 @@ end
 
 --- Send only the headers, without a body.
 -- Useful for redirects and HEAD responses.
--- @treturn Response self
----@return Response
+-- @return The `pegasus.response` object to allow chaining calls.
 function Response:sendOnlyHeaders()
   self:sendHeaders(false, '')
   self:write('\r\n')
@@ -279,12 +251,9 @@ end
 --- Send headers if not already sent.
 -- Adds `Transfer-Encoding: chunked` when `stayOpen == true`; otherwise sets `Content-Length` when body is a string.
 -- Also sets a default `Date` and `Content-Type` header if not present.
--- @tparam boolean stayOpen whether to keep the connection open for chunked streaming
+-- @tparam[opt=false] boolean stayOpen whether to keep the connection open for chunked streaming
 -- @tparam[opt] string body current body chunk (used to set Content-Length)
--- @treturn Response self
----@param stayOpen boolean
----@param body string|nil
----@return Response
+-- @return The `pegasus.response` object to allow chaining calls.
 function Response:sendHeaders(stayOpen, body)
   if self._headersSended then
     return self
@@ -311,14 +280,10 @@ end
 
 --- Write response body.
 -- When `stayOpen == true`, the body is sent as a chunk and the connection remains open.
--- When `stayOpen ~= true`, headers are sent with `Content-Length` and the socket is closed afterwards.
--- `nil` body is treated as empty string.
--- @tparam[opt] string body
+-- When `stayOpen ~= true`, headers are sent with `Content-Length` and the client-socket is closed afterwards.
+-- @tparam[opt=""] string body
 -- @tparam[opt] boolean stayOpen
--- @treturn Response self
----@param body string|nil
----@param stayOpen boolean|nil
----@return Response
+-- @return The `pegasus.response` object to allow chaining calls.
 function Response:write(body, stayOpen)
   body = self._writeHandler:processBodyData(body or '', stayOpen, self)
   self:sendHeaders(stayOpen, body)
@@ -354,14 +319,10 @@ local function readfile(filename)
 end
 
 --- Write a file to the response with a 200 status.
--- Returns nil+err if file cannot be read.
--- @tparam string|file* filename path or legacy file descriptor (deprecated)
--- @tparam[opt] string contentType override content type
--- @treturn[1] Response self
--- @treturn[2] nil,error on failure
----@param filename any
----@param contentType string|nil
----@return Response|nil,any
+-- @tparam string filename path to file
+-- @tparam[opt] string contentType override content type, if omitted it will be guessed based on the filename extension
+-- @return[1] The `pegasus.response` object to allow chaining calls.
+-- @return[2] nil + err on failure
 function Response:writeFile(filename, contentType)
   if type(filename) ~= "string" then
     -- deprecated backward compatibility; file is a file-descriptor
@@ -385,12 +346,9 @@ function Response:writeFile(filename, contentType)
 end
 
 --- Send a file as an attachment (download).
--- Returns nil+err if the file cannot be read.
--- @tparam string path filesystem path
--- @treturn[1] Response self
--- @treturn[2] nil,error on failure
----@param path string
----@return Response|nil,any
+-- @tparam string path path to file
+-- @return[1] The `pegasus.response` object to allow chaining calls.
+-- @return[2] nil + err on failure
 function Response:sendFile(path)
   local filename = path:match("[^/]*$") -- only filename, no path
   self:addHeader('Content-Disposition', 'attachment; filename="' .. filename .. '"')
@@ -407,10 +365,7 @@ end
 --- Redirect to a different URL.
 -- @tparam string location destination URL
 -- @tparam[opt] boolean temporary when true uses 302, otherwise 301
--- @treturn Response self
----@param location string
----@param temporary boolean|nil
----@return Response
+-- @return The `pegasus.response` object to allow chaining calls.
 function Response:redirect(location, temporary)
   self:statusCode(temporary and 302 or 301)
   self:addHeader('Location', location)
