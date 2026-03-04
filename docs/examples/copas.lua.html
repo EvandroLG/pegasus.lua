@@ -1,0 +1,264 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Pegasus webserver in Lua</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Pegasus</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/app.lua.html">app.lua</a></li>
+  <li><a href="../examples/app_stream.lua.html">app_stream.lua</a></li>
+  <li><strong>copas.lua</strong></li>
+  <li><a href="../examples/querystring.lua.html">querystring.lua</a></li>
+  <li><a href="../examples/write.lua.html">write.lua</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/logging.html">logging</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/pegasus.html">pegasus</a></li>
+  <li><a href="../classes/pegasus.handler.html">pegasus.handler</a></li>
+  <li><a href="../classes/pegasus.plugins.compress.html">pegasus.plugins.compress</a></li>
+  <li><a href="../classes/pegasus.plugins.downloads.html">pegasus.plugins.downloads</a></li>
+  <li><a href="../classes/pegasus.plugins.files.html">pegasus.plugins.files</a></li>
+  <li><a href="../classes/pegasus.plugins.router.html">pegasus.plugins.router</a></li>
+  <li><a href="../classes/pegasus.plugins.tls.html">pegasus.plugins.tls</a></li>
+  <li><a href="../classes/pegasus.request.html">pegasus.request</a></li>
+  <li><a href="../classes/pegasus.response.html">pegasus.response</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="">
+  <li><a href="../topics/LICENSE.html">LICENSE</a></li>
+  <li><a href="../topics/README.md.html">README</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>copas.lua</h2>
+<pre>
+<span class="comment">-- setup path to find the project source files of Pegasus
+</span><span class="global">package</span>.path = <span class="string">"./src/?.lua;./src/?/init.lua;"</span>..<span class="global">package</span>.path
+
+
+<span class="comment">-- Example that uses Copas as a socket scheduler, allowing multiple
+</span><span class="comment">-- servers to work in parallel.
+</span><span class="comment">-- For this example to work with the https version, you need LuaSec
+</span><span class="comment">-- to be installed, and you need to generate the test certificates from
+</span><span class="comment">-- its examples. Copy the 'A' certificates into this example directory
+</span><span class="comment">-- to make it work.
+</span><span class="comment">-- Additionally you need lua-cjson to be installed.
+</span>
+<span class="comment">-- require lualogging if available, "pegasus.log" will automatically pick it up
+</span><span class="global">pcall</span>(<span class="global">require</span>, <span class="string">'logging'</span>)
+
+<span class="keyword">local</span> Handler = <span class="global">require</span> <span class="string">'pegasus.handler'</span>
+<span class="keyword">local</span> copas = <span class="global">require</span>(<span class="string">'copas'</span>)
+<span class="keyword">local</span> socket = <span class="global">require</span>(<span class="string">'socket'</span>)
+<span class="keyword">local</span> Downloads = <span class="global">require</span> <span class="string">'pegasus.plugins.downloads'</span>
+<span class="keyword">local</span> Files = <span class="global">require</span> <span class="string">'pegasus.plugins.files'</span>
+<span class="keyword">local</span> Router = <span class="global">require</span> <span class="string">'pegasus.plugins.router'</span>
+<span class="keyword">local</span> Compress = <span class="global">require</span> <span class="string">'pegasus.plugins.compress'</span>
+<span class="keyword">local</span> json = <span class="global">require</span> <span class="string">'cjson.safe'</span>
+
+
+<span class="comment">--- Creates a new server within the Copas scheduler.
+</span><span class="comment">-- @tparam table opts options table.
+</span><span class="comment">-- @tparam[opt='*'] string opts.interface the interface to listen on, or '*' for all.
+</span><span class="comment">-- @tparam string          opts.port the port number to listen on.
+</span><span class="comment">-- @tparam[opt] table      opts.sslparams the tls based parameters, see the Copas documentation.
+</span><span class="comment">--                         If not provided, then the connection will be accepted as a plain one.
+</span><span class="comment">-- @tparam[opt] table      opts.plugins the plugins to use
+</span><span class="comment">-- @tparam[opt] function   opts.callback the callback function to handle requests
+</span><span class="comment">-- @tparam[opt] string     opts.location the file-path from where to serve files
+</span><span class="comment">-- @tparam[opt] logger     opts.log the LuaLogging logger to use (defaults to LuaLogging default logger)
+</span><span class="comment">-- @return the server-socket on success, or nil+err on failure
+</span><span class="keyword">local</span> <span class="keyword">function</span> <span class="function-name">newPegasusServer</span>(opts)
+  opts = opts <span class="keyword">or</span> {}
+  <span class="global">assert</span>(opts.port, <span class="string">"option 'port' must be provided"</span>)
+
+  <span class="keyword">local</span> server_sock, err = socket.<span class="function-name">bind</span>(opts.interface <span class="keyword">or</span> <span class="string">'*'</span>, opts.port)
+  <span class="keyword">if</span> <span class="keyword">not</span> server_sock <span class="keyword">then</span>
+    <span class="keyword">return</span> <span class="keyword">nil</span>, <span class="string">"failed to create server socket; "</span>.. <span class="global">tostring</span>(err)
+  <span class="keyword">end</span>
+
+  <span class="keyword">local</span> server_ip, server_port = server_sock:<span class="function-name">getsockname</span>()
+  <span class="keyword">if</span> <span class="keyword">not</span> server_ip <span class="keyword">then</span>
+    <span class="keyword">return</span> <span class="keyword">nil</span>, <span class="string">"failed to get server socket name; "</span>..<span class="global">tostring</span>(server_port)
+  <span class="keyword">else</span>
+    <span class="keyword">if</span> server_ip == <span class="string">"0.0.0.0"</span> <span class="keyword">then</span>
+      server_ip = <span class="string">"localhost"</span>
+    <span class="keyword">end</span>
+  <span class="keyword">end</span>
+
+  <span class="keyword">local</span> hdlr = Handler:<span class="function-name">new</span>(opts.callback, opts.location, opts.plugins, opts.log)
+
+  copas.<span class="function-name">addserver</span>(server_sock, copas.<span class="function-name">handler</span>(<span class="keyword">function</span>(client_sock)
+    hdlr:<span class="function-name">processRequest</span>(server_port, client_sock)
+  <span class="keyword">end</span>, opts.sslparams))
+
+  hdlr.log:<span class="function-name">info</span>(<span class="string">'Pegasus is up on %s://%s:%s'</span>, opts.sslparams <span class="keyword">and</span> <span class="string">"https"</span> <span class="keyword">or</span> <span class="string">"http"</span>, server_ip, server_port)
+  <span class="keyword">return</span> server_sock
+<span class="keyword">end</span>
+
+
+<span class="comment">-- example data for the "router" plugin
+</span><span class="keyword">local</span> routes <span class="keyword">do</span>
+  <span class="keyword">local</span> testData = {
+    Jane = { firstName = <span class="string">"Jane"</span>, lastName = <span class="string">"Doe"</span>, age = <span class="number">25</span> },
+    John = { firstName = <span class="string">"John"</span>, lastName = <span class="string">"Doe"</span>, age = <span class="number">30</span> },
+  }
+
+  routes = {
+    <span class="comment">-- router-level preFunction runs before the method prefunction and callback
+</span>    preFunction = <span class="keyword">function</span>(req, resp)
+      <span class="keyword">local</span> stop = <span class="keyword">false</span>
+      <span class="keyword">local</span> headers = req:<span class="function-name">headers</span>()
+      <span class="keyword">local</span> accept = (headers.accept <span class="keyword">or</span> <span class="string">"*/*"</span>):<span class="function-name">lower</span>()
+      <span class="keyword">if</span> <span class="keyword">not</span> accept:<span class="function-name">find</span>(<span class="string">"application/json"</span>, <span class="number">1</span>, <span class="keyword">true</span>) <span class="keyword">and</span>
+         <span class="keyword">not</span> accept:<span class="function-name">find</span>(<span class="string">"application/*"</span>, <span class="number">1</span>, <span class="keyword">true</span>) <span class="keyword">and</span>
+         <span class="keyword">not</span> accept:<span class="function-name">find</span>(<span class="string">"*/*"</span>, <span class="number">1</span>, <span class="keyword">true</span>) <span class="keyword">then</span>
+
+        resp:<span class="function-name">writeDefaultErrorMessage</span>(<span class="number">406</span>, <span class="string">"This API only produces 'application/json'"</span>)
+        stop = <span class="keyword">true</span>
+      <span class="keyword">end</span>
+      <span class="keyword">return</span> stop
+    <span class="keyword">end</span>,
+
+    [<span class="string">"/people"</span>] = {
+      GET = <span class="keyword">function</span>(req, resp)
+        resp:<span class="function-name">statusCode</span>(<span class="number">200</span>)
+        resp:<span class="function-name">addHeader</span>(<span class="string">"Content-Type"</span>, <span class="string">"application/json"</span>)
+        resp:<span class="function-name">write</span>(json.<span class="function-name">encode</span>(testData))
+      <span class="keyword">end</span>,
+    },
+
+    [<span class="string">"/people/{name}"</span>] = {
+      <span class="comment">-- path-level preFunction runs before the actual method callback
+</span>      preFunction = <span class="keyword">function</span>(req, resp)
+        <span class="keyword">local</span> stop = <span class="keyword">false</span>
+        <span class="keyword">local</span> name = req.pathParameters.name
+        <span class="keyword">if</span> <span class="keyword">not</span> testData[name] <span class="keyword">then</span>
+          <span class="keyword">local</span> err = (<span class="string">"'%s' is an unknown person"</span>):<span class="function-name">format</span>(name)
+          req.log:<span class="global">error</span>(err)
+          resp:<span class="function-name">writeDefaultErrorMessage</span>(<span class="number">404</span>, err)
+          stop = <span class="keyword">true</span>
+        <span class="keyword">end</span>
+        <span class="keyword">return</span> stop
+      <span class="keyword">end</span>,
+
+      <span class="comment">-- callback per method
+</span>      GET = <span class="keyword">function</span>(req, resp)
+        resp:<span class="function-name">statusCode</span>(<span class="number">200</span>)
+        resp:<span class="function-name">addHeader</span>(<span class="string">"Content-Type"</span>, <span class="string">"application/json"</span>)
+        resp:<span class="function-name">write</span>(json.<span class="function-name">encode</span>(testData[req.pathParameters.name]))
+      <span class="keyword">end</span>,
+
+      <span class="comment">-- postFunction runs after the actual method callback
+</span>      postFunction = <span class="keyword">function</span>(req, resp)
+        <span class="keyword">local</span> stop = <span class="keyword">false</span>
+        req.log:<span class="global">debug</span>(<span class="string">"served %s's data"</span>, req.pathParameters.name)
+        <span class="keyword">return</span> stop
+      <span class="keyword">end</span>,
+    }
+  }
+<span class="keyword">end</span>
+
+
+
+<span class="comment">-- Create http server
+</span><span class="global">assert</span>(<span class="function-name">newPegasusServer</span>{
+  interface = <span class="string">"*"</span>,
+  port = <span class="string">"9090"</span>,
+  sslparams = <span class="keyword">nil</span>,
+  location = <span class="keyword">nil</span>,
+  callback = <span class="keyword">function</span>(req, resp) <span class="comment">-- just redirecting to the https one
+</span>    <span class="keyword">local</span> host = (req:<span class="function-name">headers</span>()[<span class="string">"Host"</span>] <span class="keyword">or</span> <span class="string">""</span>):<span class="function-name">match</span>(<span class="string">"^([^:]+)"</span>)
+    resp:<span class="function-name">redirect</span>(<span class="string">"https://"</span> .. host .. <span class="string">":9091"</span> .. req:<span class="function-name">path</span>())
+  <span class="keyword">end</span>,
+  plugins = {},
+})
+
+
+<span class="comment">-- Create https server
+</span><span class="global">assert</span>(<span class="function-name">newPegasusServer</span>{
+  interface = <span class="string">"*"</span>,
+  port = <span class="string">"9091"</span>,
+  sslparams = {  <span class="comment">-- the tls specific configuration
+</span>    wrap = {
+      mode = <span class="string">"server"</span>,
+      protocol = <span class="string">"any"</span>,
+      key = <span class="string">"./example/serverAkey.pem"</span>,
+      certificate = <span class="string">"./example/serverA.pem"</span>,
+      cafile = <span class="string">"./example/rootA.pem"</span>,
+      verify = {<span class="string">"none"</span>},
+      options = {<span class="string">"all"</span>, <span class="string">"no_sslv2"</span>, <span class="string">"no_sslv3"</span>, <span class="string">"no_tlsv1"</span>},
+    },
+    sni = <span class="keyword">nil</span>,
+  },
+
+  plugins = {
+    Downloads:<span class="function-name">new</span> {
+      location = <span class="string">'/example/root/'</span>,
+      prefix = <span class="string">'downloads'</span>,
+      stripPrefix = <span class="keyword">true</span>,
+    },
+
+    Files:<span class="function-name">new</span> {
+      location = <span class="string">'/example/root/'</span>,
+    },
+
+    Router:<span class="function-name">new</span> {
+      prefix = <span class="string">"/api/1v0/"</span>,
+      routes = routes,
+    },
+
+    Compress:<span class="function-name">new</span>(),
+  }
+})
+
+<span class="comment">-- Start
+</span>copas.<span class="function-name">loop</span>()</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-03-04 12:03:10 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

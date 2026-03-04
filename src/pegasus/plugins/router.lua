@@ -117,7 +117,6 @@
 --     }
 -- @classmod pegasus.plugins.router
 
-<<<<<<< HEAD
 
 
 local xpcall = xpcall
@@ -154,8 +153,6 @@ end
 -- @type Router
 ---@class Router
 
-=======
->>>>>>> cff8d4b (chore(docs): create ldoc based documentation)
 local Router = {}
 Router.__index = Router
 

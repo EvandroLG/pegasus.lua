@@ -1,0 +1,315 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Pegasus webserver in Lua</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Pegasus</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Installation">Installation </a></li>
+<li><a href="#How_does_it_work_">How does it work? </a></li>
+<li><a href="#Features">Features </a></li>
+<li><a href="#API">API </a></li>
+<li><a href="#Native_Plugin">Native Plugin </a></li>
+<li><a href="#Contributing">Contributing </a></li>
+</ul>
+
+
+<h2>Topics</h2>
+<ul class="">
+  <li><a href="../topics/LICENSE.html">LICENSE</a></li>
+  <li><strong>README</strong></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/logging.html">logging</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/pegasus.html">pegasus</a></li>
+  <li><a href="../classes/pegasus.handler.html">pegasus.handler</a></li>
+  <li><a href="../classes/pegasus.plugins.compress.html">pegasus.plugins.compress</a></li>
+  <li><a href="../classes/pegasus.plugins.downloads.html">pegasus.plugins.downloads</a></li>
+  <li><a href="../classes/pegasus.plugins.files.html">pegasus.plugins.files</a></li>
+  <li><a href="../classes/pegasus.plugins.router.html">pegasus.plugins.router</a></li>
+  <li><a href="../classes/pegasus.plugins.tls.html">pegasus.plugins.tls</a></li>
+  <li><a href="../classes/pegasus.request.html">pegasus.request</a></li>
+  <li><a href="../classes/pegasus.response.html">pegasus.response</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/app.lua.html">app.lua</a></li>
+  <li><a href="../examples/app_stream.lua.html">app_stream.lua</a></li>
+  <li><a href="../examples/copas.lua.html">copas.lua</a></li>
+  <li><a href="../examples/querystring.lua.html">querystring.lua</a></li>
+  <li><a href="../examples/write.lua.html">write.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+
+<p><a href="http://evandrolg.github.io/pegasus.lua"><img src="http://evandrolg.github.io/pegasus.lua/pegasus.lua.svg" alt="pegasus.lua"/></a></p>
+
+<p>An http server to work with web applications written in Lua language <a href="https://evandrolg.github.io/pegasus.lua">check the site</a>.</p>
+
+<p><a href="https://github.com/EvandroLG/pegasus.lua/actions/workflows/unix_build.yml"><img src="https://img.shields.io/github/actions/workflow/status/EvandroLG/pegasus.lua/unix_build.yml?branch=master&amp;label=Unix%20build&amp;logo=linux" alt="Unix build"/></a>
+<a href="https://github.com/EvandroLG/pegasus.lua/actions/workflows/lint.yml"><img src="https://github.com/EvandroLG/pegasus.lua/workflows/Lint/badge.svg" alt="Lint"/></a>
+<a href="https://huboard.com/EvandroLG/pegasus.lua"><img src="http://img.shields.io/badge/Hu-Board-7965cc.svg" alt="HuBoard
+badge"/></a>
+<a href="https://gitter.im/EvandroLG/pegasus.lua?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Gitter"/></a></p>
+
+<p><a name="Installation"></a></p>
+<h2>Installation</h2>
+
+<p>To install Pegasus.lua, run:</p>
+
+
+<pre>
+$ luarocks install pegasus
+</pre>
+
+
+<p><a name="How_does_it_work_"></a></p>
+<h2>How does it work?</h2>
+
+<p>Follow an example:</p>
+
+
+<pre>
+<span class="keyword">local</span> pegasus = <span class="global">require</span> <span class="string">'pegasus'</span>
+
+<span class="keyword">local</span> server = pegasus:<span class="function-name">new</span>({
+  port=<span class="string">'9090'</span>,
+  location=<span class="string">'example/root'</span>
+})
+
+server:<span class="function-name">start</span>(<span class="keyword">function</span> (request, response)
+  <span class="global">print</span> <span class="string">"It's running..."</span>
+<span class="keyword">end</span>)
+</pre>
+
+
+<p>Or try the <a href="example/README.md">included examples</a>.</p>
+
+<p><a name="Features"></a></p>
+<h2>Features</h2>
+
+<ul>
+    <li>Compatible with Linux, Mac and Windows systems</li>
+    <li>Easy API</li>
+    <li>Support Lua >= 5.1</li>
+    <li>Native support for HTTP Streaming, aka chunked responses. <a href="https://github.com/EvandroLG/pegasus.lua/blob/master/example/app_stream.lua">Check how it works</a>.</li>
+    <li>Native plugin to compress responses using the "gzip" method</li>
+</ul>
+
+<p><a name="API"></a></p>
+<h2>API</h2>
+
+<h3>Parameters</h3>
+
+<ul>
+    <li><code>host:string</code> Host address where the application will run. By default it uses <code>localhost</code></li>
+    <li><code>port:string</code> The port where the application will run. By default it's <code>9090</code></li>
+    <li><code>location:string</code> Path used by Pegasus to search for the files. By default it's the root</li>
+    <li><code>plugins:table</code> List with plugins</li>
+    <li><code>timeout:number</code> It's a timeout for estabilishing a connection with the server</li>
+</ul>
+
+<h3>Request</h3>
+
+<h4>Properties</h4>
+
+<ul>
+    <li><code>path:string</code> A string with the request path</li>
+    <li><code>headers:table</code> A table with all the headers data</li>
+    <li><code>method:function</code> The output is the request method as a string ('GET', 'POST', etc)</li>
+    <li><code>querystring:string</code> It returns a dictionary with all the GET parameters</li>
+    <li><code>ip:string</code> It returns the client's ip</li>
+    <li><code>port:number</code> It returns the port where Pegasus is running</li>
+</ul>
+
+<h3>Response</h3>
+
+<h4>Methods</h4>
+
+<ul>
+    <li><code>addHeader(string:key, string:value)</code> Adds a new header</li>
+    <li><code>addHeaders(table:headers)</code> It adds news headers</li>
+    <li><code>statusCode(number:statusCode, string:statusMessage)</code> It adds a Status Code</li>
+    <li><code>contentType(string:value)</code> Adds a value to Content-Type field</li>
+    <li><code>write(string:body)</code> It creates the body with the value passed as
+    parameter</li>
+    <li><code>writeDefaultErrorMessage(statusCode: string, message:body)</code> It sets an HTTP status code and writes an error message to the response</li>
+    <li><code>writeFile(string:file)</code> It creates the body with the content of the
+    file passed as parameter</li>
+    <li><code>post():table</code> It returns a dictionary with all the POST parameters</li>
+    <li><code>redirect(location:string, temporary:boolean):</code> Makes an HTTP redirect to a new location. The status code is set to 302 if temporary is true and false otherwise.</li>
+</ul>
+
+
+<pre>
+<span class="keyword">local</span> pegasus = <span class="global">require</span> <span class="string">'pegasus'</span>
+
+<span class="keyword">local</span> server = pegasus:<span class="function-name">new</span>({ port=<span class="string">'9090'</span> })
+
+server:<span class="function-name">start</span>(<span class="keyword">function</span> (req, rep)
+  rep:<span class="function-name">addHeader</span>(<span class="string">'Date'</span>, <span class="string">'Mon, 15 Jun 2015 14:24:53 GMT'</span>):<span class="function-name">write</span>(<span class="string">'hello pegasus world!'</span>)
+  <span class="keyword">return</span> rep:<span class="function-name">close</span>()
+<span class="keyword">end</span>)
+</pre>
+
+
+<p><a name="Native_Plugin"></a></p>
+<h2>Native Plugin</h2>
+
+<ul>
+    <li>pegasus.plugins.compress</li>
+</ul>
+
+
+<pre>
+<span class="keyword">local</span> Pegasus = <span class="global">require</span> <span class="string">'pegasus'</span>
+<span class="keyword">local</span> Compress = <span class="global">require</span> <span class="string">'pegasus.plugins.compress'</span>
+
+<span class="keyword">local</span> server = Pegasus:<span class="function-name">new</span>({
+  plugins = { Compress:<span class="function-name">new</span>() }
+})
+
+server:<span class="function-name">start</span>()
+</pre>
+
+
+<ul>
+    <li>pegasus.plugins.downloads</li>
+</ul>
+
+
+<pre>
+<span class="keyword">local</span> Pegasus = <span class="global">require</span> <span class="string">'pegasus'</span>
+<span class="keyword">local</span> Downloads = <span class="global">require</span> <span class="string">'pegasus.plugins.downloads'</span>
+
+<span class="keyword">local</span> server = Pegasus:<span class="function-name">new</span>({
+  plugins = {
+    Downloads:<span class="function-name">new</span> {
+      prefix = <span class="string">"downloads"</span>,
+      stripPrefix = <span class="keyword">true</span>,
+    },
+  }
+})
+
+server:<span class="function-name">start</span>()
+</pre>
+
+
+
+<ul>
+    <li>pegasus.plugins.files</li>
+</ul>
+
+
+<pre>
+<span class="keyword">local</span> Pegasus = <span class="global">require</span> <span class="string">'pegasus'</span>
+<span class="keyword">local</span> Files = <span class="global">require</span> <span class="string">'pegasus.plugins.files'</span>
+
+<span class="keyword">local</span> server = Pegasus:<span class="function-name">new</span>({
+  plugins = {
+    Files:<span class="function-name">new</span> {
+      location = <span class="string">"./"</span>,
+      default = <span class="string">"index.html"</span>,
+    },
+  }
+})
+
+server:<span class="function-name">start</span>()
+</pre>
+
+
+<ul>
+    <li>pegasus.plugins.tls</li>
+</ul>
+
+
+<pre>
+<span class="keyword">local</span> Pegasus = <span class="global">require</span> <span class="string">'pegasus'</span>
+<span class="keyword">local</span> Tls = <span class="global">require</span> <span class="string">'pegasus.plugins.tls'</span>
+
+<span class="keyword">local</span> server = Pegasus:<span class="function-name">new</span>({
+  plugins = {
+    TLS:<span class="function-name">new</span> {
+      wrap = {
+        mode = <span class="string">"server"</span>,
+        protocol = <span class="string">"any"</span>,
+        key = <span class="string">"./serverAkey.pem"</span>,
+        certificate = <span class="string">"./serverA.pem"</span>,
+        cafile = <span class="string">"./rootA.pem"</span>,
+        verify = {<span class="string">"none"</span>},
+        options = {<span class="string">"all"</span>, <span class="string">"no_sslv2"</span>, <span class="string">"no_sslv3"</span>, <span class="string">"no_tlsv1"</span>},
+      },
+      sni = <span class="keyword">nil</span>,
+    },,
+  }
+})
+
+server:<span class="function-name">start</span>()
+</pre>
+
+
+<p><a name="Contributing"></a></p>
+<h2>Contributing</h2>
+
+<h3>Install Dependencies</h3>
+
+
+<pre>
+$ make install_dependencies
+</pre>
+
+
+<h3>Running tests</h3>
+
+
+<pre>
+$ make unit_test
+</pre>
+
+
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-03-04 12:03:10 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

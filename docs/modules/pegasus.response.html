@@ -1,0 +1,681 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Pegasus webserver in Lua</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Pegasus</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/pegasus.plugins.compress.html">pegasus.plugins.compress</a></li>
+  <li><a href="../modules/pegasus.plugins.downloads.html">pegasus.plugins.downloads</a></li>
+  <li><a href="../modules/pegasus.plugins.files.html">pegasus.plugins.files</a></li>
+  <li><a href="../modules/pegasus.plugins.tls.html">pegasus.plugins.tls</a></li>
+  <li><strong>pegasus.response</strong></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/pegasus.html">pegasus</a></li>
+  <li><a href="../classes/pegasus.handler.html">pegasus.handler</a></li>
+  <li><a href="../classes/pegasus.plugins.router.html">pegasus.plugins.router</a></li>
+  <li><a href="../classes/pegasus.request.html">pegasus.request</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="">
+  <li><a href="../topics/01-introduction.md.html">1. Introduction</a></li>
+  <li><a href="../topics/02-advanced.md.html">2. Advanced topic</a></li>
+  <li><a href="../topics/LICENSE.html">LICENSE</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/app.lua.html">app.lua</a></li>
+  <li><a href="../examples/app_stream.lua.html">app_stream.lua</a></li>
+  <li><a href="../examples/copas.lua.html">copas.lua</a></li>
+  <li><a href="../examples/querystring.lua.html">querystring.lua</a></li>
+  <li><a href="../examples/write.lua.html">write.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>pegasus.response</code></h1>
+<p>Module <a href="../modules/pegasus.response.html#">pegasus.response</a></p>
+
+<p> HTTP response writer used by your application callback.</p>
+<p> Instances are created internally by Pegasus and passed to
+ <code>server:start(function(request, response) ... end)</code>.</p>
+
+<p> Quick example:
+ ```lua
+ server:start(function(req, res)
+   res:statusCode(200)</p>
+
+<pre>
+:<span class="function-name">contentType</span>(<span class="string">'application/json'</span>)
+:<span class="function-name">write</span>(<span class="string">'{"ok":true}'</span>)
+</pre>
+
+<p> end)
+ ```</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Response:_getHeaders">Response:_getHeaders ()</a></td>
+	<td class="summary">Internal: serialize headers.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:addHeader">Response:addHeader (key, value, key, value)</a></td>
+	<td class="summary">Add a response header.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:addHeaders">Response:addHeaders (params, params)</a></td>
+	<td class="summary">Add multiple headers.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:close">Response:close ()</a></td>
+	<td class="summary">Finish a chunked response and mark as closed.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:contentType">Response:contentType (value, value)</a></td>
+	<td class="summary">Set the <code>Content-Type</code> header.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:new">Response:new (client, writeHandler, client, writeHandler)</a></td>
+	<td class="summary">Internal: construct a new Response.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:redirect">Response:redirect (location[, temporary], location, temporary)</a></td>
+	<td class="summary">Redirect to a different URL.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:sendFile">Response:sendFile (path, path)</a></td>
+	<td class="summary">Send a file as an attachment (download).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:sendHeaders">Response:sendHeaders (stayOpen[, body], stayOpen, body)</a></td>
+	<td class="summary">Send headers if not already sent.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:sendOnlyHeaders">Response:sendOnlyHeaders ()</a></td>
+	<td class="summary">Send only the headers, without a body.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:skipBody">Response:skipBody ([skip], skip)</a></td>
+	<td class="summary">Skip writing the response body (used for HEAD requests).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:statusCode">Response:statusCode (statusCode[, statusText], statusCode, statusText)</a></td>
+	<td class="summary">Set the HTTP status line.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:write">Response:write ([body][, stayOpen], body, stayOpen)</a></td>
+	<td class="summary">Write response body.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:writeDefaultErrorMessage">Response:writeDefaultErrorMessage (statusCode[, errMessage], statusCode, errMessage)</a></td>
+	<td class="summary">Write a default HTML error body for a given status.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:writeFile">Response:writeFile (filename[, contentType], filename, contentType)</a></td>
+	<td class="summary">Write a file to the response with a 200 status.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Response:_getHeaders"></a>
+    <strong>Response:_getHeaders ()</strong>
+    </dt>
+    <dd>
+    Internal: serialize headers.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:addHeader"></a>
+    <strong>Response:addHeader (key, value, key, value)</strong>
+    </dt>
+    <dd>
+    Add a response header.
+ Errors if headers were already sent.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">key</span>
+         string
+        </li>
+        <li><span class="parameter">value</span>
+         any
+        </li>
+        <li><span class="parameter">key</span>
+         string
+        </li>
+        <li><span class="parameter">value</span>
+         any
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">Response</span></span>
+        self</li>
+        <li>
+        Response</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:addHeaders"></a>
+    <strong>Response:addHeaders (params, params)</strong>
+    </dt>
+    <dd>
+    Add multiple headers.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">params</span>
+         table
+        </li>
+        <li><span class="parameter">params</span>
+         table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">Response</span></span>
+        self</li>
+        <li>
+        Response</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:close"></a>
+    <strong>Response:close ()</strong>
+    </dt>
+    <dd>
+    Finish a chunked response and mark as closed.
+ Idempotent; safe to call multiple times.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">Response</span></span>
+        self</li>
+        <li>
+        Response</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:contentType"></a>
+    <strong>Response:contentType (value, value)</strong>
+    </dt>
+    <dd>
+    Set the <code>Content-Type</code> header.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+         string
+        </li>
+        <li><span class="parameter">value</span>
+         string
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">Response</span></span>
+        self</li>
+        <li>
+        Response</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:new"></a>
+    <strong>Response:new (client, writeHandler, client, writeHandler)</strong>
+    </dt>
+    <dd>
+    Internal: construct a new Response.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">client</span>
+         table
+        </li>
+        <li><span class="parameter">writeHandler</span>
+         table
+        </li>
+        <li><span class="parameter">client</span>
+         table
+        </li>
+        <li><span class="parameter">writeHandler</span>
+         table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">Response</span></span>
+        response</li>
+        <li>
+        Response</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:redirect"></a>
+    <strong>Response:redirect (location[, temporary], location, temporary)</strong>
+    </dt>
+    <dd>
+    Redirect to a different URL.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">location</span>
+         string
+        </li>
+        <li><span class="parameter">temporary</span>
+         boolean|nil
+        </li>
+        <li><span class="parameter">location</span>
+         string
+        </li>
+        <li><span class="parameter">temporary</span>
+         boolean|nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">Response</span></span>
+        self</li>
+        <li>
+        Response</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:sendFile"></a>
+    <strong>Response:sendFile (path, path)</strong>
+    </dt>
+    <dd>
+    Send a file as an attachment (download).
+ Returns nil+err if the file cannot be read.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+         string
+        </li>
+        <li><span class="parameter">path</span>
+         string
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        Response|nil,any
+    </ol>
+     <h3>Or</h3>
+    <ol>
+
+           <span class="types"><span class="type">Response</span></span>
+        self
+    </ol>
+     <h3>Or</h3>
+    <ol>
+
+           <span class="types"><span class="type">nil,error</span></span>
+        on failure
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:sendHeaders"></a>
+    <strong>Response:sendHeaders (stayOpen[, body], stayOpen, body)</strong>
+    </dt>
+    <dd>
+    Send headers if not already sent.
+ Adds <code>Transfer-Encoding: chunked</code> when <code>stayOpen == true</code>; otherwise sets <code>Content-Length</code> when body is a string.
+ Also sets a default <code>Date</code> and <code>Content-Type</code> header if not present.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">stayOpen</span>
+         boolean
+        </li>
+        <li><span class="parameter">body</span>
+         string|nil
+        </li>
+        <li><span class="parameter">stayOpen</span>
+         boolean
+        </li>
+        <li><span class="parameter">body</span>
+         string|nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">Response</span></span>
+        self</li>
+        <li>
+        Response</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:sendOnlyHeaders"></a>
+    <strong>Response:sendOnlyHeaders ()</strong>
+    </dt>
+    <dd>
+    Send only the headers, without a body.
+ Useful for redirects and HEAD responses.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">Response</span></span>
+        self</li>
+        <li>
+        Response</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:skipBody"></a>
+    <strong>Response:skipBody ([skip], skip)</strong>
+    </dt>
+    <dd>
+    Skip writing the response body (used for HEAD requests).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">skip</span>
+         boolean|nil
+        </li>
+        <li><span class="parameter">skip</span>
+         boolean|nil
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:statusCode"></a>
+    <strong>Response:statusCode (statusCode[, statusText], statusCode, statusText)</strong>
+    </dt>
+    <dd>
+    Set the HTTP status line.
+ Must be called before headers are sent.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">statusCode</span>
+         integer
+        </li>
+        <li><span class="parameter">statusText</span>
+         string|nil
+        </li>
+        <li><span class="parameter">statusCode</span>
+         integer
+        </li>
+        <li><span class="parameter">statusText</span>
+         string|nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">Response</span></span>
+        self</li>
+        <li>
+        Response</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:write"></a>
+    <strong>Response:write ([body][, stayOpen], body, stayOpen)</strong>
+    </dt>
+    <dd>
+    Write response body.
+ When <code>stayOpen == true</code>, the body is sent as a chunk and the connection remains open.
+ When <code>stayOpen ~= true</code>, headers are sent with <code>Content-Length</code> and the socket is closed afterwards.
+ <code>nil</code> body is treated as empty string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">body</span>
+         string|nil
+        </li>
+        <li><span class="parameter">stayOpen</span>
+         boolean|nil
+        </li>
+        <li><span class="parameter">body</span>
+         string|nil
+        </li>
+        <li><span class="parameter">stayOpen</span>
+         boolean|nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">Response</span></span>
+        self</li>
+        <li>
+        Response</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:writeDefaultErrorMessage"></a>
+    <strong>Response:writeDefaultErrorMessage (statusCode[, errMessage], statusCode, errMessage)</strong>
+    </dt>
+    <dd>
+    Write a default HTML error body for a given status.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">statusCode</span>
+         integer
+        </li>
+        <li><span class="parameter">errMessage</span>
+         string|nil
+        </li>
+        <li><span class="parameter">statusCode</span>
+         integer
+        </li>
+        <li><span class="parameter">errMessage</span>
+         string|nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">Response</span></span>
+        self</li>
+        <li>
+        Response</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:writeFile"></a>
+    <strong>Response:writeFile (filename[, contentType], filename, contentType)</strong>
+    </dt>
+    <dd>
+    Write a file to the response with a 200 status.
+ Returns nil+err if file cannot be read.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+         any
+        </li>
+        <li><span class="parameter">contentType</span>
+         string|nil
+        </li>
+        <li><span class="parameter">filename</span>
+         any
+        </li>
+        <li><span class="parameter">contentType</span>
+         string|nil
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        Response|nil,any
+    </ol>
+     <h3>Or</h3>
+    <ol>
+
+           <span class="types"><span class="type">Response</span></span>
+        self
+    </ol>
+     <h3>Or</h3>
+    <ol>
+
+           <span class="types"><span class="type">nil,error</span></span>
+        on failure
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-03-04 09:18:07 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Pegasus webserver in Lua</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Pegasus</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/pegasus.html">pegasus</a></li>
+  <li><a href="../classes/pegasus.handler.html">pegasus.handler</a></li>
+  <li><a href="../classes/pegasus.plugins.compress.html">pegasus.plugins.compress</a></li>
+  <li><a href="../classes/pegasus.plugins.downloads.html">pegasus.plugins.downloads</a></li>
+  <li><a href="../classes/pegasus.plugins.files.html">pegasus.plugins.files</a></li>
+  <li><a href="../classes/pegasus.plugins.router.html">pegasus.plugins.router</a></li>
+  <li><a href="../classes/pegasus.plugins.tls.html">pegasus.plugins.tls</a></li>
+  <li><strong>pegasus.request</strong></li>
+  <li><a href="../classes/pegasus.response.html">pegasus.response</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/logging.html">logging</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="">
+  <li><a href="../topics/LICENSE.html">LICENSE</a></li>
+  <li><a href="../topics/README.md.html">README</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/app.lua.html">app.lua</a></li>
+  <li><a href="../examples/app_stream.lua.html">app_stream.lua</a></li>
+  <li><a href="../examples/copas.lua.html">copas.lua</a></li>
+  <li><a href="../examples/querystring.lua.html">querystring.lua</a></li>
+  <li><a href="../examples/write.lua.html">write.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>pegasus.request</code></h1>
+<p>Request object available in callback handlers.</p>
+<p>
+
+
+<p> Parsed HTTP request facade used by your application callback. Instances are
+ created internally by Pegasus and passed to the callback provided to <a href="../classes/pegasus.html#Pegasus:start">pegasus:start</a>,
+ and plugin handlers.</p>
+
+<p> Fields on the object:</p>
+
+<ul>
+    <li><code>request.client</code>: the client socket (wrapped by TLS if TLS plugin is used)</li>
+    <li><code>request.server</code>: the server socket</li>
+    <li><code>response.log</code>: the logger object, to enable logging from handlers and plugins</li>
+    <li><code>request.port</code>: the port on which the request was received</li>
+    <li><code>request.ip</code>: the IP address of the client, if available (not supported by LuaSec)</li>
+    <li><code>request.response</code>: the related <a href="../classes/pegasus.response.html#">pegasus.response</a> object to write the response to</li>
+</ul>
+
+<p> Quick example:</p>
+
+
+<pre>
+server:<span class="function-name">start</span>(<span class="keyword">function</span>(req, res)
+  <span class="keyword">local</span> method = req:<span class="function-name">method</span>()
+  <span class="keyword">local</span> path = req:<span class="function-name">path</span>()
+  <span class="keyword">local</span> headers = req:<span class="function-name">headers</span>()
+  <span class="keyword">local</span> qs = req.querystring <span class="comment">-- table of query params
+</span>
+  <span class="keyword">if</span> method == <span class="string">'POST'</span> <span class="keyword">then</span>
+    <span class="keyword">local</span> form = req:<span class="function-name">post</span>() <span class="comment">-- urlencoded form body, or nil if not POST
+</span>  <span class="keyword">end</span>
+<span class="keyword">end</span>)
+</pre>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Request:headers">Request:headers ()</a></td>
+	<td class="summary">Request headers.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Request:method">Request:method ()</a></td>
+	<td class="summary">HTTP method.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Request:parseUrlEncoded">Request:parseUrlEncoded (data)</a></td>
+	<td class="summary">Parse <code>application/x-www-form-urlencoded</code> data.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Request:path">Request:path ()</a></td>
+	<td class="summary">Request path (normalized), without query-string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Request:post">Request:post ()</a></td>
+	<td class="summary">parse POST body as <code>application/x-www-form-urlencoded</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Request:query">Request:query ()</a></td>
+	<td class="summary">Query-string parameters.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Request:receiveBody">Request:receiveBody ([size])</a></td>
+	<td class="summary">Receive a chunk of the request body.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+    Methods
+    <dl class="function">
+    <dt>
+    <a name = "Request:headers"></a>
+    <strong>Request:headers ()</strong>
+    </dt>
+    <dd>
+    Request headers.
+ Returns a case-insensitive table: looking up with any casing works.
+ If a header appears multiple times, the value becomes a table of strings.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+        headers
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Request:method"></a>
+    <strong>Request:method ()</strong>
+    </dt>
+    <dd>
+    HTTP method.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+        method
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Request:parseUrlEncoded"></a>
+    <strong>Request:parseUrlEncoded (data)</strong>
+    </dt>
+    <dd>
+    Parse <code>application/x-www-form-urlencoded</code> data.
+ Returns a hash table. Duplicate keys are represented as an array of values.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">data</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+        params
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Request:path"></a>
+    <strong>Request:path ()</strong>
+    </dt>
+    <dd>
+    Request path (normalized), without query-string.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+        path
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Request:post"></a>
+    <strong>Request:post ()</strong>
+    </dt>
+    <dd>
+    parse POST body as <code>application/x-www-form-urlencoded</code>.
+ Returns <code>nil</code> if method is not POST.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+        parsed form values, see <a href="../classes/pegasus.request.html#Request:parseUrlEncoded">parseUrlEncoded</a> for details on the format of this table.
+    </ol>
+     <h3>Or</h3>
+    <ol>
+
+           <span class="types"><span class="type">nil</span></span>
+        when not a POST request
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Request:query"></a>
+    <strong>Request:query ()</strong>
+    </dt>
+    <dd>
+    Query-string parameters.
+ Returns a hash table. Duplicate keys are represented as an array of values.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+        querystring
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Request:receiveBody"></a>
+    <strong>Request:receiveBody ([size])</strong>
+    </dt>
+    <dd>
+    Receive a chunk of the request body.
+ Ensures headers are parsed. Returns <code>false</code> when there is no body or it is fully consumed.
+ When a socket timeout happens, any partial data is returned.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">size</span>
+            <span class="types"><span class="type">number</span></span>
+         preferred chunk size
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a> or <span class="type">false</span></span>
+        chunk or false if no more content
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-03-04 12:03:10 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

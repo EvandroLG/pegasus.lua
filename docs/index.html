@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Pegasus webserver in Lua</title>
+    <link rel="stylesheet" href="ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Pegasus</h1>
+
+
+
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="modules/logging.html">logging</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="classes/pegasus.html">pegasus</a></li>
+  <li><a href="classes/pegasus.handler.html">pegasus.handler</a></li>
+  <li><a href="classes/pegasus.plugins.compress.html">pegasus.plugins.compress</a></li>
+  <li><a href="classes/pegasus.plugins.downloads.html">pegasus.plugins.downloads</a></li>
+  <li><a href="classes/pegasus.plugins.files.html">pegasus.plugins.files</a></li>
+  <li><a href="classes/pegasus.plugins.router.html">pegasus.plugins.router</a></li>
+  <li><a href="classes/pegasus.plugins.tls.html">pegasus.plugins.tls</a></li>
+  <li><a href="classes/pegasus.request.html">pegasus.request</a></li>
+  <li><a href="classes/pegasus.response.html">pegasus.response</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="">
+  <li><a href="topics/LICENSE.html">LICENSE</a></li>
+  <li><a href="topics/README.md.html">README</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="examples/app.lua.html">app.lua</a></li>
+  <li><a href="examples/app_stream.lua.html">app_stream.lua</a></li>
+  <li><a href="examples/copas.lua.html">copas.lua</a></li>
+  <li><a href="examples/querystring.lua.html">querystring.lua</a></li>
+  <li><a href="examples/write.lua.html">write.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+
+  <h2>Minimal, embeddable HTTP server with a simple plugin system.</h2>
+
+<h2>Modules</h2>
+<table class="module_list">
+	<tr>
+		<td class="name"  nowrap><a href="modules/logging.html">logging</a></td>
+		<td class="summary">logging.</td>
+	</tr>
+</table>
+<h2>Classes</h2>
+<table class="module_list">
+	<tr>
+		<td class="name"  nowrap><a href="classes/pegasus.html">pegasus</a></td>
+		<td class="summary">The Pegasus server main entry point.</td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="classes/pegasus.handler.html">pegasus.handler</a></td>
+		<td class="summary">Internal handler that drives the request/response cycle.</td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="classes/pegasus.plugins.compress.html">pegasus.plugins.compress</a></td>
+		<td class="summary">gzip compression for responses.</td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="classes/pegasus.plugins.downloads.html">pegasus.plugins.downloads</a></td>
+		<td class="summary">Plugin that sends files downstream as downloads.</td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="classes/pegasus.plugins.files.html">pegasus.plugins.files</a></td>
+		<td class="summary">Plugin that serves static content.</td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="classes/pegasus.plugins.router.html">pegasus.plugins.router</a></td>
+		<td class="summary">A router plugin for handling paths/methods/path-parameters.</td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="classes/pegasus.plugins.tls.html">pegasus.plugins.tls</a></td>
+		<td class="summary">Implements TLS for secure connections.</td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="classes/pegasus.request.html">pegasus.request</a></td>
+		<td class="summary">Request object available in callback handlers.</td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="classes/pegasus.response.html">pegasus.response</a></td>
+		<td class="summary">Response object available in callback handlers.</td>
+	</tr>
+</table>
+<h2>Topics</h2>
+<table class="module_list">
+	<tr>
+		<td class="name"  nowrap><a href="topics/LICENSE.html">LICENSE</a></td>
+		<td class="summary"></td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="topics/README.md.html">README.md</a></td>
+		<td class="summary"></td>
+	</tr>
+</table>
+<h2>Examples</h2>
+<table class="module_list">
+	<tr>
+		<td class="name"  nowrap><a href="examples/app.lua.html">app.lua</a></td>
+		<td class="summary"></td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="examples/app_stream.lua.html">app_stream.lua</a></td>
+		<td class="summary"></td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="examples/copas.lua.html">copas.lua</a></td>
+		<td class="summary"></td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="examples/querystring.lua.html">querystring.lua</a></td>
+		<td class="summary"></td>
+	</tr>
+	<tr>
+		<td class="name"  nowrap><a href="examples/write.lua.html">write.lua</a></td>
+		<td class="summary"></td>
+	</tr>
+</table>
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-03-04 12:03:10 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

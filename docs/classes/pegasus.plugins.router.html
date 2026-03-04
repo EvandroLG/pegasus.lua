@@ -1,0 +1,300 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Pegasus webserver in Lua</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Pegasus</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/pegasus.html">pegasus</a></li>
+  <li><a href="../classes/pegasus.handler.html">pegasus.handler</a></li>
+  <li><a href="../classes/pegasus.plugins.compress.html">pegasus.plugins.compress</a></li>
+  <li><a href="../classes/pegasus.plugins.downloads.html">pegasus.plugins.downloads</a></li>
+  <li><a href="../classes/pegasus.plugins.files.html">pegasus.plugins.files</a></li>
+  <li><strong>pegasus.plugins.router</strong></li>
+  <li><a href="../classes/pegasus.plugins.tls.html">pegasus.plugins.tls</a></li>
+  <li><a href="../classes/pegasus.request.html">pegasus.request</a></li>
+  <li><a href="../classes/pegasus.response.html">pegasus.response</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/logging.html">logging</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="">
+  <li><a href="../topics/LICENSE.html">LICENSE</a></li>
+  <li><a href="../topics/README.md.html">README</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/app.lua.html">app.lua</a></li>
+  <li><a href="../examples/app_stream.lua.html">app_stream.lua</a></li>
+  <li><a href="../examples/copas.lua.html">copas.lua</a></li>
+  <li><a href="../examples/querystring.lua.html">querystring.lua</a></li>
+  <li><a href="../examples/write.lua.html">write.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>pegasus.plugins.router</code></h1>
+<p>A router plugin for handling paths/methods/path-parameters.</p>
+<p>
+
+
+<p> A plugin that routes requests based on path and method, with support for
+ path parameters and pre/post hooks at both router and path levels.</p>
+
+<p> Supports path parameters.</p>
+
+<p> The <code>routes</code> table to configure the router is a hash-table where the keys are the path, and
+ the value is another hash-table. The second hash-table has the method as the key, and the
+ callbacks as the values.
+ Both hash-tables can have "<code>preFunction</code>" and "<code>postFunction</code>" entries,
+ which should have callbacks as values.</p>
+
+<p> There are 5 callbacks (called in this order);</p>
+
+<ul>
+    <li><p>the router <code>preFunction</code> callback is called first when there is a <code>prefix</code> match. It can
+    be used to do some validations, like path parameters, etc. It is defined on <a href="../classes/pegasus.plugins.router.html">router</a> level.</p></li>
+    <li><p>the path <code>preFunction</code> callback is called when there is a <code>path</code> match. It can
+    be used to do some validations, like path parameters, etc. It is defined on <code>path</code> level.</p></li>
+    <li><p>the <code>METHOD</code> (eg. <code>GET, </code>POST`, etc) this callback implements the specific method. It is defined
+    once for each supported method on the path. The special case is method "<code>*</code>" which is a catch-all.
+    The catch-all will be used for any method that doesn't have its own handler defined.
+    If omitted, the default catch-all will return a "405 Method Not Allowed" error.</p></li>
+    <li><p>the path <code>postFunction</code> is called after the <code>METHOD</code> callback. This one is defined on <code>path</code> level.</p></li>
+    <li><p>the router <code>postFunction</code> is called last. This one is defined on <a href="../classes/pegasus.plugins.router.html">router</a> level.</p></li>
+</ul>
+
+<p> The callbacks have the following function signature; <code>stop = function(request, response)</code>.
+ If <code>stop</code> is truthy, request handling is terminated, no further callbacks will be called.</p>
+
+<p> Path parameters can be defined in the path in curly braces; "<code>{variableName}</code>", and they will match
+ a single path segment. The values will be made available on the Request object as
+ <code>request.pathParameters.variableName</code>.</p>
+
+<p> The API sub-path (without the prefix) is available as on the Request object as <code>request.routerPath</code>.</p>
+
+<p> Route matching is based on a complete match (not prefix). And the order is based on the number
+ of path-parameters defined. Least number of parameters go first, such that static paths have
+ precedence over variables.</p>
+
+<p> Example:</p>
+
+
+<pre>
+<span class="keyword">local</span> routes = {
+  preFunction = <span class="keyword">function</span>(req, resp)
+    <span class="keyword">local</span> stop = <span class="keyword">false</span>
+    <span class="comment">-- this gets called before any path specific callback
+</span>
+    <span class="keyword">if</span> some_error <span class="keyword">then</span>
+      resp:<span class="function-name">writeDefaultErrorMessage</span>(<span class="number">400</span>)
+      stop = <span class="keyword">true</span>
+    <span class="keyword">end</span>
+    <span class="keyword">return</span> stop
+  <span class="keyword">end</span>,
+
+
+  [<span class="string">"/my/{accountNumber}/{param2}/endpoint"</span>] = { <span class="comment">-- define path parameters
+</span>
+    preFunction = <span class="keyword">function</span>(req, resp)
+      <span class="keyword">local</span> stop = <span class="keyword">false</span>
+      <span class="comment">-- this gets called before any method specific callback,
+</span>      <span class="comment">-- but after the router-preFunction
+</span>      <span class="keyword">return</span> stop
+    <span class="keyword">end</span>,
+
+    GET = <span class="keyword">function</span>(req, resp)
+      <span class="keyword">local</span> stop = <span class="keyword">false</span>
+      <span class="comment">-- this implements the main GET logic
+</span>      <span class="keyword">return</span> stop
+    <span class="keyword">end</span>,
+
+    POST = <span class="keyword">function</span>(req, resp)
+      <span class="keyword">local</span> stop = <span class="keyword">false</span>
+      <span class="comment">-- this implements the main POST logic
+</span>      <span class="keyword">return</span> stop
+    <span class="keyword">end</span>,
+
+    [<span class="string">"*"</span>] = <span class="keyword">function</span>(req, resp)
+      <span class="keyword">local</span> stop = <span class="keyword">false</span>
+      <span class="comment">-- this implements the wildcard, will handle any method except for the
+</span>      <span class="comment">-- GET/POST ones defined above.
+</span>
+      <span class="comment">-- If the wildcard is not defined, then a default one will be added which
+</span>      <span class="comment">-- only returns a "405 Method Not Allowed" error.
+</span>      <span class="keyword">return</span> stop
+    <span class="keyword">end</span>,
+
+    postFunction = <span class="keyword">function</span>(req, resp)
+      <span class="keyword">local</span> stop = <span class="keyword">false</span>
+      <span class="comment">-- this gets called after the method specific (or wildcard)
+</span>      <span class="comment">-- callback.
+</span>
+      <span class="keyword">return</span> stop
+    <span class="keyword">end</span>,
+  },
+
+  [<span class="string">"/my/endpoint"</span>] = <span class="keyword">function</span>(req, resp)
+    <span class="keyword">local</span> stop = <span class="keyword">false</span>
+    <span class="comment">-- this is a shortcut to create a wildcard-method, one callback
+</span>    <span class="comment">-- to handle any method for this path. Identical to:
+</span>    <span class="comment">-- ["/my/endpoint"] = { ["*"] = function(req, resp) ... end }
+</span>    <span class="keyword">return</span> stop
+  <span class="keyword">end</span>,
+
+  postFunction = <span class="keyword">function</span>(req, resp)
+    <span class="keyword">local</span> stop = <span class="keyword">false</span>
+    <span class="comment">-- this gets called last.
+</span>    <span class="keyword">return</span> stop
+  <span class="keyword">end</span>,
+}
+
+<span class="keyword">local</span> router = Router:<span class="function-name">new</span> {
+  prefix = <span class="string">"/api/1v0/"</span>,
+  routes = routes,
+}
+</pre>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Router:new">Router:new (options)</a></td>
+	<td class="summary">Creates a new Router plugin instance.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Router:newRequestResponse">Router:newRequestResponse (request, response)</a></td>
+	<td class="summary">Route the request to the matching path/method callback.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+    Methods
+    <dl class="function">
+    <dt>
+    <a name = "Router:new"></a>
+    <strong>Router:new (options)</strong>
+    </dt>
+    <dd>
+    Creates a new Router plugin instance.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">options</span> the options table with the following fields;
+        <ul>
+        <li><span class="parameter">prefix</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         the base path for all underlying routes.
+         (<em>default</em> "/")
+        </li>
+        <li><span class="parameter">routes</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         route definitions to be handled by this router plugin instance.
+        </li>
+        </li></ul>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the new plugin
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Router:newRequestResponse"></a>
+    <strong>Router:newRequestResponse (request, response)</strong>
+    </dt>
+    <dd>
+    Route the request to the matching path/method callback.
+ Populates <code>request.pathParameters</code> and <code>request.routerPath</code> upon match.
+ Executes callbacks in order: router pre, path pre, method, path post, router post.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">request</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">response</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        stop whether request handling should stop
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-03-04 12:03:10 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
