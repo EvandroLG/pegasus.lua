@@ -215,7 +215,15 @@ function Request:method()
   return self._method
 end
 
---- Read and parse headers.
+--- Query-string parameters.
+-- Returns a hash table. Duplicate keys are represented as an array of values.
+-- @treturn table querystring
+function Request:query()
+  self:parseFirstLine()
+  return self.querystring
+end
+
+--- Request headers.
 -- Returns a case-insensitive table: looking up with any casing works.
 -- If a header appears multiple times, the value becomes a table of strings.
 -- @treturn table headers
