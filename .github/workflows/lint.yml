@@ -23,11 +23,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: luarocks/gh-actions-lua@master
+      - uses: luarocks/gh-actions-lua@816ec4c55af2f6dcb9dfcba372d93dd1fb5fa8f2
         with:
           luaVersion: "5.4"
 
-      - uses: luarocks/gh-actions-luarocks@master
+      - uses: luarocks/gh-actions-luarocks@e42874645a111d78a858c3dba7530bdd707b21a4
         with:
           luaRocksVersion: "3.13.0"
 
