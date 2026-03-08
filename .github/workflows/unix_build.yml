@@ -39,9 +39,12 @@ jobs:
 
       - name: dependencies
         run: |
-          make install
-          luarocks install luacov-coveralls
+          luarocks install mimetypes
+          luarocks install luasocket
           luarocks install busted
+          luarocks install luafilesystem
+          luarocks install lzlib
+          luarocks install luacov-coveralls
           make start_app
 
       - name: test
