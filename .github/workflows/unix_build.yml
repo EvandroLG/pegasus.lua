@@ -41,6 +41,7 @@ jobs:
         run: |
           luarocks install mimetypes
           luarocks install luasocket
+          luarocks install --server=https://luarocks.org/manifests/luarocks lua-term 0.3-1
           luarocks install busted
           luarocks install luafilesystem
           luarocks install lzlib
