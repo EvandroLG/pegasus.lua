@@ -1,16 +1,17 @@
---- Module `pegasus.plugins.downloads`
+--- Plugin that sends files downstream as downloads.
 --
 -- A plugin that exposes a virtual directory for file downloads. Matches
 -- a configurable `prefix` and serves files from a configured `location`
 -- using `Content-Disposition: attachment`.
 --
--- @module pegasus.plugins.downloads
--- @usage
--- local Downloads = require('pegasus.plugins.downloads')
--- local plugin = Downloads:new{ location = './public', prefix = 'downloads' }
--- -- Add plugin to Pegasus
---
 -- The plugin only responds to `GET` and `HEAD`.
+--
+-- Example:
+--
+--     local Downloads = require('pegasus.plugins.downloads')
+--     local plugin = Downloads:new{ location = './public', prefix = 'downloads' }
+--     -- Add plugin to Pegasus
+-- @classmod pegasus.plugins.downloads
 local Downloads = {}
 Downloads.__index = Downloads
 
@@ -19,20 +20,13 @@ Downloads.__index = Downloads
 -- same `location` setting as defined in the `Handler`. The `prefix` is a virtual folder
 -- that triggers the plugin, but will be removed from the filepath if `stripPrefix` is truthy.
 -- If `stripPrefix` is falsy, then it should be a real folder.
--- @tparam options table the options table with the following fields;
--- @tparam[opt="./"] options.location string the path to serve files from. Relative to the working directory.
--- @tparam[opt="downloads/"] options.prefix string the path prefix that triggers the plugin
--- @tparam options.stripPrefix bool whether to strip the prefix from the file path when looking
+-- @tparam table options the options table with the following fields;
+-- @tparam[opt="./"] string options.location the path to serve files from. Relative to the working directory.
+-- @tparam[opt="downloads/"] string options.prefix the path prefix that triggers the plugin
+-- @tparam bool options.stripPrefix whether to strip the prefix from the file path when looking
 -- for the file in the filesystem. Defaults to `false`, unless `options.prefix` is omitted,
 -- then it defaults to `true`.
 -- @return the new plugin
---- @tparam table options options table
---- @tparam[opt="./"] string options.location base directory (relative to cwd)
---- @tparam[opt="downloads/"] string options.prefix path prefix triggering the plugin
---- @tparam[opt] boolean options.stripPrefix whether to strip the prefix from the filesystem path
---- @treturn table plugin instance
----@param options table|nil
----@return Downloads
 function Downloads:new(options)
   options = options or {}
   local plugin = {}
@@ -74,12 +68,9 @@ function Downloads:new(options)
 end
 
 --- Handle a new request/response pair; serve a download when the path matches.
--- @tparam table request
--- @tparam table response
--- @treturn boolean stop whether request handling should stop
----@param request table
----@param response table
----@return boolean
+-- @tparam pegasus.request request
+-- @tparam pegasus.response response
+-- @treturn boolean stop returns true if the plugin found and wrote the file to the response.
 function Downloads:newRequestResponse(request, response)
   local stop = false
 

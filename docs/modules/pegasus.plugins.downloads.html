@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Pegasus webserver in Lua</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Pegasus</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/logging.html">logging</a></li>
+  <li><a href="../modules/pegasus.plugins.compress.html">pegasus.plugins.compress</a></li>
+  <li><strong>pegasus.plugins.downloads</strong></li>
+  <li><a href="../modules/pegasus.plugins.files.html">pegasus.plugins.files</a></li>
+  <li><a href="../modules/pegasus.plugins.tls.html">pegasus.plugins.tls</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/pegasus.html">pegasus</a></li>
+  <li><a href="../classes/pegasus.handler.html">pegasus.handler</a></li>
+  <li><a href="../classes/pegasus.plugins.router.html">pegasus.plugins.router</a></li>
+  <li><a href="../classes/pegasus.request.html">pegasus.request</a></li>
+  <li><a href="../classes/pegasus.response.html">pegasus.response</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="">
+  <li><a href="../topics/01-introduction.md.html">1. Introduction</a></li>
+  <li><a href="../topics/02-advanced.md.html">2. Advanced topic</a></li>
+  <li><a href="../topics/LICENSE.html">LICENSE</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/app.lua.html">app.lua</a></li>
+  <li><a href="../examples/app_stream.lua.html">app_stream.lua</a></li>
+  <li><a href="../examples/copas.lua.html">copas.lua</a></li>
+  <li><a href="../examples/querystring.lua.html">querystring.lua</a></li>
+  <li><a href="../examples/write.lua.html">write.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>pegasus.plugins.downloads</code></h1>
+<p>Module <a href="../modules/pegasus.plugins.downloads.html#">pegasus.plugins.downloads</a></p>
+
+<p> A plugin that exposes a virtual directory for file downloads.</p>
+<p> Matches
+ a configurable <code>prefix</code> and serves files from a configured <code>location</code>
+ using <code>Content-Disposition: attachment</code>.</p>
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">local Downloads = require(&apos;pegasus.plugins.downloads&apos;)
+local plugin = Downloads:new{ location = &apos;./public&apos;, prefix = &apos;downloads&apos; }
+-- Add plugin to Pegasus
+
+The plugin only responds to `GET` and `HEAD`.
+</pre>
+    </ul>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Downloads:new">Downloads:new (table[, string="./"][, string="downloads/"], bool, options[, options="./"])</a></td>
+	<td class="summary">Creates a new plugin instance.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Downloads:newRequestResponse">Downloads:newRequestResponse (request, response, request, response)</a></td>
+	<td class="summary">Handle a new request/response pair; serve a download when the path matches.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+    Methods
+    <dl class="function">
+    <dt>
+    <a name = "Downloads:new"></a>
+    <strong>Downloads:new (table[, string="./"][, string="downloads/"], bool, options[, options="./"])</strong>
+    </dt>
+    <dd>
+    Creates a new plugin instance.
+ The plugin will only respond to <code>GET</code> requests. The files will be served from the
+ same <code>location</code> setting as defined in the <code>Handler</code>. The <code>prefix</code> is a virtual folder
+ that triggers the plugin, but will be removed from the filepath if <code>stripPrefix</code> is truthy.
+ If <code>stripPrefix</code> is falsy, then it should be a real folder.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">table</span>
+            <span class="types"><span class="type">options</span></span>
+         the options table with the following fields;
+        </li>
+        <li><span class="parameter">string</span>
+            <span class="types"><span class="type">options.prefix</span></span>
+         the path prefix that triggers the plugin
+         (<em>default</em> "downloads/")
+        </li>
+        <li><span class="parameter">string</span>
+            <span class="types"><span class="type">options.prefix</span></span>
+         the path prefix that triggers the plugin
+         (<em>default</em> "downloads/")
+        </li>
+        <li><span class="parameter">bool</span>
+            <span class="types"><span class="type">options.stripPrefix</span></span>
+         whether to strip the prefix from the file path when looking
+ for the file in the filesystem. Defaults to <code>false</code>, unless <code>options.prefix</code> is omitted,
+ then it defaults to <code>true</code>.
+        </li>
+        <li><span class="parameter">options</span> table|nil
+        <ul>
+        <li><span class="parameter">location</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         base directory (relative to cwd)
+         (<em>default</em> "./")
+        </li>
+        <li><span class="parameter">prefix</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         path prefix triggering the plugin
+         (<em>default</em> "downloads/")
+        </li>
+        <li><span class="parameter">stripPrefix</span>
+            <span class="types"><span class="type">boolean</span></span>
+         whether to strip the prefix from the filesystem path
+         (<em>optional</em>)
+        </li>
+        </li></ul>
+        <li><span class="parameter">options</span> table|nil
+        <ul>
+        <li><span class="parameter">location</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         base directory (relative to cwd)
+         (<em>default</em> "./")
+        </li>
+        <li><span class="parameter">prefix</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         path prefix triggering the plugin
+         (<em>default</em> "downloads/")
+        </li>
+        <li><span class="parameter">stripPrefix</span>
+            <span class="types"><span class="type">boolean</span></span>
+         whether to strip the prefix from the filesystem path
+         (<em>optional</em>)
+        </li>
+        </li></ul>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        the new plugin</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+        plugin instance</li>
+        <li>
+        Downloads</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Downloads:newRequestResponse"></a>
+    <strong>Downloads:newRequestResponse (request, response, request, response)</strong>
+    </dt>
+    <dd>
+    Handle a new request/response pair; serve a download when the path matches.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">request</span>
+         table
+        </li>
+        <li><span class="parameter">response</span>
+         table
+        </li>
+        <li><span class="parameter">request</span>
+         table
+        </li>
+        <li><span class="parameter">response</span>
+         table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">boolean</span></span>
+        stop whether request handling should stop</li>
+        <li>
+        boolean</li>
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-03-04 09:21:35 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

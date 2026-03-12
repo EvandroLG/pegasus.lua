@@ -1,14 +1,13 @@
---- Module `pegasus.plugins.tls`
+--- Implements TLS for secure connections.
 --
 -- A plugin that enables TLS (https) for connections using LuaSec.
 -- Should be the first plugin, since it wraps the client socket and performs
 -- the TLS handshake before any other plugin or handler accesses the socket.
 --
--- @module pegasus.plugins.tls
---
 -- This plugin should not be used with Copas. Since Copas has native TLS support
 -- and can handle simultaneous `http` and `https` connections. See the Copas example
 -- to learn how to set that up.
+-- @classmod pegasus.plugins.tls
 local ssl = require("ssl")
 
 
@@ -18,7 +17,7 @@ TLS.__index = TLS
 
 --- Creates a new plugin instance.
 -- IMPORTANT: this must be the first plugin to execute before the client-socket is accessed!
--- @tparam sslparams table the data-structure that contains the properties for the luasec functions.
+-- @tparam table sslparams the data-structure that contains the properties for the luasec functions.
 -- The structure is set up to mimic the LuaSec functions for the handshake.
 -- @return the new plugin
 -- @usage
@@ -30,8 +29,6 @@ TLS.__index = TLS
 --   }
 -- }
 -- local tls_plugin = require("pegasus.plugins.tls"):new(sslparams)
----@param sslparams table|nil
----@return TLS
 function TLS:new(sslparams)
   sslparams = sslparams or {}
   assert(sslparams.wrap, "'sslparam.wrap' is a required option")
@@ -43,12 +40,9 @@ end
 
 --- Wrap an accepted client socket and perform the TLS handshake.
 -- Optionally sets SNI if provided in `sslparams`.
--- @tparam table client accepted client socket
--- @tparam table handler the Pegasus handler (for logging)
--- @treturn table|false wrapped client or false on failure
----@param client table
----@param handler table
----@return table|false
+-- @tparam socket client accepted client socket
+-- @tparam pegasus.handler handler the Pegasus handler (for logging)
+-- @treturn socket|false wrapped client socket or `false` on failure
 function TLS:newConnection(client, handler)
   local params = self.sslparams
 

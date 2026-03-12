@@ -1,25 +1,31 @@
---- Module `pegasus.request`
+--- Request object available in callback handlers.
 --
--- Parsed HTTP request facade used by your application callback.
--- Instances are created internally by Pegasus and passed to
--- `server:start(function(request, response) ... end)`.
+-- Parsed HTTP request facade used by your application callback. Instances are
+-- created internally by Pegasus and passed to the callback provided to `pegasus:start`,
+-- and plugin handlers.
+--
+-- Fields on the object:
+--
+-- * `request.client`: the client socket (wrapped by TLS if TLS plugin is used)
+-- * `request.server`: the server socket
+-- * `response.log`: the logger object, to enable logging from handlers and plugins
+-- * `request.port`: the port on which the request was received
+-- * `request.ip`: the IP address of the client, if available (not supported by LuaSec)
+-- * `request.response`: the related `pegasus.response` object to write the response to
 --
 -- Quick example:
--- ```lua
--- server:start(function(req, res)
---   local method = req:method()
---   local path = req:path()
---   local headers = req:headers()
---   local qs = req.querystring -- table of query params
 --
---   if method == 'POST' then
---     local form = req:post() -- urlencoded form body, or nil if not POST
---   end
--- end)
--- ```
+--     server:start(function(req, res)
+--       local method = req:method()
+--       local path = req:path()
+--       local headers = req:headers()
+--       local qs = req.querystring -- table of query params
 --
--- @module pegasus.request
-
+--       if method == 'POST' then
+--         local form = req:post() -- urlencoded form body, or nil if not POST
+--       end
+--     end)
+-- @classmod pegasus.request
 local Response = require 'pegasus.response'
 
 local function normalizePath(path)
@@ -50,35 +56,7 @@ local function normalizePath(path)
   return value
 end
 
---- The HTTP request object.
---
--- Fields:
--- - `client`: the underlying accepted socket client.
--- - `server`: the listening server socket.
--- - `log`: logger compatible with `pegasus.log` API.
--- - `port`: server port bound.
--- - `ip`: remote peer address if available (may be `nil` under TLS).
--- - `querystring`: table of parsed query-string parameters. Values may be a string or a table of strings if repeated.
--- - `response`: associated `Response` object, with a back-reference via `response.request`.
---
--- Methods of interest:
--- - `method()` -> string
--- - `path()` -> string
--- - `headers()` -> case-insensitive table of headers (values string or table)
--- - `receiveBody([size])` -> string|false (chunked read of request body)
--- - `post()` -> table|nil (parses `application/x-www-form-urlencoded` body when method is POST)
---
--- Internal helpers: `parseFirstLine`, `parseUrlEncoded`.
---
--- @type Request
----@class Request
----@field client table
----@field server table
----@field log table
----@field port string|integer
----@field ip string|nil
----@field querystring table
----@field response table
+
 local Request = {}
 Request.__index = Request
 Request.PATTERN_METHOD = '^(.-)%s'
@@ -89,18 +67,13 @@ Request.PATTERN_PATH ..Request.PATTERN_PROTOCOL)
 Request.PATTERN_QUERY_STRING = '([^=]*)=([^&]*)&?'
 Request.PATTERN_HEADER = '([%w-]+):[ \t]*([%w \t%p]*)'
 
---- Internal: construct a new Request.
+-- Internal: construct a new Request.
 --
 -- @tparam string|number port server port
 -- @tparam table client accepted client socket
 -- @tparam table server listening server socket
 -- @tparam table handler internal handler (provides `log` and body processing)
 -- @treturn Request request
----@param port string|integer
----@param client table
----@param server table
----@param handler table
----@return Request
 function Request:new(port, client, server, handler)
   local obj = {}
   obj.client = client
@@ -123,7 +96,7 @@ function Request:new(port, client, server, handler)
   return setmetatable(obj, self)
 end
 
---- Internal: parse the request line and query-string on first access.
+-- Internal: parse the request line and query-string on first access.
 function Request:parseFirstLine()
   if (self._firstLine ~= nil) then
     return
@@ -162,11 +135,9 @@ function Request:parseFirstLine()
 end
 
 --- Parse `application/x-www-form-urlencoded` data.
--- Returns a table where duplicate keys are represented as an array of values.
+-- Returns a hash table. Duplicate keys are represented as an array of values.
 -- @tparam string data
 -- @treturn table params
----@param data string|nil
----@return table
 function Request:parseUrlEncoded(data)
   local output = {}
 
@@ -188,11 +159,10 @@ function Request:parseUrlEncoded(data)
   return output
 end
 
---- Convenience: parse POST body as `application/x-www-form-urlencoded`.
+--- parse POST body as `application/x-www-form-urlencoded`.
 -- Returns `nil` if method is not POST.
--- @treturn[1] table parsed form values
+-- @treturn[1] table parsed form values, see `parseUrlEncoded` for details on the format of this table.
 -- @treturn[2] nil when not a POST request
----@return table|nil
 function Request:post()
   if self:method() ~= 'POST' then return nil end
   local data = self:receiveBody()
@@ -201,7 +171,6 @@ end
 
 --- Request path (normalized), without query-string.
 -- @treturn string path
----@return string
 function Request:path()
   self:parseFirstLine()
   return self._path
@@ -209,17 +178,23 @@ end
 
 --- HTTP method.
 -- @treturn string method
----@return string
 function Request:method()
   self:parseFirstLine()
   return self._method
 end
 
---- Read and parse headers.
+--- Query-string parameters.
+-- Returns a hash table. Duplicate keys are represented as an array of values.
+-- @treturn table querystring
+function Request:query()
+  self:parseFirstLine()
+  return self.querystring
+end
+
+--- Request headers.
 -- Returns a case-insensitive table: looking up with any casing works.
 -- If a header appears multiple times, the value becomes a table of strings.
 -- @treturn table headers
----@return table
 function Request:headers()
   if self._headerParsed then
     return self._headers
@@ -269,8 +244,6 @@ end
 -- When a socket timeout happens, any partial data is returned.
 -- @tparam[opt] number size preferred chunk size
 -- @treturn string|false chunk or false if no more content
----@param size number|nil
----@return string|false
 function Request:receiveBody(size)
   if not self._headerParsed then
     self:headers()

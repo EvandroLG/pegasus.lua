@@ -1,0 +1,583 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Pegasus webserver in Lua</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Pegasus</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/pegasus.html">pegasus</a></li>
+  <li><a href="../classes/pegasus.handler.html">pegasus.handler</a></li>
+  <li><a href="../classes/pegasus.plugins.compress.html">pegasus.plugins.compress</a></li>
+  <li><a href="../classes/pegasus.plugins.downloads.html">pegasus.plugins.downloads</a></li>
+  <li><a href="../classes/pegasus.plugins.files.html">pegasus.plugins.files</a></li>
+  <li><a href="../classes/pegasus.plugins.router.html">pegasus.plugins.router</a></li>
+  <li><a href="../classes/pegasus.plugins.tls.html">pegasus.plugins.tls</a></li>
+  <li><a href="../classes/pegasus.request.html">pegasus.request</a></li>
+  <li><strong>pegasus.response</strong></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/logging.html">logging</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="">
+  <li><a href="../topics/LICENSE.html">LICENSE</a></li>
+  <li><a href="../topics/README.md.html">README</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/app.lua.html">app.lua</a></li>
+  <li><a href="../examples/app_stream.lua.html">app_stream.lua</a></li>
+  <li><a href="../examples/copas.lua.html">copas.lua</a></li>
+  <li><a href="../examples/querystring.lua.html">querystring.lua</a></li>
+  <li><a href="../examples/write.lua.html">write.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>pegasus.response</code></h1>
+<p>Response object available in callback handlers.</p>
+<p>
+
+
+<p> HTTP response writer used by your application callback.
+ Instances are created internally by Pegasus and passed to
+ the callback provided to <a href="../classes/pegasus.html#Pegasus:start">pegasus:start</a> and plugin handlers.</p>
+
+<p> Notes:</p>
+
+<ul>
+    <li>When streaming (<code>stayOpen == true</code>), Transfer-Encoding: chunked is used.</li>
+    <li>For HEAD requests, bodies are automatically skipped.</li>
+</ul>
+
+<p> Fields on the object:</p>
+
+<ul>
+    <li><code>response.log</code>: the logger object, to enable logging from handlers and plugins</li>
+    <li><code>response.request</code>: the related <a href="../classes/pegasus.request.html#">pegasus.request</a> object</li>
+    <li><code>response.status</code>: the HTTP status code (defaults to 200), use <a href="../classes/pegasus.response.html#Response:statusCode">response:statusCode</a> to set the status</li>
+</ul>
+
+<p> Quick example:</p>
+
+
+<pre>
+server:<span class="function-name">start</span>(<span class="keyword">function</span>(req, res)
+  res:<span class="function-name">statusCode</span>(<span class="number">200</span>)
+     :<span class="function-name">contentType</span>(<span class="string">'application/json'</span>)
+     :<span class="function-name">write</span>(<span class="string">'{"ok":true}'</span>)
+<span class="keyword">end</span>)
+</pre>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Response:addHeader">Response:addHeader (key, value)</a></td>
+	<td class="summary">Add a response header.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:addHeaders">Response:addHeaders (params)</a></td>
+	<td class="summary">Add multiple headers.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:close">Response:close ()</a></td>
+	<td class="summary">Finish a chunked response and mark as closed.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:contentType">Response:contentType (value)</a></td>
+	<td class="summary">Set the <code>Content-Type</code> header.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:redirect">Response:redirect (location[, temporary])</a></td>
+	<td class="summary">Redirect to a different URL.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:sendFile">Response:sendFile (path)</a></td>
+	<td class="summary">Send a file as an attachment (download).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:sendHeaders">Response:sendHeaders ([stayOpen=false[, body]])</a></td>
+	<td class="summary">Send headers if not already sent.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:sendOnlyHeaders">Response:sendOnlyHeaders ()</a></td>
+	<td class="summary">Send only the headers, without a body.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:skipBody">Response:skipBody ([skip=true])</a></td>
+	<td class="summary">Instruct response to skip writing the response body.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:statusCode">Response:statusCode (statusCode[, statusText])</a></td>
+	<td class="summary">Set the HTTP status line.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:write">Response:write ([body=""[, stayOpen]])</a></td>
+	<td class="summary">Write response body.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:writeDefaultErrorMessage">Response:writeDefaultErrorMessage (statusCode[, errMessage])</a></td>
+	<td class="summary">Write a default HTML error body for a given status.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Response:writeFile">Response:writeFile (filename[, contentType])</a></td>
+	<td class="summary">Write a file to the response with a 200 status.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+    Methods
+    <dl class="function">
+    <dt>
+    <a name = "Response:addHeader"></a>
+    <strong>Response:addHeader (key, value)</strong>
+    </dt>
+    <dd>
+    Add a response header.
+ Errors if headers were already sent downstream.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">key</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">value</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a>, <span class="type">number</span> or <span class="type">array</span></span>
+         (multiple headers by the same name can be set by passing an array of values)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The <a href="../classes/pegasus.response.html#">pegasus.response</a> object to allow chaining calls.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:addHeaders"></a>
+    <strong>Response:addHeaders (params)</strong>
+    </dt>
+    <dd>
+    Add multiple headers.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">params</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         table of key-value pairs to add as headers (see <a href="../classes/pegasus.response.html#Response:addHeader">addHeader</a> for value types)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The <a href="../classes/pegasus.response.html#">pegasus.response</a> object to allow chaining calls.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:close"></a>
+    <strong>Response:close ()</strong>
+    </dt>
+    <dd>
+    Finish a chunked response and mark as closed.
+ Idempotent; safe to call multiple times.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The <a href="../classes/pegasus.response.html#">pegasus.response</a> object to allow chaining calls.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:contentType"></a>
+    <strong>Response:contentType (value)</strong>
+    </dt>
+    <dd>
+    Set the <code>Content-Type</code> header.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The <a href="../classes/pegasus.response.html#">pegasus.response</a> object to allow chaining calls.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:redirect"></a>
+    <strong>Response:redirect (location[, temporary])</strong>
+    </dt>
+    <dd>
+    Redirect to a different URL.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">location</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         destination URL
+        </li>
+        <li><span class="parameter">temporary</span>
+            <span class="types"><span class="type">boolean</span></span>
+         when true uses 302, otherwise 301
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The <a href="../classes/pegasus.response.html#">pegasus.response</a> object to allow chaining calls.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:sendFile"></a>
+    <strong>Response:sendFile (path)</strong>
+    </dt>
+    <dd>
+    Send a file as an attachment (download).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         path to file
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The <a href="../classes/pegasus.response.html#">pegasus.response</a> object to allow chaining calls.
+    </ol>
+     <h3>Or</h3>
+    <ol>
+
+        nil + err on failure
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:sendHeaders"></a>
+    <strong>Response:sendHeaders ([stayOpen=false[, body]])</strong>
+    </dt>
+    <dd>
+    Send headers if not already sent.
+ Adds <code>Transfer-Encoding: chunked</code> when <code>stayOpen == true</code>; otherwise sets <code>Content-Length</code> when body is a string.
+ Also sets a default <code>Date</code> and <code>Content-Type</code> header if not present.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">stayOpen</span>
+            <span class="types"><span class="type">boolean</span></span>
+         whether to keep the connection open for chunked streaming
+         (<em>default</em> false)
+        </li>
+        <li><span class="parameter">body</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         current body chunk (used to set Content-Length)
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The <a href="../classes/pegasus.response.html#">pegasus.response</a> object to allow chaining calls.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:sendOnlyHeaders"></a>
+    <strong>Response:sendOnlyHeaders ()</strong>
+    </dt>
+    <dd>
+    Send only the headers, without a body.
+ Useful for redirects and HEAD responses.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The <a href="../classes/pegasus.response.html#">pegasus.response</a> object to allow chaining calls.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:skipBody"></a>
+    <strong>Response:skipBody ([skip=true])</strong>
+    </dt>
+    <dd>
+    Instruct response to skip writing the response body.
+ This is automatically called by the <a href="../classes/pegasus.request.html#">pegasus.request</a> object for HEAD requests. There should be no need
+ to call this manually.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">skip</span>
+            <span class="types"><span class="type">boolean</span></span>
+
+
+
+         (<em>default</em> true)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The <a href="../classes/pegasus.response.html#">pegasus.response</a> object to allow chaining calls.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:statusCode"></a>
+    <strong>Response:statusCode (statusCode[, statusText])</strong>
+    </dt>
+    <dd>
+    Set the HTTP status line.
+ Must be called before headers are sent downstream.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">statusCode</span>
+            <span class="types"><span class="type">number</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">statusText</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         (defaults to standard text for the code)
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The <a href="../classes/pegasus.response.html#">pegasus.response</a> object to allow chaining calls.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:write"></a>
+    <strong>Response:write ([body=""[, stayOpen]])</strong>
+    </dt>
+    <dd>
+    Write response body.
+ When <code>stayOpen == true</code>, the body is sent as a chunk and the connection remains open.
+ When <code>stayOpen ~= true</code>, headers are sent with <code>Content-Length</code> and the client-socket is closed afterwards.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">body</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+
+
+
+         (<em>default</em> "")
+        </li>
+        <li><span class="parameter">stayOpen</span>
+            <span class="types"><span class="type">boolean</span></span>
+
+
+
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The <a href="../classes/pegasus.response.html#">pegasus.response</a> object to allow chaining calls.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:writeDefaultErrorMessage"></a>
+    <strong>Response:writeDefaultErrorMessage (statusCode[, errMessage])</strong>
+    </dt>
+    <dd>
+    Write a default HTML error body for a given status.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">statusCode</span>
+            <span class="types"><span class="type">number</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">errMessage</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+
+
+
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The <a href="../classes/pegasus.response.html#">pegasus.response</a> object to allow chaining calls.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Response:writeFile"></a>
+    <strong>Response:writeFile (filename[, contentType])</strong>
+    </dt>
+    <dd>
+    Write a file to the response with a 200 status.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         path to file
+        </li>
+        <li><span class="parameter">contentType</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         override content type, if omitted it will be guessed based on the filename extension
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The <a href="../classes/pegasus.response.html#">pegasus.response</a> object to allow chaining calls.
+    </ol>
+     <h3>Or</h3>
+    <ol>
+
+        nil + err on failure
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-03-04 12:03:10 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

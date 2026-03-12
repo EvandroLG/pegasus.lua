@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Pegasus webserver in Lua</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Pegasus</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/pegasus.html">pegasus</a></li>
+  <li><a href="../classes/pegasus.handler.html">pegasus.handler</a></li>
+  <li><a href="../classes/pegasus.plugins.compress.html">pegasus.plugins.compress</a></li>
+  <li><a href="../classes/pegasus.plugins.downloads.html">pegasus.plugins.downloads</a></li>
+  <li><a href="../classes/pegasus.plugins.files.html">pegasus.plugins.files</a></li>
+  <li><a href="../classes/pegasus.plugins.router.html">pegasus.plugins.router</a></li>
+  <li><strong>pegasus.plugins.tls</strong></li>
+  <li><a href="../classes/pegasus.request.html">pegasus.request</a></li>
+  <li><a href="../classes/pegasus.response.html">pegasus.response</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/logging.html">logging</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="">
+  <li><a href="../topics/LICENSE.html">LICENSE</a></li>
+  <li><a href="../topics/README.md.html">README</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/app.lua.html">app.lua</a></li>
+  <li><a href="../examples/app_stream.lua.html">app_stream.lua</a></li>
+  <li><a href="../examples/copas.lua.html">copas.lua</a></li>
+  <li><a href="../examples/querystring.lua.html">querystring.lua</a></li>
+  <li><a href="../examples/write.lua.html">write.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>pegasus.plugins.tls</code></h1>
+<p>Implements TLS for secure connections.</p>
+<p> A plugin that enables TLS (https) for connections using LuaSec.
+ Should be the first plugin, since it wraps the client socket and performs
+ the TLS handshake before any other plugin or handler accesses the socket.</p>
+
+<p> This plugin should not be used with Copas. Since Copas has native TLS support
+ and can handle simultaneous <code>http</code> and <code>https</code> connections. See the Copas example
+ to learn how to set that up.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#TLS:new">TLS:new (sslparams)</a></td>
+	<td class="summary">Creates a new plugin instance.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#TLS:newConnection">TLS:newConnection (client, handler)</a></td>
+	<td class="summary">Wrap an accepted client socket and perform the TLS handshake.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+    Methods
+    <dl class="function">
+    <dt>
+    <a name = "TLS:new"></a>
+    <strong>TLS:new (sslparams)</strong>
+    </dt>
+    <dd>
+    Creates a new plugin instance.
+ IMPORTANT: this must be the first plugin to execute before the client-socket is accessed!
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">sslparams</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         the data-structure that contains the properties for the luasec functions.
+ The structure is set up to mimic the LuaSec functions for the handshake.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the new plugin
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> sslparams = {
+  wrap = <span class="global">table</span> | context,    <span class="comment">-- parameter to LuaSec 'wrap()'
+</span>  sni = {                    <span class="comment">-- parameters to LuaSec 'sni()'
+</span>    names = <span class="global">string</span> | <span class="global">table</span>   <span class="comment">--   1st parameter
+</span>    strict = bool            <span class="comment">--   2nd parameter
+</span>  }
+}
+<span class="keyword">local</span> tls_plugin = <span class="global">require</span>(<span class="string">"pegasus.plugins.tls"</span>):<span class="function-name">new</span>(sslparams)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "TLS:newConnection"></a>
+    <strong>TLS:newConnection (client, handler)</strong>
+    </dt>
+    <dd>
+    Wrap an accepted client socket and perform the TLS handshake.
+ Optionally sets SNI if provided in <code>sslparams</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">client</span>
+            <span class="types"><span class="type">socket</span></span>
+         accepted client socket
+        </li>
+        <li><span class="parameter">handler</span>
+            <span class="types"><a class="type" href="../classes/pegasus.handler.html#">pegasus.handler</a></span>
+         the Pegasus handler (for logging)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">socket</span> or <span class="type">false</span></span>
+        wrapped client socket or <code>false</code> on failure
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-03-04 12:03:10 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

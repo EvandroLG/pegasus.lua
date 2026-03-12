@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Pegasus webserver in Lua</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Pegasus</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/pegasus.html">pegasus</a></li>
+  <li><a href="../classes/pegasus.handler.html">pegasus.handler</a></li>
+  <li><strong>pegasus.plugins.compress</strong></li>
+  <li><a href="../classes/pegasus.plugins.downloads.html">pegasus.plugins.downloads</a></li>
+  <li><a href="../classes/pegasus.plugins.files.html">pegasus.plugins.files</a></li>
+  <li><a href="../classes/pegasus.plugins.router.html">pegasus.plugins.router</a></li>
+  <li><a href="../classes/pegasus.plugins.tls.html">pegasus.plugins.tls</a></li>
+  <li><a href="../classes/pegasus.request.html">pegasus.request</a></li>
+  <li><a href="../classes/pegasus.response.html">pegasus.response</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/logging.html">logging</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="">
+  <li><a href="../topics/LICENSE.html">LICENSE</a></li>
+  <li><a href="../topics/README.md.html">README</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/app.lua.html">app.lua</a></li>
+  <li><a href="../examples/app_stream.lua.html">app_stream.lua</a></li>
+  <li><a href="../examples/copas.lua.html">copas.lua</a></li>
+  <li><a href="../examples/querystring.lua.html">querystring.lua</a></li>
+  <li><a href="../examples/write.lua.html">write.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>pegasus.plugins.compress</code></h1>
+<p>gzip compression for responses.</p>
+<p>
+
+
+<p> Response body compressor that applies gzip when the client accepts it
+ and compression is beneficial. Works with both <code>lua-zlib</code> and <code>lzlib</code>.</p>
+
+<p> Behavior:</p>
+
+<ul>
+    <li>Detects <code>Accept-Encoding: gzip</code> on the request (or <code>Content-Encoding</code> already set)</li>
+    <li>Sets <code>Content-Encoding: gzip</code> when compressing</li>
+    <li>Supports streaming with chunked encoding; maintains an internal zlib stream</li>
+    <li>Leaves content unchanged when compression does not reduce size</li>
+</ul>
+
+<p> Levels:</p>
+
+<ul>
+    <li><code>plugin.NO_COMPRESSION</code> (0): no compression</li>
+    <li><code>plugin.BEST_SPEED</code> (1): fastest compression</li>
+    <li><code>plugin.BEST_COMPRESSION</code> (9): best compression ratio</li>
+    <li><code>plugin.DEFAULT_COMPRESSION</code> (-1): zlib default</li>
+</ul>
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Compress:new">Compress:new ([options])</a></td>
+	<td class="summary">Create a new <code>Compress</code> plugin instance.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Compress:processBodyData">Compress:processBodyData (data, stayOpen, request, response)</a></td>
+	<td class="summary">Compress response body data when appropriate.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+    Methods
+    <dl class="function">
+    <dt>
+    <a name = "Compress:new"></a>
+    <strong>Compress:new ([options])</strong>
+    </dt>
+    <dd>
+    Create a new <code>Compress</code> plugin instance.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">options</span>
+
+
+        <ul>
+        <li><span class="parameter">level</span>
+            <span class="types"><span class="type">number</span></span>
+         zlib compression level (see constants above)
+         (<em>default</em> plugin.DEFAULT_COMPRESSION)
+        </li>
+        </li></ul>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        plugin instance
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Compress:processBodyData"></a>
+    <strong>Compress:processBodyData (data, stayOpen, request, response)</strong>
+    </dt>
+    <dd>
+    Compress response body data when appropriate. </p>
+
+<p> Invoked for every body chunk. When <code>stayOpen</code> is true, keeps an internal
+ zlib stream and returns the compressed chunk. On the final call with
+ <code>data == nil</code>, closes the stream and returns any trailer bytes.</p>
+
+<p> If compression does not reduce size (for non-streaming case), the
+ original <code>data</code> is returned and no <code>Content-Encoding</code> header is set.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">data</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a> or <span class="type">nil</span></span>
+         body chunk, or <code>nil</code> to finish streaming
+        </li>
+        <li><span class="parameter">stayOpen</span>
+            <span class="types"><span class="type">boolean</span></span>
+         whether the response is streaming (chunked)
+        </li>
+        <li><span class="parameter">request</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         request object
+        </li>
+        <li><span class="parameter">response</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         response object
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+        data possibly compressed
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-03-04 12:03:10 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

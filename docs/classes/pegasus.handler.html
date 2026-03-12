@@ -1,0 +1,230 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Pegasus webserver in Lua</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>Pegasus</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/pegasus.html">pegasus</a></li>
+  <li><strong>pegasus.handler</strong></li>
+  <li><a href="../classes/pegasus.plugins.compress.html">pegasus.plugins.compress</a></li>
+  <li><a href="../classes/pegasus.plugins.downloads.html">pegasus.plugins.downloads</a></li>
+  <li><a href="../classes/pegasus.plugins.files.html">pegasus.plugins.files</a></li>
+  <li><a href="../classes/pegasus.plugins.router.html">pegasus.plugins.router</a></li>
+  <li><a href="../classes/pegasus.plugins.tls.html">pegasus.plugins.tls</a></li>
+  <li><a href="../classes/pegasus.request.html">pegasus.request</a></li>
+  <li><a href="../classes/pegasus.response.html">pegasus.response</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/logging.html">logging</a></li>
+</ul>
+<h2>Topics</h2>
+<ul class="">
+  <li><a href="../topics/LICENSE.html">LICENSE</a></li>
+  <li><a href="../topics/README.md.html">README</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/app.lua.html">app.lua</a></li>
+  <li><a href="../examples/app_stream.lua.html">app_stream.lua</a></li>
+  <li><a href="../examples/copas.lua.html">copas.lua</a></li>
+  <li><a href="../examples/querystring.lua.html">querystring.lua</a></li>
+  <li><a href="../examples/write.lua.html">write.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>pegasus.handler</code></h1>
+<p>Internal handler that drives the request/response cycle.</p>
+<p>
+
+
+<p> Internal orchestrator that wires the server socket to request/response
+ objects and drives the plugin pipeline.</p>
+
+<p> Lifecycle for each connection/request:</p>
+
+<ol>
+    <li><code>pluginsNewConnection(client)</code> can wrap/replace or reject the client</li>
+    <li>Request/Response objects are created</li>
+    <li><code>pluginsNewRequestResponse(request, response)</code> runs</li>
+    <li><code>pluginsBeforeProcess(request, response)</code> runs</li>
+    <li>User <code>callback(request, response)</code> is invoked</li>
+    <li><code>pluginsAfterProcess(request, response)</code> runs</li>
+    <li>If response not closed, a default 404 is written</li>
+</ol>
+
+<p> Plugins may also:</p>
+
+<ul>
+    <li>modify Request/Response metatables via <code>alterRequestResponseMetaTable</code></li>
+    <li>intercept file processing via <code>processFile</code></li>
+    <li>filter/transform streamed body via <code>processBodyData</code></li>
+</ul>
+
+<p> Minimal plugin example:</p>
+
+
+<pre>
+<span class="keyword">local</span> MyPlugin = {}
+
+<span class="keyword">function</span> MyPlugin:<span class="function-name">new</span>()
+  <span class="keyword">return</span> <span class="global">setmetatable</span>({}, { __index = self })
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> MyPlugin:<span class="function-name">beforeProcess</span>(req, res)
+  res:<span class="function-name">addHeader</span>(<span class="string">'X-Powered-By'</span>, <span class="string">'Pegasus'</span>)
+<span class="keyword">end</span>
+
+<span class="keyword">return</span> MyPlugin
+</pre>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Handler:new">Handler:new (callback, location, plugins, logger)</a></td>
+	<td class="summary">Construct a <code>Handler</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#Handler:processRequest">Handler:processRequest (port, client, server)</a></td>
+	<td class="summary">Process a single client by creating <code>Request</code>/<code>Response</code> and running pipeline.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+    Methods
+    <dl class="function">
+    <dt>
+    <a name = "Handler:new"></a>
+    <strong>Handler:new (callback, location, plugins, logger)</strong>
+    </dt>
+    <dd>
+    Construct a <code>Handler</code>. </p>
+
+<p> When <code>location</code> is a non-empty string, automatically enables the <code>files</code>
+ plugin to serve static files from that directory (default index <code>/index.html</code>).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">callback</span>
+            <span class="types"><span class="type">function</span></span>
+         using signature <code>stop_further_processing = function(request, response)</code>
+        </li>
+        <li><span class="parameter">location</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+         base directory for static files (optional)
+        </li>
+        <li><span class="parameter">plugins</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         list of plugin instances (optional)
+        </li>
+        <li><span class="parameter">logger</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+         logger instance (optional)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">Handler</span></span>
+        handler
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Handler:processRequest"></a>
+    <strong>Handler:processRequest (port, client, server)</strong>
+    </dt>
+    <dd>
+    Process a single client by creating <code>Request</code>/<code>Response</code> and running pipeline.
+ If the callback does not close the response, a default 404 page is sent.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">port</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a> or <span class="type">number</span></span>
+         server port
+        </li>
+        <li><span class="parameter">client</span>
+            <span class="types"><span class="type">socket</span></span>
+         accepted client socket
+        </li>
+        <li><span class="parameter">server</span>
+            <span class="types"><span class="type">socket</span></span>
+         listening server socket
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span> or <span class="type">nil</span></span>
+        <code>false</code> when connection was rejected by a plugin, <code>nil</code> on normal completion
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-03-04 12:03:10 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
