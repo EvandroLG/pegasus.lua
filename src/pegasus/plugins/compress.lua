@@ -1,18 +1,23 @@
---- Module `pegasus.plugins.compress`
+--- gzip compression for responses.
 --
 -- Response body compressor that applies gzip when the client accepts it
 -- and compression is beneficial. Works with both `lua-zlib` and `lzlib`.
 --
 -- Behavior:
+--
 -- - Detects `Accept-Encoding: gzip` on the request (or `Content-Encoding` already set)
 -- - Sets `Content-Encoding: gzip` when compressing
 -- - Supports streaming with chunked encoding; maintains an internal zlib stream
 -- - Leaves content unchanged when compression does not reduce size
 --
--- Options for `Compress:new{ ... }`:
--- - `level`: zlib compression level (defaults to zlib default; use `NO_COMPRESSION` to disable)
+-- Levels:
 --
--- @module pegasus.plugins.compress
+-- - `plugin.NO_COMPRESSION` (0): no compression
+-- - `plugin.BEST_SPEED` (1): fastest compression
+-- - `plugin.BEST_COMPRESSION` (9): best compression ratio
+-- - `plugin.DEFAULT_COMPRESSION` (-1): zlib default
+--
+-- @classmod pegasus.plugins.compress
 
 local ZlibStream = {} do
   local zlib = require "zlib"
@@ -98,10 +103,8 @@ local Compress = {} do
 
   --- Create a new `Compress` plugin instance.
   -- @tparam[opt] table options
-  -- @tparam[opt] number options.level zlib compression level
-  -- @treturn table plugin instance
-  ---@param options table|nil
-  ---@return Compress
+  -- @tparam[opt=plugin.DEFAULT_COMPRESSION] number options.level zlib compression level (see constants above)
+  -- @return plugin instance
   function Compress:new(options)
     local compress = {}
     compress.options = options or {}
@@ -123,11 +126,6 @@ local Compress = {} do
   -- @tparam table request request object
   -- @tparam table response response object
   -- @treturn string data possibly compressed
-  ---@param data string|nil
-  ---@param stayOpen boolean
-  ---@param request table
-  ---@param response table
-  ---@return string
   function Compress:processBodyData(data, stayOpen, request, response)
     local accept_encoding
 
