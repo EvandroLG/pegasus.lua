@@ -14,7 +14,7 @@ local printTable = function(table)
 end
 
 server:start(function (req, res)
-  printTable(req['querystring'])
+  printTable(req:query())
   res:addHeader('Content-Type', 'text/html'):write('hello pegasus world!')
 
   -- return a truthy value to indicate the request was handled, no further handling needed

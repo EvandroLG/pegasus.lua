@@ -1,9 +1,7 @@
---- Module `pegasus.plugins.router`
+--- A router plugin for handling paths/methods/path-parameters.
 --
 -- A plugin that routes requests based on path and method, with support for
 -- path parameters and pre/post hooks at both router and path levels.
---
--- @module pegasus.plugins.router
 --
 -- Supports path parameters.
 --
@@ -21,7 +19,7 @@
 -- * the path `preFunction` callback is called when there is a `path` match. It can
 -- be used to do some validations, like path parameters, etc. It is defined on `path` level.
 --
--- * the `METHOD` (eg. `GET, `POST`, etc) this callback implements the specific method. It is defined
+-- * the `METHOD` (eg. `GET`, `POST`, etc) this callback implements the specific method. It is defined
 -- once for each supported method on the path. The special case is method "`*`" which is a catch-all.
 -- The catch-all will be used for any method that doesn't have its own handler defined.
 -- If omitted, the default catch-all will return a "405 Method Not Allowed" error.
@@ -42,79 +40,82 @@
 -- Route matching is based on a complete match (not prefix). And the order is based on the number
 -- of path-parameters defined. Least number of parameters go first, such that static paths have
 -- precedence over variables.
--- @usage
--- local routes = {
---   preFunction = function(req, resp)
---     local stop = false
---     -- this gets called before any path specific callback
 --
---     if some_error then
---       resp:writeDefaultErrorMessage(400)
---       stop = true
---     end
---     return stop
---   end,
+-- Example:
+--
+--     local routes = {
+--       preFunction = function(req, resp)
+--         local stop = false
+--         -- this gets called before any path specific callback
+--
+--         if some_error then
+--           resp:writeDefaultErrorMessage(400)
+--           stop = true
+--         end
+--         return stop
+--       end,
 --
 --
---   ["/my/{accountNumber}/{param2}/endpoint"] = { -- define path parameters
+--       ["/my/{accountNumber}/{param2}/endpoint"] = { -- define path parameters
 --
---     preFunction = function(req, resp)
---       local stop = false
---       -- this gets called before any method specific callback,
---       -- but after the path-preFunction
---       return stop
---     end,
+--         preFunction = function(req, resp)
+--           local stop = false
+--           -- this gets called before any method specific callback,
+--           -- but after the router-preFunction
+--           return stop
+--         end,
 --
---     GET = function(req, resp)
---       local stop = false
---       -- this implements the main GET logic
---       return stop
---     end,
+--         GET = function(req, resp)
+--           local stop = false
+--           -- this implements the main GET logic
+--           return stop
+--         end,
 --
---     POST = function(req, resp)
---       local stop = false
---       -- this implements the main POST logic
---       return stop
---     end,
+--         POST = function(req, resp)
+--           local stop = false
+--           -- this implements the main POST logic
+--           return stop
+--         end,
 --
---     ["*"] = function(req, resp)
---       local stop = false
---       -- this implements the wildcard, will handle any method except for the
---       -- GET/POST ones defined above.
+--         ["*"] = function(req, resp)
+--           local stop = false
+--           -- this implements the wildcard, will handle any method except for the
+--           -- GET/POST ones defined above.
 --
---       -- If the wildcard is not defined, then a default one will be added which
---       -- only returns a "405 Method Not Allowed" error.
---       return stop
---     end,
+--           -- If the wildcard is not defined, then a default one will be added which
+--           -- only returns a "405 Method Not Allowed" error.
+--           return stop
+--         end,
 --
---     postFunction = function(req, resp)
---       local stop = false
---       -- this gets called before after the method specific (or wildcard)
---       -- callback.
+--         postFunction = function(req, resp)
+--           local stop = false
+--           -- this gets called after the method specific (or wildcard)
+--           -- callback.
 --
---       return stop
---     end,
---   },
+--           return stop
+--         end,
+--       },
 --
---   ["/my/endpoint"] = function(req, resp)
---     local stop = false
---     -- this is a shortcut to create a wildcard-method, one callback
---     -- to handle any method for this path. Identical to:
---     -- ["/my/endpoint"] = { ["*"] = function(req, resp) ... end }
---     return stop
---   end,
+--       ["/my/endpoint"] = function(req, resp)
+--         local stop = false
+--         -- this is a shortcut to create a wildcard-method, one callback
+--         -- to handle any method for this path. Identical to:
+--         -- ["/my/endpoint"] = { ["*"] = function(req, resp) ... end }
+--         return stop
+--       end,
 --
---   postFunction = function(req, resp)
---     local stop = false
---     -- this gets called last.
---     return stop
---   end,
--- }
+--       postFunction = function(req, resp)
+--         local stop = false
+--         -- this gets called last.
+--         return stop
+--       end,
+--     }
 --
--- local router = Router:new {
---   prefix = "/api/1v0/",
---   routes = routes,
--- }
+--     local router = Router:new {
+--       prefix = "/api/1v0/",
+--       routes = routes,
+--     }
+-- @classmod pegasus.plugins.router
 
 
 
@@ -140,7 +141,7 @@ end
 
 
 
---- Router plugin instance.
+-- Router plugin instance.
 --
 -- Options passed to `Router:new{ ... }`:
 -- - `prefix` (string, optional): base path for all routes
@@ -148,9 +149,6 @@ end
 --
 -- Methods invoked by the handler:
 -- - `newRequestResponse(request, response)`
---
--- @type Router
----@class Router
 
 local Router = {}
 Router.__index = Router
@@ -242,15 +240,13 @@ end
 
 
 --- Creates a new Router plugin instance.
--- @tparam options table the options table with the following fields;
--- @tparam[opt] options.prefix string the base path for all underlying routes.
--- @tparam options.routes table route definitions to be handled by this router plugin instance.
--- @tparam[opt] options.errorHandler function an optional error handler function with signature
+-- @tparam table options the options table with the following fields;
+-- @tparam[opt] string options.prefix the base path for all underlying routes.
+-- @tparam table options.routes route definitions to be handled by this router plugin instance.
+-- @tparam[opt] function options.errorHandler an optional error handler function with signature
 -- `message_to_log = function(request, response, errobj)`. The default handler will send a 500 error
 -- response, and return a stack trace for logging.
 -- @return the new plugin
----@param options table|nil
----@return Router
 function Router:new(options)
   options = options or {}
   local plugin = {}
@@ -315,9 +311,6 @@ end
 -- @tparam table request
 -- @tparam table response
 -- @treturn boolean stop whether request handling should stop
----@param request table
----@param response table
----@return boolean
 function Router:newRequestResponse(request, response)
 
   local errh = function(...) -- error function that injects request/response objects

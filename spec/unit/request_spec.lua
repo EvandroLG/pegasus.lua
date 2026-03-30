@@ -75,7 +75,7 @@ describe('require', function()
     )
 
     assert.are.same(
-      request.querystring, {
+      request:query(), {
         a = 'b',
         c = 'd',
         e = { '1', '2' },
